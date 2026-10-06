@@ -1,0 +1,94 @@
+// Project imports:
+import '../../imports.dart';
+
+class AnimatedClipRectWidget extends StatefulWidget {
+  @override
+  _AnimatedClipRectWidgetState createState() => _AnimatedClipRectWidgetState();
+
+  final Widget child;
+  final bool open;
+  final bool horizontalAnimation;
+  final bool verticalAnimation;
+  final Alignment alignment;
+  final Duration duration;
+  final Duration? reverseDuration;
+  final Curve curve;
+  final Curve? reverseCurve;
+
+  ///The behavior of the controller when [[AccessibilityFeatures.disableAnimations]] is true.
+  final AnimationBehavior animationBehavior;
+
+  const AnimatedClipRectWidget({
+    super.key,
+    required this.child,
+    required this.open,
+    this.horizontalAnimation = true,
+    this.verticalAnimation = true,
+    this.alignment = Alignment.center,
+    this.duration = const Duration(milliseconds: 500),
+    this.reverseDuration,
+    this.curve = Curves.linear,
+    this.reverseCurve,
+    this.animationBehavior = AnimationBehavior.normal,
+  });
+}
+
+class _AnimatedClipRectWidgetState extends State<AnimatedClipRectWidget>
+    with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation _animation;
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+        duration: widget.duration,
+        reverseDuration: widget.reverseDuration ?? widget.duration,
+        vsync: this,
+        value: widget.open ? 1.0 : 0.0,
+        animationBehavior: widget.animationBehavior);
+    _animation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: widget.curve,
+      reverseCurve: widget.reverseCurve ?? widget.curve,
+    ));
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    widget.open
+        ? _animationController.forward()
+        : _animationController.reverse();
+
+    return ClipRect(
+      child: RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: _animationController,
+          builder: (_, child) {
+            return Opacity(
+              opacity: _animation.value,
+              child: Align(
+                alignment: widget.alignment,
+                heightFactor: widget.verticalAnimation ? _animation.value : 1.0,
+                widthFactor:
+                    widget.horizontalAnimation ? _animation.value : 1.0,
+                child: child,
+              ),
+            );
+          },
+          // child: kIsWeb
+          //     ? (widget.open ? widget.child : SizedBox.shrink())
+          //     : widget.child,
+
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}

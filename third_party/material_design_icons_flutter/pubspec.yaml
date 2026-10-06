@@ -1,0 +1,26 @@
+# Vendored copy of material_design_icons_flutter 7.0.7296 (latest on pub.dev).
+#
+# Patch: lib/icon_map.dart used to build every entry via `class _MdiIconData
+# extends IconData`. Flutter 3.44 / Dart 3.12 marked IconData as a final class,
+# so that subclass no longer compiles. The subclass is gone and each entry now
+# constructs IconData directly, which keeps `iconMap` const.
+#
+# Drop this vendored copy once upstream publishes a version that compiles.
+name: material_design_icons_flutter
+description: The Material Design Icons designed by the community for Flutter
+homepage: https://github.com/ziofat/material_design_icons_flutter
+version: 7.0.7296
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  fonts:
+    - family: Material Design Icons
+      fonts:
+        - asset: lib/fonts/materialdesignicons-webfont.ttf
+
+environment:
+  sdk: ">=2.12.0 <4.0.0"
+  flutter: ">=0.1.2"

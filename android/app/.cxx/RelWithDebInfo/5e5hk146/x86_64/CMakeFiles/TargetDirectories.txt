@@ -1,0 +1,2 @@
+/Users/user1/Documents/work/renaigo/renaigo/android/app/.cxx/RelWithDebInfo/5e5hk146/x86_64/CMakeFiles/edit_cache.dir
+/Users/user1/Documents/work/renaigo/renaigo/android/app/.cxx/RelWithDebInfo/5e5hk146/x86_64/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,267 @@
+name: getithk
+description: "GetItHK app."
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Yenyi Fork
+  pull_to_refresh:
+    git:
+      url: https://github.com/yenyichau/flutter_pulltorefresh.git
+  intl_phone_number_input:
+    git:
+      url: https://github.com/yenyichau/intl_phone_number_input.git
+
+  # airkiss_dart:
+  #   git:
+  #     url: https://github.com/yenyichau/airkiss_dart.git
+
+  # Yew Seng Fork
+  qr_code_tools:
+    git:
+      url: https://github.com/leeysOceanLab/qr_code_tools.git
+
+  # State management plugin
+  provider: ^6.1.2
+
+  # Http plugin
+  dio: ^5.8.0+1
+
+  # Storage plugin
+  shared_preferences: ^2.2.2
+  flutter_secure_storage: ^10.0.0
+
+  # Firebase plugin
+  firebase_core: ^4.12.1
+  firebase_messaging: ^16.4.3
+
+  # Others plugin
+  flutter_inappwebview: ^6.1.5
+  flutter_launcher_icons: ^0.14.1
+  flutter_screenutil: ^5.9.0
+  page_transition: ^2.1.0
+  flutter_easyloading: ^4.0.2
+  extended_image: ^10.0.1
+  bot_toast: ^4.1.3
+  retry: ^3.1.2
+  global_configs: ^1.1.2
+  easy_localization: ^3.0.5
+  permission_handler: ^12.0.3
+  material_design_icons_flutter: ^7.0.7296
+  package_info_plus: ^9.0.0
+  flutter_exit_app: ^2.1.2
+  carousel_slider: ^5.0.0
+  marquee: ^2.2.3
+  flutter_staggered_grid_view: ^0.7.0
+  device_info_plus: ^12.2.0
+  device_marketing_names: ^2.0.0
+  calendar_date_picker2: ^3.0.0
+  flutter_local_notifications: ^22.0.1
+  sn_progress_dialog: ^2.0.0
+  universal_html: ^2.2.4
+  async: ^2.11.0
+  import_sorter: ^4.6.0
+  scroll_to_index: ^3.0.1
+  pin_code_fields: ^9.1.0
+  country_dial_code: ^1.2.0
+  backdrop: ^0.9.1
+  percent_indicator: ^4.2.4
+  flutter_sticky_header: ^0.8.0
+  flutter_table: ^1.1.0
+  pinput: ^6.0.0
+  flutter_pagination: ^0.0.8
+  gif: ^2.3.0
+  share_plus: ^12.0.1
+  screenshot: ^3.0.0
+  gal: ^2.3.0
+  video_player: ^2.8.3
+  chewie: ^1.7.0
+  visibility_detector: ^0.4.0+2
+  flutter_widget_from_html_core: ^0.17.0
+  crop_your_image: ^2.0.0
+  image_picker: ^1.2.3
+  keyboard_actions: ^5.0.1
+  flutter_animator: ^3.2.2
+  animated_toggle_switch: ^0.8.2
+  scrollview_observer: ^1.20.0
+  modal_bottom_sheet: ^3.0.0
+  fl_chart: ^1.0.0
+  url_strategy: ^0.3.0
+  flutter_native_splash: ^2.4.0
+  flutter_svg: ^2.0.10+1
+  geolocator: ^14.0.1
+  geolocator_android: ^5.0.1+1
+  geocoding: ^5.0.0
+  latlong2: ^0.10.1
+  flutter_map: ^8.3.2
+  location: ^10.0.2
+  google_maps_flutter: ^2.12.3
+  searchfield: ^2.0.0
+  uuid: ^4.5.1
+  logger: ^2.5.0
+  flutter_widget_from_html: ^0.17.1
+  flutter_keyboard_visibility: ^6.0.0
+  font_awesome_flutter: ^11.0.0
+  qr_flutter: ^4.1.0
+  # restart_app: ^1.2.1
+  dropdown_button2: ^3.0.0-beta.16
+  syncfusion_flutter_pdfviewer: ^33.2.13
+  photo_view: ^0.15.0
+  url_launcher: ^6.3.0
+  url_launcher_ios: ^6.3.1
+  super_tooltip: ^2.0.9
+  path: ^1.9.0
+  network_info_plus: ^7.0.0
+  syncfusion_flutter_sliders: ^33.2.15
+  onscreen_num_keyboard: ^1.0.4
+  syncfusion_flutter_signaturepad: ^33.2.15
+  file_picker: ^11.0.2
+  # dotted_line: ^3.2.3
+  heroine: ^0.7.0
+  path_provider: ^2.1.5
+  mime: ^2.0.0
+  intl: ^0.20.2
+  video_compress: ^3.1.4
+  fast_image_compress: ^0.0.3
+  flutter_rating_bar: ^4.0.1
+  material_symbols_icons: ^4.2805.1
+  upgrader: ^13.5.0
+  confetti: ^0.8.0
+  flutter_datetime_picker_plus: ^2.2.0
+  qr_code_scanner_plus: ^2.1.1
+  internet_connection_checker_plus: ^3.1.1
+  lottie: ^3.3.1
+  open_settings_plus: ^0.5.0
+  # ttlock_flutter: ^0.3.7
+  # qr_code_tools: ^0.1.0
+  # flutter_scankit: ^2.0.6
+  flutter_blue_plus: ^2.0.2
+  open_file: ^4.0.0
+  syncfusion_flutter_xlsio: ^33.2.13
+  draggable_float_widget: ^0.1.0
+  flutter_advanced_switch: ^3.1.0
+  flutter_animate: ^4.5.2
+  skeletonizer: ^2.1.0+1
+  table_calendar: ^3.2.0
+  smooth_page_indicator: ^2.0.1
+  fading_edge_scrollview: ^4.1.1
+  chat_bubbles: ^1.8.0
+  screen_brightness: ^2.1.7
+  pretty_qr_code: ^3.6.0
+  anydrawer: ^2.0.0
+  flutter_slidable: ^4.0.3
+  badges: ^3.1.2
+  ably_flutter: ^1.2.44
+  flutter_image_compress: ^2.4.0
+  cue: ^0.3.1
+  palette_generator_master: ^1.1.0
+  flutter_video_thumbnail_plus: ^1.0.6
+  syncfusion_flutter_core: ^33.2.15
+  syncfusion_flutter_datagrid: ^33.2.15
+
+dependency_overrides:
+  # camera_android: 0.10.6
+
+  # Upstream 7.0.7296 (latest on pub.dev) extends the now-final IconData class,
+  # which fails to compile on Flutter 3.44+. See third_party/*/pubspec.yaml.
+  material_design_icons_flutter:
+    path: third_party/material_design_icons_flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter_launcher_icons:
+  image_path: "assets/images/app_icon.png"
+  android: true
+  ios: true
+  # iOS icons can't have alpha. app_icon.png pre-flattened onto black — the
+  # tool's own remove_alpha_ios leaves a green fringe on the disc edge.
+  image_path_ios: "assets/launcher/app_icon_ios.png"
+  remove_alpha_ios: true
+  min_sdk_android: 21
+  # Android 8+ adaptive icon: the logo on black, inset to match app_icon.png
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/images/app_logo.png"
+  adaptive_icon_foreground_inset: 17
+  web:
+    generate: true
+    image_path: "assets/images/app_icon.png"
+
+# Native launch screen, same colour as the Flutter splash (AppColors.darkBackgroundColor)
+# so there is no white flash before the intro animation starts.
+flutter_native_splash:
+  color: "#0E0E0E"
+  android_12:
+    color: "#0E0E0E"
+    # Android 12+ always shows an icon on the system splash; a transparent one
+    # keeps it plain black until the Flutter splash takes over.
+    image: "assets/launcher/transparent.png"
+  web: false
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/cfg/
+    - assets/translations/
+    - assets/images/
+    - assets/lotties/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Poppins-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Poppins-Black.ttf
+          weight: 900
+    - family: CustomSvgIcon
+      fonts:
+        - asset: assets/fonts/CustomSvgIcon.ttf
+
+scripts:
+  # refresh
+  refresh: clear && flutter clean && flutter pub get
+  refresh-ios: cd ios && pod deintegrate && rm -fr Pods && rm Pod-file && rm -Rf Podfile.lock && rm -Rf .symlinks && rm -Rf Flutter/Flutter.framework && rm -Rf Flutter/Flutter.podspec && pod cache clean --all && pod install --repo-update
+  refresh-git: git fetch --prune && git branch --v | grep "\[gone\]" | awk '{print $1}' | xargs git branch -D
+
+  # build
+  build-web: clear && flutter clean && flutter pub get && flutter build web --web-renderer html --release
+  build-ipa: clear && flutter clean && flutter pub get && flutter build ios --release
+  build-appbundle: clear && flutter clean && flutter pub get && flutter build appbundle --release
+  build-apk: clear && flutter clean && flutter pub get && flutter build apk --release
+
+  # others
+  fix: dart fix --apply
+  pub-upgrade: flutter pub upgrade --major-versions
+  import-sort: flutter pub run import_sorter:main
+  create-launcher-icon: dart run flutter_launcher_icons:main
+  # Keys land in android/app/, where the signingConfigs in build.gradle expect
+  # them. Both overwrite any existing keystore — a lost release key means no
+  # more updates to a published app, so back the file up somewhere safe.
+  create-release-keystore: keytool -genkey -v -keystore android/app/release_key.keystore -storepass atasmobile -alias atasmobile -keypass atasmobile -keyalg RSA -keysize 2048 -validity 10000
+  create-debug-keystore: keytool -genkey -v -keystore android/app/debug_key.keystore -storepass atasmobile -alias atasmobile -keypass atasmobile -keyalg RSA -keysize 2048 -validity 10000

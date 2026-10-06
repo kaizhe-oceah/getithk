@@ -1,0 +1,1 @@
+/Users/jbyen/Desktop/flutter_projects/renaigo/build/app/intermediates/cxx/RelWithDebInfo/5pd2p371/obj/armeabi-v7a

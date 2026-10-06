@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/jbyen/Documents/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/jbyen/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/jbyen/Desktop/flutter_projects/renaigo/android/app/.cxx/RelWithDebInfo/5pd2p371/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/jbyen/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/jbyen/Desktop/flutter_projects/renaigo/android/app/.cxx/RelWithDebInfo/5pd2p371/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
