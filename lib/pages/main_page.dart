@@ -13,10 +13,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  bool bottomNavTitleEnabled = true;
-
-  double get _bottomSafeArea => ScreenUtil().bottomBarHeight * 0.5;
-
   @override
   void initState() {
     super.initState();
@@ -39,16 +35,11 @@ class _MainPageState extends State<MainPage> {
                 // Background
                 const AppBackground(),
 
-                // PageView for main navigation
+                // PageView for main navigation; runs under the floating nav
+                // bar so the glass has something to show through. Scrollable
+                // tab content should pad its bottom by
+                // LiquidGlassNavBar.contentBottomInset.
                 Positioned.fill(
-                  left: 0,
-                  top: 0,
-                  right: 0,
-                  bottom:
-                      (bottomNavTitleEnabled
-                          ? kBottomNavHeight
-                          : kBottomNavigationBarHeight) +
-                      _bottomSafeArea,
                   child: PageView(
                     physics: const NeverScrollableScrollPhysics(),
                     controller: _mainController.pageController,
@@ -57,63 +48,8 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
 
-                // Bottom navigation bar
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  // Outer gradient = top border, fades out along the corners
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(1, 1, 1, 0),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(24),
-                      ),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: const [0, 0.35],
-                        colors: [
-                          AppColors.bottomNavBorderColor,
-                          AppColors.bottomNavBorderColor.wOpacity(0),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.blackColor.wOpacity(0.4),
-                          blurRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: AppColors.bottomNavColor,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(23),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            height:
-                                (bottomNavTitleEnabled
-                                    ? kBottomNavHeight
-                                    : kBottomNavigationBarHeight) +
-                                _bottomSafeArea,
-                            child: Wrap(
-                              children: <Widget>[
-                                BottomNavigationWidget(
-                                  titleEnabled: bottomNavTitleEnabled,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                // Bottom navigation bar (positions itself)
+                const BottomNavigationWidget(),
               ],
             ),
           );

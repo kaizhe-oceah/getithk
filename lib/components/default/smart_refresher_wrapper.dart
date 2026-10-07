@@ -77,22 +77,22 @@ class SmartRefresherWrapper extends StatelessWidget {
               child: const CircularProgressIndicatorWidget(),
             ),
             failedIcon: Icon(
-              Icons.error,
+              Iconsax.danger_copy,
               color: iconColor ?? context.color.onSurface,
               size: 25.fw,
             ),
             completeIcon: Icon(
-              Icons.done,
+              Iconsax.tick_circle_copy,
               color: iconColor ?? context.color.onSurface,
               size: 25.fw,
             ),
             idleIcon: Icon(
-              Icons.arrow_downward,
+              Iconsax.arrow_down_copy,
               color: iconColor ?? context.color.onSurface,
               size: 25.fw,
             ),
             releaseIcon: Icon(
-              Icons.refresh,
+              Iconsax.refresh_copy,
               color: iconColor ?? context.color.onSurface,
               size: 25.fw,
             ),

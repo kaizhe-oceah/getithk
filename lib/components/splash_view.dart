@@ -13,21 +13,17 @@ import '../imports.dart';
 ///    shrinking to its normal size;
 /// 2. it then slides left as the app name slides in from the right, so the
 ///    pair ends up centred.
-///
-/// Outro, driven by [outro] (0 → 1): the logo fades out, then the app name.
 class SplashView extends StatelessWidget {
   final double progress;
-  final double outro;
 
-  const SplashView({this.progress = 1, this.outro = 0, super.key});
+  const SplashView({this.progress = 1, super.key});
 
   static const Duration introDuration = Duration(milliseconds: 1600);
-  static const Duration outroDuration = Duration(milliseconds: 700);
 
   static double get _logoSize => 72.fw;
-  static double get _nameHeight => _logoSize * 0.47;
-  static double get _nameWidth => _nameHeight * 3024 / 512;
-  static double get _gap => _logoSize * 0.14;
+  static double get _nameHeight => _logoSize * AppLogo.nameHeightRatio;
+  static double get _nameWidth => _nameHeight * AppLogo.nameAspectRatio;
+  static double get _gap => _logoSize * 0.14; // tighter than AppLogo
   static double get _width => _logoSize + _gap + _nameWidth;
 
   /// How big the logo starts before shrinking into place.
@@ -55,10 +51,6 @@ class SplashView extends StatelessWidget {
     0.85,
     curve: Curves.easeOutCubic,
   );
-
-  // outro
-  static const Curve _logoOutCurve = Interval(0.0, 0.55, curve: Curves.easeOut);
-  static const Curve _nameOutCurve = Interval(0.3, 0.85, curve: Curves.easeOut);
 
   /// Load both images up front so the first animated frame isn't blank.
   static Future<void> precache(BuildContext context) => Future.wait([
@@ -103,9 +95,7 @@ class SplashView extends StatelessWidget {
     final double shift = _shiftCurve.transform(progress);
     final double nameIn = _nameInCurve.transform(progress);
 
-    final double logoOpacity =
-        _fadeInCurve.transform(progress) * (1 - _logoOutCurve.transform(outro));
-    final double nameOpacity = nameIn * (1 - _nameOutCurve.transform(outro));
+    final double logoOpacity = _fadeInCurve.transform(progress);
 
     return SizedBox(
       width: _width,
@@ -120,7 +110,7 @@ class SplashView extends StatelessWidget {
             child: Transform.translate(
               offset: Offset((1 - nameIn) * 48.fw, 0),
               child: Opacity(
-                opacity: nameOpacity.clamp(0.0, 1.0),
+                opacity: nameIn.clamp(0.0, 1.0),
                 child: Image.asset(
                   AppAssets.appName,
                   width: _nameWidth,

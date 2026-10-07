@@ -287,12 +287,12 @@ Future<List<DateTime?>?> showCalendarDatePicker({
       currentDate: currentDate,
       firstDate: firstDate,
       lastMonthIcon: Icon(
-        Icons.keyboard_arrow_left,
+        Iconsax.arrow_left_2_copy,
         color: AppColors.blackColor,
         size: 16.r,
       ),
       nextMonthIcon: Icon(
-        Icons.keyboard_arrow_right_rounded,
+        Iconsax.arrow_right_3_copy,
         color: AppColors.blackColor,
         size: 16.r,
       ),

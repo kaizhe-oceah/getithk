@@ -15,17 +15,13 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
   final Upgrader upgrader = Upgrader(durationUntilAlertAgain: Duration.zero);
 
   late final AnimationController _introController = AnimationController(
     vsync: this,
     duration: SplashView.introDuration,
-  );
-
-  late final AnimationController _outroController = AnimationController(
-    vsync: this,
-    duration: SplashView.outroDuration,
   );
 
   @override
@@ -74,42 +70,32 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
         return;
       }
 
-      // fade out the logo, then the app name
-      await _outroController.forward();
-      if (!mounted) return;
-
       // access some services
       await 0.001.delay();
       NotificationService.shouldListenNotification();
       // NetworkService.shouldListenNetwork();
 
-      // check user auth
-      if (AppPreferences.getUser() == null) {
-        // await context.read<AppController>().getUser();
-        AppNavigator.pushReplacementNamedWithoutTransition(
-          context,
-          RouteName.loginPage,
-        );
-      } else {
+      // restore the saved user, if any
+      if (AppPreferences.getUser() != null) {
         await context.read<ThemeController>().loadTheme();
+        if (!mounted) return;
         context.read<AppController>().setUser = AppPreferences.getUser()!;
 
         // update api path name follow by role
         ApiService.updateApiBaseUrl(role: AppPreferences.getThemeRole());
-
-        // await context.read<AppController>().getUser();
-        AppNavigator.pushReplacementNamedWithoutTransition(
-          context,
-          RouteName.mainPage,
-        );
       }
+
+      // always open on the home tab, logged in or not
+      AppNavigator.pushReplacementNamedWithoutTransition(
+        context,
+        RouteName.mainPage,
+      );
     });
   }
 
   @override
   void dispose() {
     _introController.dispose();
-    _outroController.dispose();
     super.dispose();
   }
 
@@ -119,11 +105,8 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       backgroundColor: AppColors.darkBackgroundColor,
       forceOverlayStyle: SystemUiOverlayStyle.light,
       child: AnimatedBuilder(
-        animation: Listenable.merge([_introController, _outroController]),
-        builder: (context, _) => SplashView(
-          progress: _introController.value,
-          outro: _outroController.value,
-        ),
+        animation: _introController,
+        builder: (context, _) => SplashView(progress: _introController.value),
       ),
     );
   }

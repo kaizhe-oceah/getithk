@@ -69,6 +69,8 @@ class DialogSuccessFailureWidget extends StatelessWidget {
                           ),
                           child:
                               icons ??
+                              // Material on purpose: Iconsax has no plain ✓/✕,
+                              // and its circled ones would double this circle
                               Icon(
                                 isSuccess! ? Icons.check : Icons.close,
                                 size: 40,
@@ -156,11 +158,11 @@ class DialogSuccessFailureWidget extends StatelessWidget {
                       () {
                         AppNavigator.pop(context);
                       },
-                  child: SizedBox(
+                  child: const SizedBox(
                     width: 40,
                     height: 40,
                     child: Icon(
-                      MdiIcons.close,
+                      Iconsax.close_circle_copy,
                       color: AppColors.textLightColor,
                       size: 30,
                     ),

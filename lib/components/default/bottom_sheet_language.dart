@@ -101,7 +101,7 @@ class BottomSheetLanguage extends StatelessWidget {
                           ),
                           if (isSelected)
                             Icon(
-                              MdiIcons.check,
+                              Iconsax.tick_circle,
                               color: context.color.primary,
                               size: 20.fw,
                             ),

@@ -61,6 +61,14 @@ class AppColors {
   static const Color darkHintColor = Color.fromRGBO(138, 138, 138, 1);
   static const Color darkAppBarColor = Color(0xFF161616);
 
+  // login page
+  static const Color loginTextColor = Color(0xFF101725);
+  static const Color loginHintColor = Color(0xFF8497AE);
+  static const Color loginFieldColor = Color(0xFFEEF3F8);
+  static const Color loginDividerColor = Color(0xFFDDE5ED);
+  static const Color facebookColor = Color(0xFF006DE9);
+  static const Color googleColor = Color(0xFFD73836);
+
   // gradient
   static LinearGradient get greyTransparentGradientColor => LinearGradient(
     colors: [Colors.black26.wOpacity(0.45), Colors.transparent],

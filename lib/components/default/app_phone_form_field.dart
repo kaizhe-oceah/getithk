@@ -224,7 +224,7 @@ class _AppPhoneFormFieldState extends State<AppPhoneFormField> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8).r,
             child: Icon(
-              MdiIcons.closeCircle,
+              Iconsax.close_circle,
               size: 18.r,
               color: AppColors.greyColor,
             ),

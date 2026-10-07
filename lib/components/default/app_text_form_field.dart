@@ -240,7 +240,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8).r,
             child: Icon(
-              MdiIcons.closeCircle,
+              Iconsax.close_circle,
               size: 18.r,
               color: AppColors.greyColor,
             ),
@@ -259,7 +259,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8).r,
             child: Icon(
-              obscureText! ? Icons.visibility_off : Icons.visibility,
+              obscureText! ? Iconsax.eye_slash_copy : Iconsax.eye_copy,
               color:
                   (obscureText!
                       ? widget.obscureTextDisabledColor

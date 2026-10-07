@@ -37,6 +37,8 @@ class PrimaryCheckBox extends StatelessWidget {
           child: SizedBox(
             width: 18.0,
             height: 18.0,
+            // Material on purpose: Iconsax has no plain ✓, and its boxed one
+            // would double the painted box
             child: value
                 ? const Icon(
                     Icons.check,

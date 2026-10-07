@@ -82,10 +82,10 @@
             </intent-filter>
         </service>
 
-        <!-- Disable impeller -->
+        <!-- Impeller is required by the liquid glass bottom nav -->
         <meta-data
             android:name="io.flutter.embedding.android.EnableImpeller"
-            android:value="false" />
+            android:value="true" />
 
         <meta-data
             android:name="flutterEmbedding"

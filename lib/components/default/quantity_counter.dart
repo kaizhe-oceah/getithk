@@ -166,7 +166,7 @@ class _QuantityCounterState extends State<QuantityCounter> {
                 onPressed: decrement,
                 icon: widget.decrementIcon ??
                     Icon(
-                      Icons.remove,
+                      Iconsax.minus_copy,
                       color: widget.textColor,
                     ),
               ),
@@ -184,7 +184,7 @@ class _QuantityCounterState extends State<QuantityCounter> {
                 onPressed: increment,
                 icon: widget.incrementIcon ??
                     Icon(
-                      Icons.add,
+                      Iconsax.add_copy,
                       color: widget.textColor,
                     ),
               ),

@@ -14,7 +14,7 @@ void copyToClipboard({String? message, required String contentToCopy}) {
   HapticFeedback.lightImpact();
   ToastHelper.showToast(
     message ?? NavigationService.context.tr(AppStrings.copied),
-    icon: Icons.check_circle,
+    icon: Iconsax.tick_circle,
     align: const Alignment(0, 0.85),
   );
   Clipboard.setData(ClipboardData(text: contentToCopy));

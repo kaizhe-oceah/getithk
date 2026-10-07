@@ -62,7 +62,7 @@ class ToastHelper {
                   child: Padding(
                     padding: EdgeInsets.only(left: spacing.fw),
                     child: Icon(
-                      Icons.close,
+                      Iconsax.close_circle_copy,
                       size: iconSize.fw,
                       color: suffixIconColor ?? Colors.white,
                     ),

@@ -311,7 +311,10 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                                 iconStyleData:
                                     widget.iconStyleData ??
                                     const IconStyleData(
-                                      icon: Icon(Icons.arrow_drop_down),
+                                      icon: Icon(
+                                        Iconsax.arrow_down_1_copy,
+                                        size: 18,
+                                      ),
                                       iconEnabledColor: AppColors.greyColor,
                                     ),
                               ),
@@ -380,7 +383,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                                                         item,
                                                       ),
                                                   child: Icon(
-                                                    Icons.close,
+                                                    Iconsax.close_circle,
                                                     size: 16.r,
                                                     color: AppColors.whiteColor,
                                                   ),

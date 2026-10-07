@@ -4,9 +4,12 @@ import "package:page_transition/page_transition.dart";
 
 // Project imports:
 import "../imports.dart";
+import "../pages/cart_page.dart";
+import "../pages/favourite_page.dart";
+import "../pages/home_page.dart";
 import "../pages/login_page.dart";
 import "../pages/main_page.dart";
-import "../pages/register_page.dart";
+import "../pages/person_page.dart";
 import "../pages/splash_page.dart";
 
 class RouteGenerator {
@@ -47,7 +50,19 @@ class RouteGenerator {
         return const LoginPage();
 
       case RouteName.registerPage:
-        return const RegisterPage();
+        return const LoginPage(isRegister: true);
+
+      case RouteName.homePage:
+        return const HomePage();
+
+      case RouteName.cartPage:
+        return const CartPage();
+
+      case RouteName.favouritePage:
+        return const FavouritePage();
+
+      case RouteName.personPage:
+        return const PersonPage();
 
       default:
         return null;

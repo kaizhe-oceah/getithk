@@ -1,12 +1,11 @@
-// Project imports:
-import '../imports.dart';
-
 // TRIAL ACCOUNTS
 const kTrialAccounts = <String>{};
 
 // BOTTOM NAV
 const int kBottomNavHome = 0;
-const int kBottomNavProfile = 1;
+const int kBottomNavCart = 1;
+const int kBottomNavFavourite = 2;
+const int kBottomNavPerson = 3;
 
 // FONT SIZE
 const double kFont8 = 8;
@@ -29,9 +28,3 @@ const double kFont26 = 26;
 // PADDING
 const double kHorizontalPadding = 15.0;
 const double kDialogPadding = 35.0;
-
-// Bottom Nav Height
-const double kBottomNavHeight =
-    kBottomNavigationBarHeight +
-    (kBottomNavigationBarHeight * 0.5) +
-    (kIsWeb ? 0 : 0);

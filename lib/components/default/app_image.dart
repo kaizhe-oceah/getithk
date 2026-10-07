@@ -31,6 +31,10 @@ class AppImage extends StatefulWidget {
   /// Whether to show video thumbnail (true) or black placeholder (false)
   final bool isThumbnail;
 
+  /// Width in physical pixels to decode the image at. Set it for big images
+  /// shown small, so they aren't held in memory at full size.
+  final int? cacheWidth;
+
   const AppImage({
     super.key,
     this.name,
@@ -47,6 +51,7 @@ class AppImage extends StatefulWidget {
     this.viewEnabled = false,
     this.fallbackEnabled = true,
     this.isThumbnail = true,
+    this.cacheWidth,
   });
 
   @override
@@ -57,7 +62,7 @@ class _AppImageState extends State<AppImage> {
   late Future<String?> thumbnailFuture;
 
   String get _safeName => (widget.name?.trim().isEmpty ?? true)
-      ? AppAssets.logo
+      ? AppAssets.appLogo
       : widget.name!.trim();
 
   /// Common video container extensions across Android & iOS. HEVC (H.265)
@@ -166,7 +171,7 @@ class _AppImageState extends State<AppImage> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          MdiIcons.play,
+                          Iconsax.play,
                           color: AppColors.whiteColor,
                           size: height * 0.25,
                         ),
@@ -279,6 +284,7 @@ class _AppImageState extends State<AppImage> {
           fit: widget.fit ?? BoxFit.cover,
           color: widget.color,
           gaplessPlayback: true,
+          cacheWidth: widget.cacheWidth,
         ),
       );
     }
@@ -330,6 +336,7 @@ class _AppImageState extends State<AppImage> {
         color: widget.color,
         fit: widget.fit ?? BoxFit.cover,
         cache: true,
+        cacheWidth: widget.cacheWidth,
         borderRadius: _radius,
         shape: BoxShape.rectangle,
         loadStateChanged: (ExtendedImageState state) {
@@ -358,6 +365,7 @@ class _AppImageState extends State<AppImage> {
         color: widget.color,
         fit: widget.fit ?? BoxFit.cover,
         gaplessPlayback: true,
+        cacheWidth: widget.cacheWidth,
       ),
     );
   }
@@ -408,7 +416,10 @@ class _AppImageState extends State<AppImage> {
             top: MediaQuery.of(dialogContext).padding.top + 8,
             right: 8,
             child: IconButton(
-              icon: const Icon(Icons.close, color: AppColors.whiteColor),
+              icon: const Icon(
+                Iconsax.close_circle_copy,
+                color: AppColors.whiteColor,
+              ),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
           ),
@@ -448,7 +459,7 @@ class _AppImageState extends State<AppImage> {
       ),
       child: widget.fallbackEnabled
           ? AppImage(
-              name: AppAssets.logo,
+              name: AppAssets.appLogo,
               fit: BoxFit.contain,
               color: AppColors.blackColor.wOpacity(0.2),
             )

@@ -1,13 +1,15 @@
 class AppStrings {
+  static const String register = 'register';
+  static const String loginWithEmail = 'login_with_email';
+  static const String loginWithPhone = 'login_with_phone';
+  static const String email = 'email';
+  static const String enterEmail = 'enter_email';
+  static const String phoneNumber = 'phone_number';
+  static const String enterPhoneNumber = 'enter_phone_number';
+  static const String phoneNumberRequired = 'phone_number_required';
   static const String comingSoon = 'coming_soon';
-  static const String loginDescription = 'login_description';
-  static const String loginIdentifier = 'login_identifier';
-  static const String enterLoginIdentifier = 'enter_login_identifier';
   static const String forgotPassword = 'forgot_password';
   static const String passwordResetUnavailable = 'password_reset_unavailable';
-  static const String orLoginWith = 'or_login_with';
-  static const String dontHaveAnAccount = 'dont_have_an_account';
-  static const String registerNow = 'register_now';
   static const String loginWithProvider = 'login_with_provider';
   static const String socialLoginUnavailable = 'social_login_unavailable';
   static const String username = 'username';
@@ -22,15 +24,10 @@ class AppStrings {
   static const String passwordMinimumLength = 'password_minimum_length';
   static const String confirmPasswordRequired = 'confirm_password_required';
   static const String passwordsDoNotMatch = 'passwords_do_not_match';
-  static const String wechat = 'wechat';
-  static const String alreadyHaveAnAccount = 'already_have_an_account';
-  static const String loginNow = 'login_now';
-  static const String orSignUpWith = 'or_sign_up_with';
-  static const String signUpWithProvider = 'sign_up_with_provider';
-  static const String socialSignUpUnavailable = 'social_sign_up_unavailable';
   static const String backOnline = 'back_online';
   static const String cancel = 'cancel';
   static const String cantBeEmpty = 'cant_be_empty';
+  static const String cart = 'cart';
   static const String close = 'close';
   static const String confirmNewPasswordEmpty = 'confirm_new_password_empty';
   static const String confirmNewPasswordLengthShouldMoreThan6 =
@@ -38,9 +35,9 @@ class AppStrings {
   static const String confirmPasswordIsNotSameAsNewPassword =
       'confirm_password_is_not_same_as_new_password';
   static const String copied = 'copied';
-  static const String createAccount = 'create_account';
   static const String emailInvalid = 'email_invalid';
   static const String emailRequired = 'email_required';
+  static const String favourite = 'favourite';
   static const String goToSettings = 'go_to_settings';
   static const String guest = 'guest';
   static const String home = 'home';
@@ -77,8 +74,6 @@ class AppStrings {
       'password_length_should_more_than_6';
   static const String paymentSuccessful = 'payment_successful';
   static const String permissionDenied = 'permission_denied';
-  static const String pleaseFillInTheInformationBelowToCompleteRegistration =
-      'please_fill_in_the_information_below_to_complete_registration';
   static const String pleaseSelectAnItem = 'please_select_an_item';
   static const String pressBackAgainToExitApplicaton =
       'press_back_again_to_exit_application';
@@ -99,6 +94,5 @@ class AppStrings {
   static const String somethingWentWrong = 'something_went_wrong';
   static const String update = 'update';
   static const String view = 'view';
-  static const String welcomeBack = 'welcome_back';
   static const String yes = 'yes';
 }

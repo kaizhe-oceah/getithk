@@ -142,11 +142,11 @@ class DialogTextFormFieldWidget extends StatelessWidget {
                       () {
                         AppNavigator.pop(context);
                       },
-                  child: SizedBox(
+                  child: const SizedBox(
                     width: 40,
                     height: 40,
                     child: Icon(
-                      MdiIcons.close,
+                      Iconsax.close_circle_copy,
                       color: AppColors.textLightColor,
                       size: 30,
                     ),

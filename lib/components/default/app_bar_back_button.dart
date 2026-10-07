@@ -1,6 +1,3 @@
-// Package imports:
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 // Project imports:
 import '../../imports.dart';
 
@@ -37,7 +34,7 @@ class AppBarBackButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(radius ?? 0.0).r,
         ),
         child: Icon(
-          icon ?? FontAwesomeIcons.arrowLeft.data,
+          icon ?? Iconsax.arrow_left_copy,
           color: iconColor ?? context.color.onSurface,
           size: kToolbarHeight * 0.35,
         ),

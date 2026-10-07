@@ -1,93 +1,81 @@
+// Dart imports:
+import 'dart:ui' as ui;
+
+// Package imports:
+import 'package:liquid_glass_bottom_nav/liquid_glass_bottom_nav.dart';
+
 // Project imports:
 import '../../controllers/main_controller.dart';
 import '../../imports.dart';
-import '../../models/bottom_nav_model.dart';
 
 class BottomNavigationWidget extends StatelessWidget {
-  final bool titleEnabled;
-
-  const BottomNavigationWidget({this.titleEnabled = false, super.key});
+  const BottomNavigationWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<MainController>(
       builder: (context, mainController, _) {
         final navItems = mainController.navItems;
-        final currentTab = mainController.currentTab;
+        final int selectedIndex = navItems
+            .indexWhere((e) => e.id == mainController.currentTab)
+            .clamp(0, navItems.length - 1);
 
-        return SizedBox(
-          height: titleEnabled ? kBottomNavHeight : kBottomNavigationBarHeight,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(
-              navItems.length,
-              (index) => Expanded(
-                child: _buildBottomBarItem(
-                  context: context,
-                  item: navItems[index],
-                  currentTab: currentTab,
-                  mainController: mainController,
-                ),
+        // creating the glass shader throws when Impeller is off
+        final bool glassSupported = ui.ImageFilter.isShaderFilterSupported;
+
+        // white glass over light pages, smoked glass over dark ones
+        final bool isDarkBackground =
+            ThemeData.estimateBrightnessForColor(
+              navItems[selectedIndex].backgroundColor,
+            ) ==
+            Brightness.dark;
+
+        final Widget navBar = LiquidGlassNavBar(
+          impellerSupported: glassSupported,
+          selectedIndex: selectedIndex,
+          activeColor: context.color.primary,
+          inactiveColor: isDarkBackground
+              ? AppColors.whiteColor
+              : AppColors.blackColor,
+          iconSize: 28,
+          labelStyle: const TextStyle(fontSize: kFont11),
+          showShadow: true,
+          items: [
+            for (int i = 0; i < navItems.length; i++)
+              LiquidGlassNavItem(
+                id: navItems[i].id.toString(),
+                label: context.tr(navItems[i].title ?? ''),
+                icon: i == selectedIndex
+                    ? navItems[i].iconOn
+                    : navItems[i].iconOff,
               ),
-            ),
+          ],
+          onTap: (index) {
+            HapticFeedback.lightImpact();
+
+            final int tab = navItems[index].id;
+            if (mainController.currentTab == tab) return;
+            mainController.callbackSelectTab(tab);
+          },
+        );
+
+        final ThemeData theme = Theme.of(context);
+
+        return Theme(
+          data: theme.copyWith(
+            colorScheme: isDarkBackground
+                ? theme.colorScheme.copyWith(
+                    brightness: Brightness.dark,
+                    surfaceContainerHighest: AppColors.bottomNavColor,
+                    outlineVariant: AppColors.bottomNavBorderColor,
+                  )
+                : theme.colorScheme.copyWith(brightness: Brightness.light),
           ),
+          child: glassSupported
+              ? navBar
+              : Positioned(left: 0, right: 0, bottom: 0, child: navBar),
         );
       },
-    );
-  }
-
-  Widget _buildBottomBarItem({
-    required BuildContext context,
-    required BottomNavModel item,
-    required int currentTab,
-    required MainController mainController,
-  }) {
-    const double iconSize = 24;
-    final isSelected = currentTab == item.id;
-    final Color color = isSelected
-        ? context.color.primary
-        : AppColors.whiteColor;
-
-    return InkWellWrapper(
-      onTap: () {
-        HapticFeedback.lightImpact();
-
-        if (currentTab == item.id) return;
-        mainController.callbackSelectTab(item.id);
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            isSelected ? item.iconOn : item.iconOff,
-            size: iconSize,
-            color: color,
-          ),
-          if (titleEnabled && (item.title?.isNotEmpty ?? false)) ...[
-            5.heightSpace,
-            AppText(
-              context.tr(item.title!),
-              color: color,
-              fontSize: kFont12,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              height: 1,
-              textAlign: TextAlign.center,
-              isOverflow: true,
-            ),
-          ],
-          6.heightSpace,
-
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: 3,
-            width: isSelected ? 18 : 0,
-            decoration: BoxDecoration(
-              color: context.color.primary,
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

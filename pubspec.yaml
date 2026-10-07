@@ -165,6 +165,8 @@ dependencies:
   flutter_video_thumbnail_plus: ^1.0.6
   syncfusion_flutter_core: ^33.2.15
   syncfusion_flutter_datagrid: ^33.2.15
+  liquid_glass_bottom_nav: ^0.0.14
+  iconsax_flutter: ^1.0.1
 
 dependency_overrides:
   # camera_android: 0.10.6
@@ -173,6 +175,11 @@ dependency_overrides:
   # which fails to compile on Flutter 3.44+. See third_party/*/pubspec.yaml.
   material_design_icons_flutter:
     path: third_party/material_design_icons_flutter
+
+  # Upstream 0.0.14 hardcodes the nav bar's shadow; the vendored copy adds a
+  # showShadow flag. See third_party/*/pubspec.yaml.
+  liquid_glass_bottom_nav:
+    path: third_party/liquid_glass_bottom_nav
 
 dev_dependencies:
   flutter_test:
