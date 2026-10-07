@@ -98,6 +98,16 @@ class AppColors {
     );
   }
 
+  // profile
+  static const LinearGradient profileHeaderGradientColor = LinearGradient(
+    colors: [Color(0xFF2563EB), Color(0xFF4F8DF5)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  static const Color levelBadgeColor = Color(0xFFF5A623);
+  static const Color coinColor = Color(0xFFF6B100);
+  static const Color profileMenuIconColor = Color(0xFF3A3A3A);
+
   // shadow
   static final List<BoxShadow> shadowDefault = [
     BoxShadow(

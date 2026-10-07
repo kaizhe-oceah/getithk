@@ -8,17 +8,12 @@ import '../imports.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  static const Color backgroundColor = AppColors.whiteColor;
-
-  /// banner.png's own width / height.
-  static const double _bannerAspectRatio = 6250 / 3334;
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => HomeController(),
       child: AppScaffold.basic(
-        backgroundColor: backgroundColor,
+        backgroundColor: AppColors.whiteColor,
         forceOverlayStyle: SystemUiOverlayStyle.dark,
         headerWidgets: [_appBar(context)],
         child: Consumer<HomeController>(
@@ -30,33 +25,23 @@ class HomePage extends StatelessWidget {
 
   // Banner list; pull down to refresh
   Widget _banners(BuildContext context, HomeController controller) {
-    // decode at screen width instead of the asset's full 6250px
-    final int cacheWidth =
-        (MediaQuery.sizeOf(context).width *
-                MediaQuery.devicePixelRatioOf(context))
-            .round();
-
     return SmartRefresherWrapper(
       controller: controller.refreshController,
       onRefresh: controller.onRefresh,
       child: ListView.separated(
         padding: EdgeInsets.fromLTRB(
           kHorizontalPadding.r,
+          10.r,
           kHorizontalPadding.r,
-          kHorizontalPadding.r,
-          // the last banner can scroll clear of the floating nav bar
           LiquidGlassNavBar.contentBottomInset +
               MediaQuery.paddingOf(context).bottom,
         ),
         itemCount: controller.banners.length,
         separatorBuilder: (_, _) => 12.heightSpace,
-        itemBuilder: (context, index) => AspectRatio(
-          aspectRatio: _bannerAspectRatio,
-          child: AppImage(
-            name: controller.banners[index],
-            radius: 12,
-            cacheWidth: cacheWidth,
-          ),
+        itemBuilder: (context, index) => AppImage(
+          name: controller.banners[index],
+          radius: 12,
+          fit: BoxFit.cover,
         ),
       ),
     );
@@ -70,32 +55,89 @@ class HomePage extends StatelessWidget {
       backgroundColor: AppColors.whiteColor,
       title: AppLogo(height: 28.r),
       actions: [
-        if (!isLoggedIn)
-          Padding(
-            padding: const EdgeInsets.only(right: 16).r,
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _authButton(
-                    context,
-                    text: context.tr(AppStrings.login),
-                    outlined: true,
-                    onTap: () =>
-                        AppNavigator.pushNamed(context, RouteName.loginPage),
+        Padding(
+          padding: const EdgeInsets.only(right: 12).r,
+          child: Center(
+            child: isLoggedIn
+                ? _pointsPill(context)
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _authButton(
+                        context,
+                        text: context.tr(AppStrings.login),
+                        outlined: true,
+                        onTap: () => AppNavigator.pushNamed(
+                          context,
+                          RouteName.loginPage,
+                        ),
+                      ),
+                      8.widthSpace,
+                      _authButton(
+                        context,
+                        text: context.tr(AppStrings.register),
+                        onTap: () => AppNavigator.pushNamed(
+                          context,
+                          RouteName.registerPage,
+                        ),
+                      ),
+                    ],
                   ),
-                  8.widthSpace,
-                  _authButton(
-                    context,
-                    text: context.tr(AppStrings.register),
-                    onTap: () =>
-                        AppNavigator.pushNamed(context, RouteName.registerPage),
-                  ),
-                ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _pointsPill(BuildContext context) {
+    final Color primary = context.color.primary;
+    final double points = context.watch<AppController>().points;
+    final double coinSize = 22.r;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4).r,
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(color: primary),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppImage(
+            name: AppAssets.coins,
+            width: coinSize,
+            height: coinSize,
+            fit: BoxFit.contain,
+            cacheWidth: (coinSize * MediaQuery.devicePixelRatioOf(context))
+                .round(),
+          ),
+          4.widthSpace,
+          AppText(
+            '${NumberFormat('#,##0.00').format(points)} pts',
+            fontSize: kFont13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.loginTextColor,
+          ),
+          6.widthSpace,
+
+          // top up
+          InkWellWrapper(
+            onTap: () =>
+                ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
+            child: Container(
+              width: 20.r,
+              height: 20.r,
+              decoration: BoxDecoration(color: primary, shape: BoxShape.circle),
+              child: Icon(
+                Iconsax.add_copy,
+                size: 14.r,
+                color: AppColors.whiteColor,
               ),
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 

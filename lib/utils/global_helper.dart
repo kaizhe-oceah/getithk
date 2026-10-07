@@ -183,3 +183,14 @@ void unfocusKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 }
+
+/// The local part of a phone number, for the API's `phone_no` (sent with
+/// [kDefaultPhoneCode]): "+60 13-228 7524", "60132287524" and "0132287524"
+/// all become "132287524".
+String localPhoneNo(String input) {
+  final String phone = input.replaceAll(RegExp(r'[^0-9]'), '');
+
+  if (phone.startsWith("60")) return phone.substring(2);
+  if (phone.startsWith("0")) return phone.substring(1);
+  return phone;
+}

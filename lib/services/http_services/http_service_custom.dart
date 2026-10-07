@@ -18,25 +18,25 @@ class HttpServiceCustom {
     String errorMessage = context.tr(AppStrings.somethingWentWrong);
 
     if (error is SocketException) {
-      errorMessage = 'No internet connection.';
+      errorMessage = context.tr(AppStrings.noInternetConnection);
     } else if (error is HttpException) {
-      errorMessage = 'HTTP error occurred.';
+      errorMessage = context.tr(AppStrings.httpError);
     } else if (error is FormatException) {
       errorMessage = error.message.toString();
     } else if (error is TimeoutException) {
-      errorMessage = 'Request timed out.';
+      errorMessage = context.tr(AppStrings.requestTimedOut);
     } else if (error is DioException) {
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.receiveTimeout:
         case DioExceptionType.sendTimeout:
-          errorMessage = 'Request timed out.';
+          errorMessage = context.tr(AppStrings.requestTimedOut);
           break;
         case DioExceptionType.badResponse:
           errorMessage = _extractErrorMessage(error.response);
           break;
         case DioExceptionType.unknown:
-          errorMessage = 'Unknown error occurred.';
+          errorMessage = context.tr(AppStrings.unknownError);
           break;
         default:
           errorMessage = error.message ?? errorMessage;
@@ -47,7 +47,7 @@ class HttpServiceCustom {
       onError(errorMessage);
     } else {
       DialogHelper().showNormalDialog(
-        title: AppStrings.oops,
+        title: context.tr(AppStrings.oops),
         description: errorMessage,
       );
     }
@@ -58,31 +58,38 @@ class HttpServiceCustom {
     required Function(ApiResponseModel) onSuccess,
     Function(String)? onError,
     bool hideLoader = true,
+    bool withBearer = false,
   }) {
     if (hideLoader) Loader.hide();
 
     try {
       final responseModel = ApiResponseModel.fromJson(response.data);
+      final errorMessage = responseModel.message ??
+          context.tr(AppStrings.somethingWentWrong);
 
       switch (response.statusCode) {
         case 200:
         case 201:
         case 204:
-          onSuccess(responseModel);
-          break;
-        case 400:
-        case 422:
-          final errorMessage = responseModel.message ??
-              context.tr(AppStrings.somethingWentWrong);
-          _handleErrorResponse(errorMessage, onError);
+          // `"status": false` is a failure even with a 2xx code
+          if (responseModel.status == kFail) {
+            _handleErrorResponse(errorMessage, onError);
+          } else {
+            onSuccess(responseModel);
+          }
           break;
         case 401:
         case 403:
-          _handleSessionExpired();
+          // Only a signed-in request means the session expired. Without a
+          // token (e.g. login) it's wrong credentials: show the message and
+          // stay on the page.
+          if (withBearer) {
+            _handleSessionExpired();
+          } else {
+            _handleErrorResponse(errorMessage, onError);
+          }
           break;
         default:
-          final errorMessage = responseModel.message ??
-              context.tr(AppStrings.somethingWentWrong);
           _handleErrorResponse(errorMessage, onError);
       }
     } catch (e) {
@@ -110,7 +117,7 @@ class HttpServiceCustom {
       onError(errorMessage);
     } else {
       DialogHelper().showNormalDialog(
-        title: AppStrings.oops,
+        title: context.tr(AppStrings.oops),
         description: errorMessage,
       );
     }
@@ -119,7 +126,7 @@ class HttpServiceCustom {
   static void _handleSessionExpired() {
     if (!_isLoggedOutDueToSession) {
       _isLoggedOutDueToSession = true;
-      ToastHelper.showToast("Session expired");
+      ToastHelper.showToast(context.tr(AppStrings.sessionExpired));
       NavigationService.context.read<AppController>().logout();
     }
   }

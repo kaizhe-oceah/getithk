@@ -65,10 +65,11 @@ Future<void> main() async {
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale("en"), Locale("zh"), Locale("ms")],
+      // Traditional Chinese (zh-TW.json) is the default language
+      supportedLocales: const [Locale("zh", "TW"), Locale("en"), Locale("ms")],
       path: "assets/translations",
-      startLocale: const Locale("en"),
-      fallbackLocale: const Locale("en"),
+      startLocale: const Locale("zh", "TW"),
+      fallbackLocale: const Locale("zh", "TW"),
       child: MultiProvider(
         providers: [
           // global controller

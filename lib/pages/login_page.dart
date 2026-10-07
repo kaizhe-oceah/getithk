@@ -1,13 +1,22 @@
+// Dart imports:
+import 'dart:math' as math;
+
+// Package imports:
+import 'package:liquid_glass_bottom_nav/liquid_glass_bottom_nav.dart';
+
 // Project imports:
 import '../controllers/login_controller.dart';
 import '../controllers/register_controller.dart';
 import '../imports.dart';
 
 class LoginPage extends StatefulWidget {
-  /// Opens on the 註冊 tab instead of 登入.
   final bool isRegister;
 
-  const LoginPage({this.isRegister = false, super.key});
+  /// Shown as the profile tab (while logged out) instead of as its own
+  /// route: no back button, and room for the floating nav bar.
+  final bool isTab;
+
+  const LoginPage({this.isRegister = false, this.isTab = false, super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -54,53 +63,50 @@ class _LoginPageState extends State<LoginPage>
         backgroundColor: AppColors.whiteColor,
         forceOverlayStyle: SystemUiOverlayStyle.dark,
         headerWidgets: [
-          // back button only
+          // back button, logo centred
           AppBarWidget(
             backgroundColor: AppColors.whiteColor,
             isDivider: false,
-            leading: AppBarBackButton(onTap: _onBack),
+            leading: widget.isTab ? null : AppBarBackButton(onTap: _onBack),
+            title: AppLogo(height: 32.r),
           ),
         ],
-        child: SafeArea(
-          top: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20).r,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(child: AppLogo(height: 36.r)),
-                    kHorizontalPadding.heightSpace,
-                    _tabs(),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _tabPage(
-                      Consumer<LoginController>(
-                        builder: (context, controller, _) =>
-                            controller.method == null
-                            ? _loginOptions(controller)
-                            : _loginForm(controller),
-                      ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20).r,
+              child: _tabs(),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _tabPage(
+                    Consumer<LoginController>(
+                      builder: (context, controller, _) =>
+                          controller.method == null
+                          ? _loginOptions(controller)
+                          : _loginForm(controller),
                     ),
-                    _tabPage(_registerForm()),
-                  ],
-                ),
+                  ),
+                  _tabPage(
+                    Consumer<RegisterController>(
+                      builder: (context, controller, _) =>
+                          controller.type == null
+                          ? _registerOptions(controller)
+                          : _registerForm(controller),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // 登入 / 註冊 tabs; the underline and colours follow the swipe
   Widget _tabs() {
     final List<String> titles = [
       context.tr(AppStrings.login),
@@ -138,7 +144,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  /// [selected] goes from 0 to 1 as this tab swipes into view.
   Widget _tab(String title, {required int index, required double selected}) {
     return Expanded(
       child: InkWellWrapper(
@@ -147,7 +152,7 @@ class _LoginPageState extends State<LoginPage>
           padding: EdgeInsets.symmetric(vertical: 12.fh),
           child: AppText(
             title,
-            fontSize: kFont16,
+            fontSize: kFont15,
             fontWeight: FontWeight.w600,
             color: Color.lerp(
               AppColors.loginHintColor,
@@ -163,7 +168,16 @@ class _LoginPageState extends State<LoginPage>
 
   Widget _tabPage(Widget child) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16).r,
+      padding: EdgeInsets.fromLTRB(
+        20.r,
+        0,
+        20.r,
+        // as a tab, the last button can scroll clear of the floating nav bar
+        widget.isTab
+            ? LiquidGlassNavBar.contentBottomInset +
+                  MediaQuery.paddingOf(context).bottom
+            : 16.r,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [kHorizontalPadding.heightSpace, child],
@@ -172,44 +186,73 @@ class _LoginPageState extends State<LoginPage>
   }
 
   Widget _loginOptions(LoginController controller) {
+    return _methodOptions(
+      emailText: context.tr(AppStrings.loginWithEmail),
+      phoneText: context.tr(AppStrings.loginWithPhone),
+      providerTextKey: AppStrings.loginWithProvider,
+      onEmail: () => controller.onSelectMethod(LoginMethod.email),
+      onPhone: () => controller.onSelectMethod(LoginMethod.phone),
+      onSocial: controller.onSocialLogin,
+    );
+  }
+
+  Widget _registerOptions(RegisterController controller) {
+    return _methodOptions(
+      emailText: context.tr(AppStrings.registerWithEmail),
+      phoneText: context.tr(AppStrings.registerWithPhone),
+      providerTextKey: AppStrings.registerWithProvider,
+      onEmail: () => controller.onSelectType(ContactType.email),
+      onPhone: () => controller.onSelectType(ContactType.phone),
+      onSocial: controller.onSocialRegister,
+    );
+  }
+
+  Widget _methodOptions({
+    required String emailText,
+    required String phoneText,
+    required String providerTextKey,
+    required VoidCallback onEmail,
+    required VoidCallback onPhone,
+    required void Function(String provider) onSocial,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _optionButton(
           icon: Iconsax.sms_copy,
-          text: context.tr(AppStrings.loginWithEmail),
+          text: emailText,
           color: AppColors.loginFieldColor,
           contentColor: AppColors.loginTextColor,
-          onTap: () => controller.onSelectMethod(LoginMethod.email),
+          onTap: onEmail,
         ),
         12.heightSpace,
         _optionButton(
           icon: Iconsax.call_copy,
-          text: context.tr(AppStrings.loginWithPhone),
+          text: phoneText,
           color: AppColors.loginFieldColor,
           contentColor: AppColors.loginTextColor,
-          onTap: () => controller.onSelectMethod(LoginMethod.phone),
+          onTap: onPhone,
         ),
         12.heightSpace,
         _optionButton(
           icon: Iconsax.facebook,
-          text: context.tr(AppStrings.loginWithProvider, args: ['Facebook']),
+          text: context.tr(providerTextKey, args: ['Facebook']),
           color: AppColors.facebookColor,
-          onTap: () => controller.onSocialLogin('Facebook'),
+          onTap: () => onSocial('Facebook'),
         ),
         12.heightSpace,
         _optionButton(
           icon: Iconsax.google_1,
-          text: context.tr(AppStrings.loginWithProvider, args: ['Google']),
+          text: context.tr(providerTextKey, args: ['Google']),
           color: AppColors.googleColor,
-          onTap: () => controller.onSocialLogin('Google'),
+          onTap: () => onSocial('Google'),
         ),
         12.heightSpace,
         _optionButton(
           icon: Iconsax.apple,
-          text: context.tr(AppStrings.loginWithProvider, args: ['Apple']),
+          text: context.tr(providerTextKey, args: ['Apple']),
           color: AppColors.blackColor,
-          onTap: () => controller.onSocialLogin('Apple'),
+          onTap: () => onSocial('Apple'),
         ),
       ],
     );
@@ -253,6 +296,33 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
+  Widget _formHeader({required String title, required VoidCallback onBack}) {
+    return Row(
+      children: [
+        InkWellWrapper(
+          onTap: onBack,
+          child: Padding(
+            padding: const EdgeInsets.all(4).r,
+            child: Icon(
+              Iconsax.arrow_left_copy,
+              size: 20.r,
+              color: AppColors.loginTextColor,
+            ),
+          ),
+        ),
+        8.widthSpace,
+        Expanded(
+          child: AppText(
+            title,
+            fontSize: kFont13,
+            fontWeight: FontWeight.w500,
+            color: AppColors.loginTextColor,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _loginForm(LoginController controller) {
     final bool isEmail = controller.method == LoginMethod.email;
 
@@ -261,35 +331,13 @@ class _LoginPageState extends State<LoginPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              InkWellWrapper(
-                onTap: controller.onBackToOptions,
-                child: Padding(
-                  padding: const EdgeInsets.all(4).r,
-                  child: Icon(
-                    Iconsax.arrow_left_copy,
-                    size: 22.r,
-                    color: AppColors.loginTextColor,
-                  ),
-                ),
-              ),
-              8.widthSpace,
-              Expanded(
-                child: AppText(
-                  context.tr(
-                    isEmail
-                        ? AppStrings.loginWithEmail
-                        : AppStrings.loginWithPhone,
-                  ),
-                  fontSize: kFont15,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.loginTextColor,
-                ),
-              ),
-            ],
+          _formHeader(
+            title: context.tr(
+              isEmail ? AppStrings.loginWithEmail : AppStrings.loginWithPhone,
+            ),
+            onBack: controller.onBackToOptions,
           ),
-          20.heightSpace,
+          10.heightSpace,
 
           if (isEmail)
             _textField(
@@ -305,7 +353,7 @@ class _LoginPageState extends State<LoginPage>
             _textField(
               key: const ValueKey('phone'),
               controller: controller.phoneController,
-              validator: controller.phoneValidator,
+              validator: StringValidator.phoneValidator,
               textInputType: TextInputType.phone,
               labelText: context.tr(AppStrings.phoneNumber),
               hintText: context.tr(AppStrings.enterPhoneNumber),
@@ -351,80 +399,97 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // Sign-up form
-  Widget _registerForm() {
-    return Consumer<RegisterController>(
-      builder: (context, controller, _) {
-        return Form(
-          key: controller.formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _textField(
-                controller: controller.usernameController,
-                validator: controller.usernameValidator,
-                reserveErrorSpace: true,
-                labelText: context.tr(AppStrings.username),
-                hintText: context.tr(AppStrings.enterUsername),
-                icon: Iconsax.user_copy,
-              ),
-              _textField(
-                controller: controller.phoneOrEmailController,
-                validator: controller.phoneOrEmailValidator,
-                reserveErrorSpace: true,
-                labelText: context.tr(AppStrings.phoneNumberOrEmail),
-                hintText: context.tr(AppStrings.enterPhoneNumberOrEmail),
-                icon: Iconsax.sms_copy,
-              ),
-              _textField(
-                controller: controller.passwordController,
-                validator: controller.passwordValidator,
-                reserveErrorSpace: true,
-                obscureText: true,
-                labelText: context.tr(AppStrings.password),
-                hintText: context.tr(AppStrings.enterPassword),
-                icon: Iconsax.lock_copy,
-              ),
-              _textField(
-                controller: controller.confirmPasswordController,
-                validator: controller.confirmPasswordValidator,
-                reserveErrorSpace: true,
-                obscureText: true,
-                labelText: context.tr(AppStrings.confirmPassword),
-                hintText: context.tr(AppStrings.confirmPassword),
-                icon: Iconsax.lock_copy,
-              ),
-              8.heightSpace,
+  Widget _registerForm(RegisterController controller) {
+    final bool isEmail = controller.type == ContactType.email;
 
-              AppButtonWidget(
-                text: context.tr(AppStrings.signUp),
-                radius: 12,
-                textSize: kFont15,
-                textColor: AppColors.whiteColor,
-                padding: const EdgeInsets.symmetric(vertical: 15).r,
-                onTap: () {
-                  if (!(controller.formKey.currentState?.validate() ?? false)) {
-                    return;
-                  }
-                  AppNavigator.pushNamed(context, RouteName.mainPage);
-                },
-              ),
-            ],
+    return Form(
+      key: controller.formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _formHeader(
+            title: context.tr(
+              isEmail
+                  ? AppStrings.registerWithEmail
+                  : AppStrings.registerWithPhone,
+            ),
+            onBack: controller.onBackToOptions,
           ),
-        );
-      },
+          10.heightSpace,
+
+          if (isEmail)
+            _textField(
+              key: const ValueKey('register_email'),
+              controller: controller.emailController,
+              validator: StringValidator.registerEmailValidator,
+              textInputType: TextInputType.emailAddress,
+              reserveErrorSpace: true,
+              labelText: context.tr(AppStrings.email),
+              hintText: context.tr(AppStrings.enterEmail),
+              icon: Iconsax.sms_copy,
+            )
+          else
+            _textField(
+              key: const ValueKey('register_phone'),
+              controller: controller.phoneController,
+              validator: StringValidator.phoneValidator,
+              textInputType: TextInputType.phone,
+              reserveErrorSpace: true,
+              labelText: context.tr(AppStrings.phoneNumber),
+              hintText: context.tr(AppStrings.enterPhoneNumber),
+              icon: Iconsax.call_copy,
+            ),
+          _textField(
+            controller: controller.passwordController,
+            validator: controller.passwordValidator,
+            reserveErrorSpace: true,
+            obscureText: true,
+            labelText: context.tr(AppStrings.password),
+            hintText: context.tr(AppStrings.enterPassword),
+            icon: Iconsax.lock_copy,
+          ),
+          _textField(
+            controller: controller.confirmPasswordController,
+            validator: controller.confirmPasswordValidator,
+            reserveErrorSpace: true,
+            obscureText: true,
+            labelText: context.tr(AppStrings.confirmPassword),
+            hintText: context.tr(AppStrings.confirmPassword),
+            icon: Iconsax.lock_copy,
+          ),
+          _otpField(controller, isEmail: isEmail),
+          _textField(
+            controller: controller.referralCodeController,
+            validator: (_) => null, // optional
+            reserveErrorSpace: true,
+            labelText: context.tr(AppStrings.referralCode),
+            hintText: context.tr(AppStrings.enterReferralCode),
+            icon: Iconsax.gift_copy,
+          ),
+          8.heightSpace,
+
+          AppButtonWidget(
+            text: context.tr(AppStrings.signUp),
+            radius: 12,
+            textSize: kFont15,
+            textColor: AppColors.whiteColor,
+            padding: const EdgeInsets.symmetric(vertical: 12).r,
+            onTap: controller.onRegister,
+          ),
+        ],
+      ),
     );
   }
 
-  /// [AppTextFormField] styled for this page.
   Widget _textField({
     Key? key,
     required TextEditingController controller,
     required String? Function(String?) validator,
-    required String labelText,
+    String? labelText,
     required String hintText,
     required IconData icon,
     TextInputType textInputType = TextInputType.text,
+    List<TextInputFormatter>? textInputFormatter,
     bool obscureText = false,
     bool reserveErrorSpace = false,
     Widget? labelSuffixChild,
@@ -434,25 +499,117 @@ class _LoginPageState extends State<LoginPage>
       controller: controller,
       validator: validator,
       textInputType: textInputType,
-      // null (not false) so non-password fields don't get the eye toggle
+      textInputFormatter: textInputFormatter,
       obscureText: obscureText ? true : null,
       obscureTextDisabledColor: AppColors.loginHintColor,
       reserveErrorSpace: reserveErrorSpace,
       errorMaxLines: 1,
       errorTextSize: kFont12,
+
       radius: 12,
+      labelFontWeight: FontWeight.w500,
       labelText: labelText,
       labelSuffixChild: labelSuffixChild,
       labelColor: AppColors.loginTextColor,
       textColor: AppColors.loginTextColor,
       hintText: hintText,
       hintTextColor: AppColors.loginHintColor,
-      backgroundColor: AppColors.loginFieldColor,
-      borderColor: AppColors.loginFieldColor,
-      prefixIcon: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 12).r,
-        child: Icon(icon, size: 18.r, color: AppColors.loginHintColor),
+      borderColor: AppColors.greyLightColor,
+      prefixIcon: SizedBox(
+        height: _fieldHeight,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 12).r,
+          child: Icon(icon, size: 18.r, color: AppColors.loginHintColor),
+        ),
       ),
+    );
+  }
+
+  double get _fieldHeight => math.max(kMinInteractiveDimension, 48.r);
+
+  Widget _fieldLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5).r,
+      child: AppText(
+        text,
+        fontWeight: FontWeight.w500,
+        color: AppColors.loginTextColor,
+        fontSize: kFont13,
+      ),
+    );
+  }
+
+  Widget _otpField(RegisterController controller, {required bool isEmail}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _fieldLabel(context.tr(AppStrings.otp)),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _textField(
+                controller: controller.otpController,
+                validator: StringValidator.otpValidator,
+                textInputType: TextInputType.number,
+                // digits only, at most 6 (also blocks pasting anything else)
+                textInputFormatter: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(6),
+                ],
+                reserveErrorSpace: true,
+                hintText: context.tr(AppStrings.enterOtp),
+                icon: Iconsax.shield_tick_copy,
+              ),
+            ),
+            5.widthSpace,
+            SizedBox(
+              height: _fieldHeight,
+              child: _sendOtpButton(controller, isEmail: isEmail),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// "Send OTP" → grey countdown ("120s" … "1s") after a send → "Resend".
+  /// Only tappable when the email / phone is valid and not cooling down.
+  Widget _sendOtpButton(
+    RegisterController controller, {
+    required bool isEmail,
+  }) {
+    final TextEditingController target = isEmail
+        ? controller.emailController
+        : controller.phoneController;
+
+    return ListenableBuilder(
+      listenable: Listenable.merge([target, controller.otpCooldown]),
+      builder: (context, _) {
+        final int seconds = controller.otpCooldown.value;
+        final bool canSend =
+            seconds == 0 && controller.canSendOtpTo(target.text);
+
+        return ConstrainedBox(
+          // fixed minimum so the OTP field doesn't shift as the label changes
+          constraints: BoxConstraints(minWidth: 96.r),
+          child: AppButtonWidget(
+            text: seconds > 0
+                ? "${seconds}s"
+                : context.tr(
+                    controller.otpSent
+                        ? AppStrings.resendOtp
+                        : AppStrings.sendOtp,
+                  ),
+            isMinWidth: true,
+            radius: 12,
+            textSize: kFont13,
+            textColor: AppColors.whiteColor,
+            padding: const EdgeInsets.symmetric(horizontal: 12).r,
+            onTap: canSend ? controller.onSendOtp : null,
+          ),
+        );
+      },
     );
   }
 }

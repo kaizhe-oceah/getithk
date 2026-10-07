@@ -6,7 +6,7 @@ class RouteName {
   static const String homePage = '/home';
   static const String cartPage = '/cart';
   static const String favouritePage = '/favourite';
-  static const String personPage = '/person';
+  static const String profilePage = '/profile';
 
   static List<String> allRoutes = [
     splashPage,
@@ -16,7 +16,7 @@ class RouteName {
     homePage,
     cartPage,
     favouritePage,
-    personPage,
+    profilePage,
   ];
 
   static bool containsRoute(String routeName) {

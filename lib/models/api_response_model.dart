@@ -8,7 +8,10 @@ class ApiResponseModel {
   dynamic mapResponse;
 
   ApiResponseModel.fromJson(Map<String, dynamic> _json) {
-    status = _json["status"];
+    // The player API sends a bool (`"status": false`); map it onto the
+    // kSuccess / kFail ints the rest of the app uses.
+    final rawStatus = _json["status"];
+    status = rawStatus is bool ? (rawStatus ? kSuccess : kFail) : rawStatus;
 
     // Normalize message (handle List<String> or String)
     final rawMessage = _json["message"];

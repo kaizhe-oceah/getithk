@@ -209,7 +209,7 @@ Future<void> launchLink({required String url}) async {
   try {
     await launchUrl(Uri.parse(url));
   } catch (e) {
-    ToastHelper.showToast("Could not launch $url");
+    ToastHelper.showToast(NavigationService.context.tr(AppStrings.couldNotOpenLink, args: [url]));
   }
 }
 
@@ -467,7 +467,7 @@ Future<File?> takePhoto() async {
       return compressImageIfNeeded(File(photo.path));
     }
   } catch (e) {
-    ToastHelper.showToast("Error taking photo: $e");
+    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorTakingPhoto, args: ["$e"]));
   }
   return null;
 }
@@ -482,7 +482,7 @@ Future<File?> takeVideo() async {
       return File(video.path);
     }
   } catch (e) {
-    ToastHelper.showToast("Error recording video: $e");
+    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorRecordingVideo, args: ["$e"]));
   }
   return null;
 }
@@ -496,7 +496,7 @@ Future<File?> uploadVideo() async {
       return File(video.path);
     }
   } catch (e) {
-    ToastHelper.showToast("Error picking video: $e");
+    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorPickingVideo, args: ["$e"]));
   }
   return null;
 }
@@ -582,7 +582,7 @@ Future<File?> uploadPhoto() async {
       return compressImageIfNeeded(File(photo.path));
     }
   } catch (e) {
-    ToastHelper.showToast("Error picking photo: $e");
+    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorPickingPhoto, args: ["$e"]));
   }
   return null;
 }
@@ -600,7 +600,7 @@ Future<List<File>> uploadPhotos({int? limit}) async {
     }
     return files;
   } catch (e) {
-    ToastHelper.showToast("Error picking photos: $e");
+    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorPickingPhotos, args: ["$e"]));
   }
   return [];
 }
@@ -618,7 +618,7 @@ Future<File?> uploadFromFiles() async {
       return File(result.files.single.path!);
     }
   } catch (e) {
-    ToastHelper.showToast("Error selecting file: $e");
+    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorSelectingFile, args: ["$e"]));
   }
   return null;
 }

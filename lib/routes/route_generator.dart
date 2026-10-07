@@ -9,7 +9,7 @@ import "../pages/favourite_page.dart";
 import "../pages/home_page.dart";
 import "../pages/login_page.dart";
 import "../pages/main_page.dart";
-import "../pages/person_page.dart";
+import "../pages/profile_page.dart";
 import "../pages/splash_page.dart";
 
 class RouteGenerator {
@@ -61,8 +61,8 @@ class RouteGenerator {
       case RouteName.favouritePage:
         return const FavouritePage();
 
-      case RouteName.personPage:
-        return const PersonPage();
+      case RouteName.profilePage:
+        return const ProfilePage();
 
       default:
         return null;

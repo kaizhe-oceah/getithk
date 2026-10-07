@@ -1,10 +1,15 @@
 // API - Without Auth
-const kLogin = "/login";
-const kLogout = "/logout";
-const kRegister = "/register";
+const kLogin = "/player/login";
+const kLogout = "/player/logout";
+const kRegister = "/player/register";
+const kSendOtp = "/send-otp";
 
 // API - Need Auth
-const kCustomerProfile = "/customer/profile";
+const kProfile = "/player/profile";
+
+// API HEADERS language and timezone
+const kApiLanguage = "zh_TW";
+const kApiTimezone = "Asia/Kuala_Lumpur";
 
 // API STATUS
 const kSuccess = 1;

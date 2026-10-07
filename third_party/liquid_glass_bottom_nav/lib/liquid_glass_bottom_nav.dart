@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'src/liquid_glass_renderer/liquid_glass_renderer.dart'
@@ -118,8 +119,9 @@ Widget _iconWithBadge(BuildContext context, LiquidGlassNavItem item, Widget icon
 
 /// Floating pill bottom navigation bar with a sliding glass bubble indicator.
 ///
-/// On Impeller-capable devices the active indicator is an [AnimatedPositioned]
-/// bubble that bounces between tabs on tap and follows a drag when the user
+/// On Impeller-capable devices the active indicator is a bubble that glides
+/// between tabs on tap (getithk patch: a soft spring with a droplet stretch,
+/// instead of upstream's elastic bounce) and follows a drag when the user
 /// long-presses and slides. Falls back to [_LegacyNavBar] on devices without
 /// Impeller/Vulkan support (Android API < 24) or if [impellerSupported] is false.
 class LiquidGlassNavBar extends StatefulWidget {
@@ -183,6 +185,11 @@ class LiquidGlassNavBar extends StatefulWidget {
   /// Defaults to `true`. (getithk patch)
   final bool showShadow;
 
+  /// Tint of the capsule glass; its alpha is how strongly the glass is
+  /// tinted (1.0 = solid). Defaults to white at 0.04 in dark mode and 0.76 in
+  /// light mode. (getithk patch)
+  final Color? glassColor;
+
   /// Vertical space the floating nav occupies above the system bottom inset.
   /// Tab screens with scrollable content should add this as bottom padding.
   /// Composition: pill height 68 + bottom margin 16 + 12px breathing buffer = 96.0.
@@ -203,6 +210,7 @@ class LiquidGlassNavBar extends StatefulWidget {
     this.dragRainbowBorder = false,
     this.liquidActiveBubble = true,
     this.showShadow = true,
+    this.glassColor,
   });
 
   @override
@@ -282,7 +290,7 @@ class _RainbowRingPainter extends CustomPainter {
 }
 
 class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   // Vertical squash for the held bubble: 0 = neutral, 1 = max squish. Tracks
   // the *magnitude* of horizontal drag movement continuously (direction-
   // independent, so it looks the same sliding either way — no rotation/skew
@@ -299,9 +307,50 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
   int? _dragIndex;
   double? _dragX;
 
+  // (getithk patch) The resting bubble glides from [_moveFrom] to [_moveTo]
+  // (item indexes) on a soft spring with one small overshoot, stretching like
+  // a droplet on the way. Replaces upstream's elasticOut, which wobbled
+  // several times and, on the tint colour, flickered.
+  late final AnimationController _moveCtrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 450),
+    value: 1.0,
+  );
+  late double _moveFrom = widget.selectedIndex.toDouble();
+  late double _moveTo = widget.selectedIndex.toDouble();
+  static const Curve _moveCurve = Cubic(0.3, 1.15, 0.6, 1.0);
+
+  // (getithk patch) 0 = resting pill, 1 = enlarged pill under the finger.
+  late final AnimationController _holdCtrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 160),
+    reverseDuration: const Duration(milliseconds: 280),
+  );
+
+  /// Where the resting bubble is right now, in item indexes.
+  double get _restPos =>
+      _moveFrom + (_moveTo - _moveFrom) * _moveCurve.transform(_moveCtrl.value);
+
+  void _moveBubble({required double from, required int to}) {
+    _moveFrom = from;
+    _moveTo = to.toDouble();
+    _moveCtrl.forward(from: 0);
+  }
+
+  @override
+  void didUpdateWidget(covariant LiquidGlassNavBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // tapped (or changed by the app): glide from wherever the bubble is now
+    if (widget.selectedIndex.toDouble() != _moveTo) {
+      _moveBubble(from: _restPos, to: widget.selectedIndex);
+    }
+  }
+
   @override
   void dispose() {
     _bounceCtrl.dispose();
+    _moveCtrl.dispose();
+    _holdCtrl.dispose();
     _bounceDecayTimer?.cancel();
     super.dispose();
   }
@@ -377,9 +426,10 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                   settings: LiquidGlassSettings(
                     // Light mode: high white tint for vibrancy, blur kept at 1
                     // so the capsule reads as clean white without any fogging.
-                    glassColor: isDark
-                        ? Colors.white.withValues(alpha: 0.04)
-                        : Colors.white.withValues(alpha: 0.76),
+                    glassColor: widget.glassColor ??
+                        (isDark
+                            ? Colors.white.withValues(alpha: 0.04)
+                            : Colors.white.withValues(alpha: 0.76)),
                     thickness: 32,
                     blur: 1,
                     saturation: 1.8,
@@ -412,6 +462,7 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                         _dragIndex = index;
                         _dragX = x;
                       });
+                      _holdCtrl.forward();
                     },
                     onHorizontalDragUpdate: (details) {
                       final x = details.localPosition.dx;
@@ -444,11 +495,17 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                       });
                     },
                     onHorizontalDragEnd: (_) {
-                      if (_dragIndex != null) widget.onTap(_dragIndex!);
-                      setState(() {
-                        _dragIndex = null;
-                        _dragX = null;
-                      });
+                      final int? target = _dragIndex;
+                      if (target != null) {
+                        // settle from where the finger let go
+                        final double released = ((_dragX ?? 0) / itemWidth - 0.5)
+                            .clamp(0.0, (widget.items.length - 1).toDouble());
+                        _moveBubble(from: released, to: target);
+                        widget.onTap(target);
+                      }
+                      // _dragX stays, so the held pill shrinks from there
+                      setState(() => _dragIndex = null);
+                      _holdCtrl.reverse();
                       _bounceDecayTimer?.cancel();
                       _bounceCtrl.animateTo(
                         0.0,
@@ -457,10 +514,8 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                       );
                     },
                     onHorizontalDragCancel: () {
-                      setState(() {
-                        _dragIndex = null;
-                        _dragX = null;
-                      });
+                      setState(() => _dragIndex = null);
+                      _holdCtrl.reverse();
                       _bounceDecayTimer?.cancel();
                       _bounceCtrl.animateTo(
                         0.0,
@@ -471,159 +526,185 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        Builder(
-                          builder: (context) {
-                            // Normal state: Original stadium pill capsule
-                            final normalWidth = itemWidth - 8; 
-                            final normalHeight = 58.0; // Taller, closer to the edges
-                            final normalTop = (68.0 - normalHeight) / 2;
-                            final normalLeft = displayIndex * itemWidth + 4.0;
+                        // Selection bubble (getithk patch). Resting: glides
+                        // between tabs, stretching like a droplet on the way.
+                        // Held: an enlarged pill under the finger.
+                        AnimatedBuilder(
+                          animation: Listenable.merge([_moveCtrl, _holdCtrl]),
+                          builder: (context, child) {
+                            final double lastIndex = (widget.items.length - 1).toDouble();
 
-                            // Held state: Enlarged capsule (maintains horizontal pill shape)
-                            final heldWidth = itemWidth + 16.0; 
-                            final heldHeight = 80.0; // Overlaps top and bottom of 68px container
-                            final heldTop = (68.0 - heldHeight) / 2;
-                            
-                            // Track exact finger position clamped within the bar bounds
-                            final exactCenterX = _dragX?.clamp(0.0, constraints.maxWidth) 
-                                ?? (displayIndex * itemWidth + itemWidth / 2);
-                            final heldLeft = exactCenterX - (heldWidth / 2);
+                            // resting pill; the stretch peaks early in the move,
+                            // when it is fastest, then relaxes
+                            final double t = _moveCtrl.value;
+                            final double travel = math.min(1.0, (_moveTo - _moveFrom).abs());
+                            final double stretch = 6.75 * t * (1 - t) * (1 - t) * 0.22 * travel;
+                            final double restCenter =
+                                (_restPos.clamp(0.0, lastIndex) + 0.5) * itemWidth;
+                            final Rect rest = Rect.fromCenter(
+                              center: Offset(restCenter, 34),
+                              width: (itemWidth - 8) * (1 + stretch),
+                              height: 58.0 * (1 - stretch * 0.3),
+                            );
 
-                            return AnimatedPositioned(
-                              duration: Duration(
-                                // Shorter duration for position changes when dragging so it tightly tracks the finger
-                                milliseconds: isDragging ? 50 : 400,
+                            // held pill, under the finger (overlaps the bar's edges)
+                            final Rect held = Rect.fromCenter(
+                              center: Offset(
+                                _dragX?.clamp(0.0, constraints.maxWidth) ?? restCenter,
+                                34,
                               ),
-                              curve: isDragging ? Curves.easeOut : Curves.elasticOut,
-                              left: isDragging ? heldLeft : normalLeft,
-                              width: isDragging ? heldWidth : normalWidth,
-                              top: isDragging ? heldTop : normalTop,
-                              height: isDragging ? heldHeight : normalHeight,
-                              child: AnimatedBuilder(
-                                animation: _bounceCtrl,
-                                builder: (context, child) {
-                                  final scaleY = 1.0 - _bounceCtrl.value * 0.12;
-                                  return Transform(
-                                    alignment: Alignment.center,
-                                    transform: Matrix4.diagonal3Values(1.0, scaleY, 1.0),
-                                    child: child,
-                                  );
-                                },
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    if (widget.liquidActiveBubble && isDragging)
-                                      // Real glass shape, only while held — its position/size
-                                      // animate every drag frame, so the shader recomputes
-                                      // every one of those frames. See the doc comment on
-                                      // [LiquidGlassNavBar.liquidActiveBubble]. The resting
-                                      // (non-dragging) active bubble always stays the plain
-                                      // tinted container below.
-                                      LiquidGlass.withOwnLayer(
-                                        shape: LiquidRoundedSuperellipse(
+                              width: itemWidth + 16,
+                              height: 80,
+                            );
+
+                            return Positioned.fromRect(
+                              rect: Rect.lerp(
+                                rest,
+                                held,
+                                Curves.easeOut.transform(_holdCtrl.value),
+                              )!,
+                              child: child!,
+                            );
+                          },
+                          child: AnimatedBuilder(
+                            animation: _bounceCtrl,
+                            builder: (context, child) {
+                              final scaleY = 1.0 - _bounceCtrl.value * 0.12;
+                              return Transform(
+                                alignment: Alignment.center,
+                                transform: Matrix4.diagonal3Values(1.0, scaleY, 1.0),
+                                child: child,
+                              );
+                            },
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                if (widget.liquidActiveBubble && isDragging)
+                                  // Real glass shape, only while held — its position/size
+                                  // animate every drag frame, so the shader recomputes
+                                  // every one of those frames. See the doc comment on
+                                  // [LiquidGlassNavBar.liquidActiveBubble]. The resting
+                                  // (non-dragging) active bubble always stays the plain
+                                  // tinted container below.
+                                  LiquidGlass.withOwnLayer(
+                                    shape: LiquidRoundedSuperellipse(
+                                      borderRadius: widget.borderRadius,
+                                    ),
+                                    settings: LiquidGlassSettings(
+                                      glassColor: Colors.transparent,
+                                      thickness: 32,
+                                      blur: 1,
+                                      saturation: 1.8,
+                                      lightIntensity: isDark ? 0.15 : 1.0,
+                                      ambientStrength: 0.2,
+                                    ),
+                                    child: const SizedBox.expand(),
+                                  )
+                                else
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeOut,
+                                    decoration: BoxDecoration(
+                                      // No tint while held — the light gray stroke (or the
+                                      // rainbow sheen, if opted into) is the only drag-state
+                                      // accent.
+                                      color: isDragging
+                                          ? Colors.transparent
+                                          : (isDark
+                                              ? Colors.white.withValues(alpha: 0.08)
+                                              : activeColor.withValues(alpha: 0.15)),
+                                      borderRadius: BorderRadius.circular(widget.borderRadius),
+                                    ),
+                                  ),
+                                // Stroke overlay lives outside the bubble-content branch
+                                // above so it shows the same way whether the bubble itself
+                                // is the real LiquidGlass shape or the plain tinted
+                                // container.
+                                if (isDragging && !widget.dragRainbowBorder)
+                                  Positioned.fill(
+                                    child: IgnorePointer(
+                                      child: DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(widget.borderRadius),
+                                          border: Border.all(
+                                            color: Colors.grey.shade500.withValues(alpha: 0.55),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if (isDragging && widget.dragRainbowBorder)
+                                  Positioned.fill(
+                                    child: IgnorePointer(
+                                      child: CustomPaint(
+                                        painter: _RainbowRingPainter(
                                           borderRadius: widget.borderRadius,
                                         ),
-                                        settings: LiquidGlassSettings(
-                                          glassColor: Colors.transparent,
-                                          thickness: 32,
-                                          blur: 1,
-                                          saturation: 1.8,
-                                          lightIntensity: isDark ? 0.15 : 1.0,
-                                          ambientStrength: 0.2,
-                                        ),
-                                        child: const SizedBox.expand(),
-                                      )
-                                    else
-                                      AnimatedContainer(
-                                        duration: Duration(
-                                          milliseconds: isDragging ? 150 : 400,
-                                        ),
-                                        curve: isDragging ? Curves.easeOut : Curves.elasticOut,
-                                        decoration: BoxDecoration(
-                                          // No tint while held — the light gray stroke (or the
-                                          // rainbow sheen, if opted into) is the only drag-state
-                                          // accent.
-                                          color: isDragging
-                                              ? Colors.transparent
-                                              : (isDark
-                                                  ? Colors.white.withValues(alpha: 0.08)
-                                                  : activeColor.withValues(alpha: 0.15)),
-                                          borderRadius: BorderRadius.circular(widget.borderRadius),
-                                        ),
                                       ),
-                                    // Stroke overlay lives outside the bubble-content branch
-                                    // above so it shows the same way whether the bubble itself
-                                    // is the real LiquidGlass shape or the plain tinted
-                                    // container.
-                                    if (isDragging && !widget.dragRainbowBorder)
-                                      Positioned.fill(
-                                        child: IgnorePointer(
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(widget.borderRadius),
-                                              border: Border.all(
-                                                color: Colors.grey.shade500.withValues(alpha: 0.55),
-                                                width: 1.5,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    if (isDragging && widget.dragRainbowBorder)
-                                      Positioned.fill(
-                                        child: IgnorePointer(
-                                          child: CustomPaint(
-                                            painter: _RainbowRingPainter(
-                                              borderRadius: widget.borderRadius,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
                         Row(
                           children: List.generate(widget.items.length, (index) {
                             final item = widget.items[index];
                             final bool isActive = index == displayIndex;
-                            final color = isActive ? activeColor : inactiveColor;
                             return SizedBox(
                               width: itemWidth,
                               height: 68,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  _iconWithBadge(
-                                    context,
-                                    item,
-                                    IconTheme(
-                                      data: IconThemeData(
-                                        color: color,
-                                        size: widget.iconSize,
-                                      ),
-                                      child: item.iconWidget ??
-                                          Icon(
-                                            item.icon,
-                                            size: widget.iconSize,
+                              // (getithk patch) colours cross-fade instead of
+                              // snapping
+                              child: TweenAnimationBuilder<Color?>(
+                                tween: ColorTween(
+                                  end: isActive ? activeColor : inactiveColor,
+                                ),
+                                duration: const Duration(milliseconds: 220),
+                                curve: Curves.easeOut,
+                                builder: (context, color, _) => Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // the newly active icon pops in; restarts
+                                    // each time this item becomes active
+                                    TweenAnimationBuilder<double>(
+                                      key: ValueKey(isActive),
+                                      tween: Tween(begin: isActive ? 0.8 : 1.0, end: 1.0),
+                                      duration: const Duration(milliseconds: 380),
+                                      curve: Curves.easeOutBack,
+                                      builder: (context, scale, child) =>
+                                          Transform.scale(scale: scale, child: child),
+                                      child: _iconWithBadge(
+                                        context,
+                                        item,
+                                        IconTheme(
+                                          data: IconThemeData(
                                             color: color,
+                                            size: widget.iconSize,
                                           ),
+                                          child: item.iconWidget ??
+                                              Icon(
+                                                item.icon,
+                                                size: widget.iconSize,
+                                                color: color,
+                                              ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    item.label,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.merge(widget.labelStyle)
-                                        .copyWith(color: color, fontWeight: widget.labelStyle?.fontWeight ?? FontWeight.w500),
-                                  ),
-                                ],
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      item.label,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.merge(widget.labelStyle)
+                                          .copyWith(color: color, fontWeight: widget.labelStyle?.fontWeight ?? FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }),

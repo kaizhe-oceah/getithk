@@ -60,7 +60,8 @@ class BottomSheetLanguage extends StatelessWidget {
 
                     case AppLanguage.zh:
                       title = context.tr(AppStrings.langChinese);
-                      language = AppLanguage.zh.name;
+                      // the only Chinese locale is zh_TW (zh-TW.json)
+                      language = "zh_TW";
                       flag = "cn";
                       break;
 
@@ -71,8 +72,9 @@ class BottomSheetLanguage extends StatelessWidget {
                       break;
                   }
 
-                  final bool isSelected =
-                      language == context.locale.languageCode;
+                  // "en", "ms" or "zh_TW"; pass to context.setLocale(
+                  // language.toLocale())
+                  final bool isSelected = language == context.locale.toString();
 
                   return InkWellWrapper(
                     onTap: () => _selectLanguage(context, language),

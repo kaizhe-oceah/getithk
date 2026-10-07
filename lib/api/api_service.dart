@@ -29,10 +29,11 @@ class ApiService {
     String? username,
     bool isDemoMode = false,
   }) {
-    final bool isTrial = isDemoMode || kTrialAccounts.contains(username);
+    const bool isTrial = true;
 
     final String baseUrl = isTrial
         ? GlobalConfigs().get("api_trial_base_url")
+        // ignore: dead_code
         : GlobalConfigs().get("api_base_url");
 
     final String apiUrl = baseUrl;

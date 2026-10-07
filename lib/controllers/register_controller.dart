@@ -1,47 +1,49 @@
 import 'package:getithk/imports.dart';
-import 'package:getithk/models/user_model.dart';
 
 class RegisterController extends ChangeNotifier {
   BuildContext context = NavigationService.context;
   bool _isDisposed = false;
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController phoneOrEmailController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+  final TextEditingController referralCodeController = TextEditingController();
 
-  String? usernameValidator(dynamic value) {
-    if (value == null || value.toString().trim().isEmpty) {
-      return context.tr(AppStrings.usernameRequired);
-    }
+  /// The chosen sign-up method; `null` shows the list of options.
+  ContactType? type;
 
-    return null;
+  /// Wait between OTP sends.
+  static const int _otpCooldownSeconds = 120;
+
+  /// Seconds left before another OTP can be sent; 0 when it can.
+  final ValueNotifier<int> otpCooldown = ValueNotifier(0);
+  Timer? _otpTimer;
+
+  /// Whether an OTP has been sent, so the button reads "Resend".
+  bool otpSent = false;
+
+  void onSelectType(ContactType value) {
+    type = value;
+    update();
   }
 
-  String? phoneOrEmailValidator(dynamic value) {
-    if (value == null || value.toString().trim().isEmpty) {
-      return context.tr(AppStrings.phoneNumberOrEmailRequired);
-    }
+  void onBackToOptions() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    type = null;
+    passwordController.clear();
+    confirmPasswordController.clear();
+    otpController.clear();
+    update();
+  }
 
-    final String input = value.toString().trim();
-
-    // If user enters email
-    if (input.contains("@")) {
-      if (!AppRegex.email.hasMatch(input)) {
-        return context.tr(AppStrings.emailInvalid);
-      }
-    } else {
-      // If user enters phone number
-      final String phone = input.replaceAll(RegExp(r'[^0-9]'), '');
-
-      if (phone.length < 8) {
-        return context.tr(AppStrings.invalidMobileNumber);
-      }
-    }
-
-    return null;
+  void onSocialRegister(String provider) {
+    ToastHelper.showToast(
+      context.tr(AppStrings.socialLoginUnavailable, args: [provider]),
+    );
   }
 
   String? passwordValidator(dynamic value) {
@@ -68,85 +70,77 @@ class RegisterController extends ChangeNotifier {
     return null;
   }
 
+  /// Whether [value] is a valid email / phone (whichever the form asks for),
+  /// so an OTP can be sent to it.
+  bool canSendOtpTo(String value) => type == ContactType.email
+      ? AppRegex.registerEmail.hasMatch(value.trim())
+      : StringValidator.phoneValidator(value) == null;
+
+  /// Sends the OTP to the email / phone typed in the form.
+  Future<void> onSendOtp() async {
+    final ContactType? type = this.type;
+    if (type == null) return;
+
+    final bool isEmail = type == ContactType.email;
+    final TextEditingController target = isEmail
+        ? emailController
+        : phoneController;
+    if (otpCooldown.value > 0 || !canSendOtpTo(target.text)) return;
+
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    await ApiService.api.sendOtp(
+      showLoader: true,
+      type: type,
+      email: isEmail ? emailController.text.trim() : null,
+      phoneCode: isEmail ? null : kDefaultPhoneCode,
+      phoneNo: isEmail ? null : localPhoneNo(phoneController.text),
+      onSuccess: (response) {
+        response.showMessage();
+        _startOtpCooldown();
+      },
+    );
+  }
+
+  void _startOtpCooldown() {
+    otpSent = true;
+    otpCooldown.value = _otpCooldownSeconds;
+
+    _otpTimer?.cancel();
+    _otpTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      otpCooldown.value -= 1;
+      if (otpCooldown.value <= 0) timer.cancel();
+    });
+  }
+
   Future<void> onRegister() async {
+    final ContactType? type = this.type;
+    if (type == null) return;
+
     // Check all TextFormField validators
     if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    final String username = usernameController.text.trim();
+    FocusManager.instance.primaryFocus?.unfocus();
 
-    final String contact = phoneOrEmailController.text.trim();
-
-    final String password = passwordController.text;
-
-    final String confirmPassword = confirmPasswordController.text;
-
-    String email = "";
-    String phoneNo = "";
-    String? countryCode;
-
-    if (contact.contains("@")) {
-      email = contact;
-      phoneNo = "";
-      countryCode = null;
-    } else {
-      email = "";
-
-      String phone = contact.replaceAll(RegExp(r'[^0-9+]'), '');
-
-      countryCode = "60";
-
-      if (phone.startsWith("+60")) {
-        phone = phone.substring(3);
-      }
-      // 60123456789 -> 123456789
-      else if (phone.startsWith("60")) {
-        phone = phone.substring(2);
-      }
-      // 0123456789 -> 123456789
-      else if (phone.startsWith("0")) {
-        phone = phone.substring(1);
-      }
-
-      phoneNo = phone;
-    }
+    final bool isEmail = type == ContactType.email;
+    final String referralCode = referralCodeController.text.trim();
 
     await ApiService.api.register(
       showLoader: true,
-
-      name: username,
-      countryCode: countryCode,
-      phoneNo: phoneNo,
-      email: email,
-      password: password,
-      passwordConfirmation: confirmPassword,
-
-      onSuccess: (response) async {
+      type: type,
+      email: isEmail ? emailController.text.trim() : null,
+      phoneCode: isEmail ? null : kDefaultPhoneCode,
+      phoneNo: isEmail ? null : localPhoneNo(phoneController.text),
+      authMethod: AuthMethod.password,
+      password: passwordController.text,
+      // the server asks for an OTP even on password sign-ups
+      otp: otpController.text.trim(),
+      referralCode: referralCode.isEmpty ? null : referralCode,
+      onSuccess: (response) {
         response.showMessage();
-
-        final data = response.data;
-
-        if (data != null &&
-            data is Map &&
-            data["token"] != null &&
-            data["user"] != null) {
-          await ApiService.updateApiToken(data["token"].toString());
-
-          context.read<AppController>().setUser = UserModel.fromJson(
-            Map<String, dynamic>.from(data["user"]),
-          );
-
-          context.read<AppController>().navigateToTab(kBottomNavHome);
-
-          AppNavigator.popUntilFirst(context);
-
-          AppNavigator.pushReplacementNamed(context, RouteName.mainPage);
-
-          return;
-        }
-
-        AppNavigator.pushReplacementNamed(context, RouteName.loginPage);
+        context.read<AppController>().signIn(response);
       },
     );
   }
@@ -155,10 +149,14 @@ class RegisterController extends ChangeNotifier {
   void dispose() {
     _isDisposed = true;
 
-    usernameController.dispose();
-    phoneOrEmailController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    otpController.dispose();
+    referralCodeController.dispose();
+    _otpTimer?.cancel();
+    otpCooldown.dispose();
 
     super.dispose();
   }

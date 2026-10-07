@@ -20,26 +20,17 @@ class BottomNavigationWidget extends StatelessWidget {
             .indexWhere((e) => e.id == mainController.currentTab)
             .clamp(0, navItems.length - 1);
 
-        // creating the glass shader throws when Impeller is off
         final bool glassSupported = ui.ImageFilter.isShaderFilterSupported;
-
-        // white glass over light pages, smoked glass over dark ones
-        final bool isDarkBackground =
-            ThemeData.estimateBrightnessForColor(
-              navItems[selectedIndex].backgroundColor,
-            ) ==
-            Brightness.dark;
 
         final Widget navBar = LiquidGlassNavBar(
           impellerSupported: glassSupported,
           selectedIndex: selectedIndex,
           activeColor: context.color.primary,
-          inactiveColor: isDarkBackground
-              ? AppColors.whiteColor
-              : AppColors.blackColor,
-          iconSize: 28,
+          inactiveColor: AppColors.blackColor,
+          iconSize: 26,
           labelStyle: const TextStyle(fontSize: kFont11),
           showShadow: true,
+          glassColor: AppColors.whiteColor.wOpacity(0.90),
           items: [
             for (int i = 0; i < navItems.length; i++)
               LiquidGlassNavItem(
@@ -62,14 +53,12 @@ class BottomNavigationWidget extends StatelessWidget {
         final ThemeData theme = Theme.of(context);
 
         return Theme(
+          // every page is white: always the package's light glass (it picks
+          // light or dark from this brightness)
           data: theme.copyWith(
-            colorScheme: isDarkBackground
-                ? theme.colorScheme.copyWith(
-                    brightness: Brightness.dark,
-                    surfaceContainerHighest: AppColors.bottomNavColor,
-                    outlineVariant: AppColors.bottomNavBorderColor,
-                  )
-                : theme.colorScheme.copyWith(brightness: Brightness.light),
+            colorScheme: theme.colorScheme.copyWith(
+              brightness: Brightness.light,
+            ),
           ),
           child: glassSupported
               ? navBar

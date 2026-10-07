@@ -1,10 +1,16 @@
 # Vendored copy of liquid_glass_bottom_nav 0.0.14 (latest on pub.dev).
 #
-# Patch: LiquidGlassNavBar gains a `showShadow` flag (default true, same as
-# upstream). Upstream hardcodes the capsule's hairline + drop shadow and the
-# legacy bar's top shadow, and getithk wants the bar without them.
+# Patches to LiquidGlassNavBar (marked "getithk patch" in the code):
+# - `showShadow`: upstream hardcodes the capsule's hairline + drop shadow and
+#   the legacy bar's top shadow. Defaults to upstream's behaviour.
+# - `glassColor`: upstream hardcodes the capsule's tint (white at 0.04 dark /
+#   0.76 light), and getithk wants a whiter, easier-to-see bar. Defaults to
+#   upstream's behaviour.
+# - Tap animation: upstream's bubble bounces on Curves.elasticOut (several
+#   wobbles; its tint colour flickers). It now glides on a soft spring with a
+#   droplet stretch, icon / label colours cross-fade and the new icon pops in.
 #
-# Drop this vendored copy once upstream makes the shadow configurable.
+# Drop this vendored copy once upstream covers these.
 name: liquid_glass_bottom_nav
 description: "A beautiful, liquid frosted-glass floating bottom navigation bar for Flutter."
 version: 0.0.14

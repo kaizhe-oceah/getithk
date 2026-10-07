@@ -176,8 +176,8 @@ dependency_overrides:
   material_design_icons_flutter:
     path: third_party/material_design_icons_flutter
 
-  # Upstream 0.0.14 hardcodes the nav bar's shadow; the vendored copy adds a
-  # showShadow flag. See third_party/*/pubspec.yaml.
+  # Upstream 0.0.14 hardcodes the nav bar's shadow and glass tint; the vendored
+  # copy adds showShadow and glassColor. See third_party/*/pubspec.yaml.
   liquid_glass_bottom_nav:
     path: third_party/liquid_glass_bottom_nav
 

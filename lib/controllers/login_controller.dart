@@ -1,5 +1,4 @@
 // Project imports:
-import 'package:getithk/models/user_model.dart';
 import '../imports.dart';
 
 enum LoginMethod { email, phone }
@@ -34,46 +33,25 @@ class LoginController extends ChangeNotifier {
     );
   }
 
-  String? phoneValidator(dynamic value) {
-    final String phone = (value ?? "").toString().replaceAll(
-      RegExp(r'[^0-9]'),
-      '',
-    );
-
-    if (phone.isEmpty) {
-      return context.tr(AppStrings.phoneNumberRequired);
-    }
-
-    if (phone.length < 8) {
-      return context.tr(AppStrings.invalidMobileNumber);
-    }
-
-    return null;
-  }
-
   Future<void> onLogin() async {
     if (!(formKey.currentState?.validate() ?? false)) return;
 
     FocusManager.instance.primaryFocus?.unfocus();
 
-    Loader.show();
-    await 1.delay();
-    Loader.hide();
-
     final bool isEmail = method == LoginMethod.email;
-    final String email = emailController.text.trim();
-    final String phone = phoneController.text.trim();
 
-    context.read<AppController>().setUser = UserModel(
-      id: 1,
-      name: isEmail ? email.split("@").first : phone,
-      email: isEmail ? email : null,
-      phoneNo: isEmail ? null : phone,
+    await ApiService.api.login(
+      showLoader: true,
+      type: isEmail ? ContactType.email : ContactType.phone,
+      email: isEmail ? emailController.text.trim() : null,
+      phoneCode: isEmail ? null : kDefaultPhoneCode,
+      phoneNo: isEmail ? null : localPhoneNo(phoneController.text),
+      password: passwordController.text,
+      onSuccess: (response) {
+        response.showMessage();
+        context.read<AppController>().signIn(response);
+      },
     );
-
-    context.read<AppController>().navigateToTab(kBottomNavHome);
-    AppNavigator.popUntilFirst(context);
-    AppNavigator.pushReplacementNamed(context, RouteName.mainPage);
   }
 
   @override

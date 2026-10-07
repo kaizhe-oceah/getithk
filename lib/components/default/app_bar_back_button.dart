@@ -36,7 +36,7 @@ class AppBarBackButton extends StatelessWidget {
         child: Icon(
           icon ?? Iconsax.arrow_left_copy,
           color: iconColor ?? context.color.onSurface,
-          size: kToolbarHeight * 0.35,
+          size: kToolbarHeight * 0.45,
         ),
       ),
     );

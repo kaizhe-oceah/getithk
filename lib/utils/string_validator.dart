@@ -20,6 +20,37 @@ class StringValidator {
     }
   }
 
+  /// [emailValidator] for sign-ups; see [AppRegex.registerEmail].
+  static String? registerEmailValidator(dynamic value) {
+    final String email = (value ?? "").toString().trim();
+
+    if (email.isEmpty) {
+      return NavigationService.context.tr(AppStrings.emailRequired);
+    } else if (!AppRegex.registerEmail.hasMatch(email)) {
+      return NavigationService.context.tr(AppStrings.emailInvalid);
+    } else {
+      return null;
+    }
+  }
+
+  /// Digits only; at least 8 of them.
+  static String? phoneValidator(dynamic value) {
+    final String phone = (value ?? "").toString().replaceAll(
+      RegExp(r'[^0-9]'),
+      '',
+    );
+
+    if (phone.isEmpty) {
+      return NavigationService.context.tr(AppStrings.phoneNumberRequired);
+    }
+
+    if (phone.length < 8) {
+      return NavigationService.context.tr(AppStrings.invalidMobileNumber);
+    }
+
+    return null;
+  }
+
   static String? passwordValidator(dynamic value) {
     if (value.isEmpty) {
       return NavigationService.context.tr(AppStrings.passwordEmpty);

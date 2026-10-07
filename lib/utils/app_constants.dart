@@ -1,11 +1,15 @@
 // TRIAL ACCOUNTS
 const kTrialAccounts = <String>{};
 
+// PHONE
+/// Country code sent with phone numbers; the forms have no picker yet.
+const String kDefaultPhoneCode = "+60";
+
 // BOTTOM NAV
 const int kBottomNavHome = 0;
 const int kBottomNavCart = 1;
 const int kBottomNavFavourite = 2;
-const int kBottomNavPerson = 3;
+const int kBottomNavProfile = 3;
 
 // FONT SIZE
 const double kFont8 = 8;

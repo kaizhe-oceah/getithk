@@ -16,6 +16,17 @@ class HttpClientCustom {
     ),
   )..interceptors.add(HttpLoggerCustom());
 
+  /// Headers sent with every request.
+  static Map<String, String> _headers({
+    required bool withBearer,
+    String? token,
+  }) => {
+    "Accept": "application/json",
+    "Accept-Language": kApiLanguage,
+    "Accept-Timezone": kApiTimezone,
+    if (withBearer) "Authorization": "Bearer $token",
+  };
+
   /// Get method
   static Future<void> httpGet({
     required String? apiUrl,
@@ -44,10 +55,7 @@ class HttpClientCustom {
         url,
         queryParameters: queryParams,
         options: Options(
-          headers: {
-            "Accept": "application/json",
-            if (withBearer) "Authorization": "Bearer $token",
-          },
+          headers: _headers(withBearer: withBearer, token: token),
           validateStatus: (status) {
             return true;
           },
@@ -59,13 +67,17 @@ class HttpClientCustom {
         onSuccess: onSuccess,
         onError: onError,
         hideLoader: showLoader,
+        withBearer: withBearer,
       );
     } on DioException catch (e) {
       if (isRethrowRequired) {
         rethrow;
       } else {
         Loader.hide();
-        ToastHelper.showToast(e.message ?? "Something went wrong");
+        ToastHelper.showToast(
+          e.message ??
+              NavigationService.context.tr(AppStrings.somethingWentWrong),
+        );
       }
     } catch (e) {
       Loader.hide();
@@ -99,10 +111,7 @@ class HttpClientCustom {
         url,
         data: params,
         options: Options(
-          headers: {
-            "Accept": "application/json",
-            if (withBearer) "Authorization": "Bearer $token",
-          },
+          headers: _headers(withBearer: withBearer, token: token),
           validateStatus: (status) {
             return true;
           },
@@ -114,13 +123,17 @@ class HttpClientCustom {
         onSuccess: onSuccess,
         onError: onError,
         hideLoader: showLoader,
+        withBearer: withBearer,
       );
     } on DioException catch (e) {
       if (isRethrowRequired) {
         rethrow;
       } else {
         Loader.hide();
-        ToastHelper.showToast(e.message ?? "Something went wrong");
+        ToastHelper.showToast(
+          e.message ??
+              NavigationService.context.tr(AppStrings.somethingWentWrong),
+        );
       }
     } catch (e) {
       Loader.hide();
@@ -203,10 +216,7 @@ class HttpClientCustom {
         url,
         data: formData,
         options: Options(
-          headers: {
-            "Accept": "application/json",
-            if (withBearer) "Authorization": "Bearer $token",
-          },
+          headers: _headers(withBearer: withBearer, token: token),
           validateStatus: (status) {
             return true;
           },
@@ -218,13 +228,16 @@ class HttpClientCustom {
         onSuccess: onSuccess,
         onError: onError,
         hideLoader: showLoader,
+        withBearer: withBearer,
       );
     } on DioException catch (e) {
       if (isRethrowRequired) {
         rethrow;
       } else {
         Loader.hide();
-        ToastHelper.showToast(e.message ?? "Multipart upload error");
+        ToastHelper.showToast(
+          e.message ?? NavigationService.context.tr(AppStrings.uploadFailed),
+        );
       }
     } catch (e) {
       Loader.hide();
