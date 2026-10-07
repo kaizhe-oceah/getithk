@@ -3,6 +3,9 @@ const kLogin = "/player/login";
 const kLogout = "/player/logout";
 const kRegister = "/player/register";
 const kSendOtp = "/send-otp";
+const kBanner = "/banner";
+const kPageBanner = "/page-banner";
+const kProductCategoryListing = "/product/category-listing";
 
 // API - Need Auth
 const kProfile = "/player/profile";

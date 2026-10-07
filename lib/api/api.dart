@@ -149,4 +149,67 @@ class Api {
       },
     );
   }
+
+  // home carousel banners
+  Future<void> getBanners({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kBanner,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // home page banners (promos under the carousel)
+  Future<void> getPageBanners({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kPageBanner,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // product categories
+  Future<void> getProductCategories({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kProductCategoryListing,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
 }

@@ -6,6 +6,7 @@ class AppButtonWidget extends StatelessWidget {
   final String? text;
   final EdgeInsetsGeometry? padding;
   final Color? textColor;
+  /// Corner radius; defaults to [kDefaultRadius].
   final double? radius;
   final double? textSize;
   final FontWeight? fontWeight;
@@ -101,7 +102,7 @@ class AppButtonWidget extends StatelessWidget {
         decoration: onTap != null
             ? BoxDecoration(
                 borderRadius:
-                    borderRadiusBuilder ?? BorderRadius.circular(radius ?? 6).r,
+                    borderRadiusBuilder ?? BorderRadius.circular(radius ?? kDefaultRadius).r,
                 color: buttonColor ?? context.color.primary,
                 gradient:
                     gradient ??
@@ -113,7 +114,7 @@ class AppButtonWidget extends StatelessWidget {
               )
             : BoxDecoration(
                 borderRadius:
-                    borderRadiusBuilder ?? BorderRadius.circular(radius ?? 6).r,
+                    borderRadiusBuilder ?? BorderRadius.circular(radius ?? kDefaultRadius).r,
                 color: AppColors.disabledColor,
                 border: Border.all(
                   color: borderColor ?? AppColors.transparentColor,

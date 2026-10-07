@@ -29,6 +29,10 @@ const double kFont22 = 22;
 const double kFont24 = 24;
 const double kFont26 = 26;
 
+// RADIUS
+/// Default corner radius of AppButtonWidget and AppTextFormField.
+const double kDefaultRadius = 15.0;
+
 // PADDING
 const double kHorizontalPadding = 15.0;
 const double kDialogPadding = 35.0;

@@ -24,3 +24,6 @@ enum AuthMethod {
   const AuthMethod(this.value);
   final int value;
 }
+
+/// Product order picked in the home page's sort dropdown.
+enum ProductSort { recommended, newest, priceLowToHigh, priceHighToLow }

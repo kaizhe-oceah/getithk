@@ -65,38 +65,9 @@ class SmartRefresherWrapper extends StatelessWidget {
           enablePullDown: enablePullDown,
           enablePullUp: enablePullUp,
           reverse: reverse,
-          header: ClassicHeader(
-            idleText: context.tr(AppStrings.refreshPullDownRefresh),
-            refreshingText: context.tr(AppStrings.refreshRefreshing),
-            releaseText: context.tr(AppStrings.refreshReleaseToRefresh),
-            completeText: context.tr(AppStrings.refreshCompleted),
-            failedText: context.tr(AppStrings.refreshFailed),
-            refreshingIcon: SizedBox(
-              height: 32.fh,
-              width: 32.fh,
-              child: const CircularProgressIndicatorWidget(),
-            ),
-            failedIcon: Icon(
-              Iconsax.danger_copy,
-              color: iconColor ?? context.color.onSurface,
-              size: 25.fw,
-            ),
-            completeIcon: Icon(
-              Iconsax.tick_circle_copy,
-              color: iconColor ?? context.color.onSurface,
-              size: 25.fw,
-            ),
-            idleIcon: Icon(
-              Iconsax.arrow_down_copy,
-              color: iconColor ?? context.color.onSurface,
-              size: 25.fw,
-            ),
-            releaseIcon: Icon(
-              Iconsax.refresh_copy,
-              color: iconColor ?? context.color.onSurface,
-              size: 25.fw,
-            ),
+          header: _LogoRefreshHeader(
             textStyle: textStyle ?? context.text.bodyMedium!,
+            iconColor: iconColor ?? context.color.onSurface,
           ),
           footer: CustomFooter(
             height: footerHeight ?? 60.0,
@@ -127,7 +98,9 @@ class SmartRefresherWrapper extends StatelessWidget {
                       SizedBox(
                         height: 32.fh,
                         width: 32.fh,
-                        child: const CircularProgressIndicatorWidget(),
+                        child: CircularProgressIndicatorWidget(
+                          image: AppAssets.appLogo,
+                        ),
                       ),
                       const SizedBox(width: 10),
                       AppText(
@@ -185,7 +158,9 @@ class SmartRefresherWrapper extends StatelessWidget {
         ),
         if (isLoading != null)
           if (isLoading!)
-            const Center(child: CircularProgressIndicatorWidget()),
+            Center(
+              child: CircularProgressIndicatorWidget(image: AppAssets.appLogo),
+            ),
       ],
     );
   }
@@ -210,5 +185,139 @@ class CustomBouncingScrollPhysics extends BouncingScrollPhysics {
     // Modify overscroll resistance (reduce bounce)
     final overscroll = super.applyBoundaryConditions(position, value);
     return overscroll / stiffness; // 👈 scale how much bounce occurs
+  }
+}
+
+/// Pull-to-refresh header. The app logo turns with the pull (one full turn
+/// by the time a release would refresh) and keeps spinning from that angle
+/// while refreshing; when it's done a tick (or, on failure, a warning) fades
+/// in in its place. A status line sits beside it.
+class _LogoRefreshHeader extends RefreshIndicator {
+  final TextStyle textStyle;
+  final Color iconColor;
+
+  const _LogoRefreshHeader({required this.textStyle, required this.iconColor});
+
+  @override
+  State<StatefulWidget> createState() => _LogoRefreshHeaderState();
+}
+
+class _LogoRefreshHeaderState extends RefreshIndicatorState<_LogoRefreshHeader>
+    with SingleTickerProviderStateMixin {
+  static const Duration _turnDuration = Duration(milliseconds: 700);
+
+  // value = turns (0..1): follows the pull, then repeats (linearly, so the
+  // speed is even) while refreshing, starting from the pulled angle.
+  late final AnimationController _turns = AnimationController(
+    vsync: this,
+    duration: _turnDuration,
+  );
+
+  @override
+  void onOffsetChange(double offset) {
+    // only while the user is pulling: not while refreshing (floating) or
+    // while the header slides away after it's done
+    if (!floating &&
+        (mode == RefreshStatus.idle || mode == RefreshStatus.canRefresh)) {
+      final double trigger = configuration?.headerTriggerDistance ?? 80;
+      _turns.value = (offset / trigger) % 1.0;
+    }
+    super.onOffsetChange(offset);
+  }
+
+  @override
+  void onModeChange(RefreshStatus? mode) {
+    if (mode == RefreshStatus.refreshing) {
+      _turns.repeat();
+    } else if (_turns.isAnimating) {
+      // done: ease into the end of the current turn rather than freezing
+      // mid-spin, while the tick fades in
+      _turns.animateTo(
+        1.0,
+        duration: _turnDuration * (1.0 - _turns.value),
+        curve: Curves.easeOut,
+      );
+    }
+    super.onModeChange(mode);
+  }
+
+  @override
+  void resetValue() {
+    _turns.value = 0;
+    super.resetValue();
+  }
+
+  @override
+  void dispose() {
+    _turns.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget buildContent(BuildContext context, RefreshStatus? mode) {
+    final double iconSize = 25.fw;
+    final String text = context.tr(switch (mode) {
+      RefreshStatus.canRefresh => AppStrings.refreshReleaseToRefresh,
+      RefreshStatus.refreshing => AppStrings.refreshRefreshing,
+      RefreshStatus.completed => AppStrings.refreshCompleted,
+      RefreshStatus.failed => AppStrings.refreshFailed,
+      _ => AppStrings.refreshPullDownRefresh,
+    });
+
+    final Widget icon = switch (mode) {
+      RefreshStatus.completed => Icon(
+        Iconsax.tick_circle_copy,
+        key: const ValueKey(RefreshStatus.completed),
+        size: iconSize,
+        color: widget.iconColor,
+      ),
+      RefreshStatus.failed => Icon(
+        Iconsax.danger_copy,
+        key: const ValueKey(RefreshStatus.failed),
+        size: iconSize,
+        color: widget.iconColor,
+      ),
+      _ => RepaintBoundary(
+        key: const ValueKey('logo'),
+        child: RotationTransition(
+          turns: _turns,
+          // same provider as AppLogo, so it's usually decoded already and the
+          // first pull doesn't hitch; medium filtering keeps the edges smooth
+          // while it turns
+          child: Image.asset(
+            AppAssets.appLogo,
+            width: iconSize,
+            height: iconSize,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.medium,
+          ),
+        ),
+      ),
+    };
+
+    return SizedBox(
+      height: widget.height,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: iconSize,
+            height: iconSize,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              switchInCurve: Curves.easeOutBack,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(scale: animation, child: child),
+              ),
+              child: icon,
+            ),
+          ),
+          10.widthSpace,
+          Text(text, style: widget.textStyle),
+        ],
+      ),
+    );
   }
 }

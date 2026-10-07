@@ -219,7 +219,7 @@ class _LoginPageState extends State<LoginPage>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _optionButton(
-          icon: Iconsax.sms_copy,
+          icon: Iconsax.sms,
           text: emailText,
           color: AppColors.loginFieldColor,
           contentColor: AppColors.loginTextColor,
@@ -227,7 +227,7 @@ class _LoginPageState extends State<LoginPage>
         ),
         12.heightSpace,
         _optionButton(
-          icon: Iconsax.call_copy,
+          icon:Iconsax.call,
           text: phoneText,
           color: AppColors.loginFieldColor,
           contentColor: AppColors.loginTextColor,
@@ -267,7 +267,7 @@ class _LoginPageState extends State<LoginPage>
   }) {
     return AppButtonWidget(
       buttonColor: color,
-      radius: 12,
+      radius: 15.r,
       padding: EdgeInsets.zero,
       onTap: onTap,
       builder: SizedBox(
@@ -426,7 +426,7 @@ class _LoginPageState extends State<LoginPage>
               reserveErrorSpace: true,
               labelText: context.tr(AppStrings.email),
               hintText: context.tr(AppStrings.enterEmail),
-              icon: Iconsax.sms_copy,
+              icon: Iconsax.sms,
             )
           else
             _textField(
@@ -437,7 +437,7 @@ class _LoginPageState extends State<LoginPage>
               reserveErrorSpace: true,
               labelText: context.tr(AppStrings.phoneNumber),
               hintText: context.tr(AppStrings.enterPhoneNumber),
-              icon: Iconsax.call_copy,
+              icon: Iconsax.call,
             ),
           _textField(
             controller: controller.passwordController,
@@ -446,7 +446,7 @@ class _LoginPageState extends State<LoginPage>
             obscureText: true,
             labelText: context.tr(AppStrings.password),
             hintText: context.tr(AppStrings.enterPassword),
-            icon: Iconsax.lock_copy,
+            icon: Iconsax.lock,
           ),
           _textField(
             controller: controller.confirmPasswordController,
@@ -455,7 +455,7 @@ class _LoginPageState extends State<LoginPage>
             obscureText: true,
             labelText: context.tr(AppStrings.confirmPassword),
             hintText: context.tr(AppStrings.confirmPassword),
-            icon: Iconsax.lock_copy,
+            icon: Iconsax.lock,
           ),
           _otpField(controller, isEmail: isEmail),
           _textField(
@@ -464,7 +464,7 @@ class _LoginPageState extends State<LoginPage>
             reserveErrorSpace: true,
             labelText: context.tr(AppStrings.referralCode),
             hintText: context.tr(AppStrings.enterReferralCode),
-            icon: Iconsax.gift_copy,
+            icon: Iconsax.gift,
           ),
           8.heightSpace,
 
@@ -559,7 +559,7 @@ class _LoginPageState extends State<LoginPage>
                 ],
                 reserveErrorSpace: true,
                 hintText: context.tr(AppStrings.enterOtp),
-                icon: Iconsax.shield_tick_copy,
+                icon: Iconsax.shield_tick,
               ),
             ),
             5.widthSpace,

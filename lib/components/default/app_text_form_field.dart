@@ -31,6 +31,7 @@ class AppTextFormField extends StatefulWidget {
   final FocusNode? focusNode;
   final String? errorText;
   final bool labelIsRequired;
+  /// Corner radius; defaults to [kDefaultRadius].
   final double radius;
   final FontWeight? labelFontWeight;
   final double borderWidth;
@@ -91,7 +92,7 @@ class AppTextFormField extends StatefulWidget {
     this.labelTextSpacing = 0.0,
     this.errorText,
     this.labelIsRequired = false,
-    this.radius = 8,
+    this.radius = kDefaultRadius,
     this.labelFontWeight,
     this.borderWidth = 1.0,
     this.textFontWeight,

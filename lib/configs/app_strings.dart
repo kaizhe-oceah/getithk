@@ -92,6 +92,11 @@ class AppStrings {
   static const String topUp = 'top_up';
   static const String memberId = 'member_id';
   static const String commonFunctions = 'common_functions';
+  static const String filter = 'filter';
+  static const String sortRecommended = 'sort_recommended';
+  static const String sortNewest = 'sort_newest';
+  static const String sortPriceLowToHigh = 'sort_price_low_to_high';
+  static const String sortPriceHighToLow = 'sort_price_high_to_low';
   static const String inviteFriends = 'invite_friends';
   static const String vouchers = 'vouchers';
   static const String backpack = 'backpack';
