@@ -1,102 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
+<dict>
+	<key>AblyFlutterHandlePushNotifications</key>
+	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>GetItHK</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>GetItHK</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FLTEnableImpeller</key>
+	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>CADisableMinimumFrameDurationOnPhone</key>
+		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-		<key>CFBundleDevelopmentRegion</key>
-		<string>$(DEVELOPMENT_LANGUAGE)</string>
-		<key>CFBundleDisplayName</key>
-		<string>GetItHK</string>
-		<key>CFBundleExecutable</key>
-		<string>$(EXECUTABLE_NAME)</string>
-		<key>CFBundleIdentifier</key>
-		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-		<key>CFBundleInfoDictionaryVersion</key>
-		<string>6.0</string>
-		<key>CFBundleName</key>
-		<string>GetItHK</string>
-		<key>CFBundlePackageType</key>
-		<string>APPL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>$(FLUTTER_BUILD_NAME)</string>
-		<key>CFBundleSignature</key>
-		<string>????</string>
-		<key>CFBundleVersion</key>
-		<string>$(FLUTTER_BUILD_NUMBER)</string>
-		<key>FLTEnableImpeller</key>
-		<true/>
-		<key>LSApplicationQueriesSchemes</key>
-		<array>
-			<string>tel</string>
-		</array>
-		<key>LSRequiresIPhoneOS</key>
-		<true/>
-		<key>NSAppTransportSecurity</key>
-		<dict>
-			<key>NSAllowsArbitraryLoads</key>
-			<true/>
-		</dict>
-		<!-- ably -->
-		<key>AblyFlutterHandlePushNotifications</key>
-		<false/>
-		<!-- Apple Music -->
-		<key>NSAppleMusicUsageDescription</key>
-		<string>This app does not access or collect your music library. This permission is required due to system frameworks used by the app.</string>
-		<!-- Location -->
-		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>This app does not actively use your location. Location access may be requested only if required by underlying system services.</string>
-		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>This app does not continuously track your location. This permission exists due to system or third-party frameworks used by the app.</string>
-		<!-- Bluetooth -->
-		<key>NSBluetoothAlwaysUsageDescription</key>
-		<string>This app does not actively use Bluetooth. This permission is included due to system frameworks that may reference Bluetooth-related APIs.</string>
-		<key>NSCameraUsageDescription</key>
-		<string>We need access to your camera to capture photos and videos.</string>
-		<key>NSMicrophoneUsageDescription</key>
-		<string>We need access to your microphone for recording audio in videos.</string>
-		<key>NSPhotoLibraryUsageDescription</key>
-		<string>We need access to your photo library to upload and select images.</string>
-		<key>UIApplicationSupportsIndirectInputEvents</key>
-		<true/>
-		<key>UIBackgroundModes</key>
-		<array>
-			<string>remote-notification</string>
-		</array>
-		<key>UILaunchStoryboardName</key>
-		<string>LaunchScreen</string>
-		<key>UIApplicationSceneManifest</key>
-		<dict>
-			<key>UIApplicationSupportsMultipleScenes</key>
-			<false/>
-			<key>UISceneConfigurations</key>
-			<dict>
-				<key>UIWindowSceneSessionRoleApplication</key>
-				<array>
-					<dict>
-						<key>UISceneClassName</key>
-						<string>UIWindowScene</string>
-						<key>UISceneDelegateClassName</key>
-						<string>FlutterSceneDelegate</string>
-						<key>UISceneConfigurationName</key>
-						<string>flutter</string>
-						<key>UISceneStoryboardFile</key>
-						<string>Main</string>
-					</dict>
-				</array>
-			</dict>
-		</dict>
-		<key>UIMainStoryboardFile</key>
-		<string>Main</string>
-		<key>UIRequiresFullScreen</key>
-		<true/>
-		<key>UISupportedInterfaceOrientations</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-		</array>
-		<key>ITSAppUsesNonExemptEncryption</key>
-		<false/>
-		<key>UIStatusBarHidden</key>
-		<false/>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app does not access or collect your music library. This permission is required due to system frameworks used by the app.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app does not actively use Bluetooth. This permission is included due to system frameworks that may reference Bluetooth-related APIs.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to capture photos and videos.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app does not continuously track your location. This permission exists due to system or third-party frameworks used by the app.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app does not actively use your location. Location access may be requested only if required by underlying system services.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone for recording audio in videos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to upload and select images.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>UIStatusBarHidden</key>
+	<false/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+</dict>
 </plist>

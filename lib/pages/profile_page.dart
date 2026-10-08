@@ -19,20 +19,31 @@ class _ProfilePageState extends State<ProfilePage> {
 
   static const int _cardCount = 0;
 
-  static const List<(IconData, String)> _menuItems = [
-    (Iconsax.profile_2user, AppStrings.inviteFriends),
-    (Iconsax.ticket_discount, AppStrings.vouchers),
-    (Iconsax.bag_2, AppStrings.backpack),
-    (Iconsax.receipt_2, AppStrings.myOrders),
-    (Iconsax.location, AppStrings.shippingAddress),
-    (Iconsax.shop, AppStrings.salesRecord),
-    (Iconsax.gift, AppStrings.drawRecord),
-    (Iconsax.message_question, AppStrings.helpCenter),
-    (Iconsax.document_text, AppStrings.termsOfService),
-    (Iconsax.shield_tick, AppStrings.privacyPolicy),
-    (Iconsax.headphone, AppStrings.onlineCustomerService),
-    (Iconsax.setting_2, AppStrings.settings),
+  static List<_MenuItem> get _menuItems => [
+    _MenuItem(AppStrings.inviteFriends, image: AppAssets.menuInviteFriends),
+    _MenuItem(AppStrings.vouchers, image: AppAssets.menuVouchers),
+    _MenuItem(AppStrings.backpack, image: AppAssets.menuBackpack),
+    _MenuItem(AppStrings.myOrders, image: AppAssets.menuMyOrders),
+    _MenuItem(AppStrings.shippingAddress, image: AppAssets.menuShippingAddress),
+    _MenuItem(AppStrings.salesRecord, image: AppAssets.menuSalesRecord),
+    _MenuItem(AppStrings.drawRecord, image: AppAssets.menuDrawRecord),
+    _MenuItem(AppStrings.helpCenter, image: AppAssets.menuHelpCenter),
+    // no pictures for these two yet
+    const _MenuItem(AppStrings.termsOfService, icon: Iconsax.document_text),
+    const _MenuItem(AppStrings.privacyPolicy, icon: Iconsax.shield_tick),
+    _MenuItem(
+      AppStrings.onlineCustomerService,
+      image: AppAssets.menuCustomerService,
+    ),
+    _MenuItem(AppStrings.settings, image: AppAssets.menuSettings),
   ];
+
+  static const ColorFilter _grayscale = ColorFilter.matrix(<double>[
+    0.2126, 0.7152, 0.0722, 0, 0, //
+    0.2126, 0.7152, 0.0722, 0, 0, //
+    0.2126, 0.7152, 0.0722, 0, 0, //
+    0, 0, 0, 1, 0, //
+  ]);
 
   @override
   void dispose() {
@@ -54,7 +65,6 @@ class _ProfilePageState extends State<ProfilePage> {
     final AppController app = context.watch<AppController>();
     final UserModel? user = app.user;
 
-    // logged out: the profile tab is the login page
     if (user == null) return const LoginPage(isTab: true);
 
     return AppScaffold.basic(
@@ -92,13 +102,13 @@ class _ProfilePageState extends State<ProfilePage> {
               color: AppColors.loginTextColor,
             ),
             10.heightSpace,
-            for (final item in _menuItems) ...[
-              _menuTile(item, onTap: _menuAction(item.$2)),
+            for (final _MenuItem item in _menuItems) ...[
+              _menuTile(item, onTap: _menuAction(item.label)),
               8.heightSpace,
             ],
 
             _menuTile(
-              (Iconsax.logout, AppStrings.logout),
+              _MenuItem(AppStrings.logout, image: AppAssets.menuLogout),
               color: AppColors.redColor,
               onTap: BottomSheetHelper.logout,
             ),
@@ -109,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _header(UserModel user, LevelModel? level) {
-    final Color white = AppColors.whiteColor;
+    const Color white = AppColors.whiteColor;
 
     return Container(
       padding: const EdgeInsets.all(14).r,
@@ -129,18 +139,17 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           14.heightSpace,
 
-          // my cards
           InkWellWrapper(
             onTap: _comingSoon,
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12).r,
+              padding: const EdgeInsets.symmetric(vertical: 8).r,
               decoration: BoxDecoration(
                 color: white.wOpacity(0.2),
                 borderRadius: BorderRadius.circular(12).r,
               ),
               child: Column(
                 children: [
-                  AppText(
+                  const AppText(
                     '$_cardCount',
                     fontSize: kFont18,
                     fontWeight: FontWeight.w700,
@@ -248,7 +257,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// "Lv.1" badge, exp bar and "0 / 5,000 Exp".
   Widget _levelRow(LevelModel level) {
     const Color white = AppColors.whiteColor;
     final NumberFormat exp = NumberFormat('#,##0');
@@ -348,13 +356,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _ => null,
   };
 
-  Widget _menuTile(
-    (IconData, String) item, {
-    VoidCallback? onTap,
-    Color? color,
-  }) {
-    final (IconData icon, String label) = item;
-
+  Widget _menuTile(_MenuItem item, {VoidCallback? onTap, Color? color}) {
     return InkWellWrapper(
       onTap: onTap ?? _comingSoon,
       child: Container(
@@ -363,15 +365,11 @@ class _ProfilePageState extends State<ProfilePage> {
         decoration: _cardDecoration,
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 20.r,
-              color: color ?? AppColors.profileMenuIconColor,
-            ),
+            _menuLeading(item, color: color),
             12.widthSpace,
             Expanded(
               child: AppText(
-                context.tr(label),
+                context.tr(item.label),
                 fontSize: kFont14,
                 fontWeight: FontWeight.w500,
                 color: color ?? AppColors.loginTextColor,
@@ -388,7 +386,34 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// White card with a hairline border and a soft shadow.
+  Widget _menuLeading(_MenuItem item, {Color? color}) {
+    final String? image = item.image;
+    final double imageSize = 36.r;
+
+    if (image == null) {
+      return SizedBox(
+        width: imageSize,
+        child: Icon(
+          item.icon,
+          size: 20.r,
+          color: color ?? AppColors.profileMenuIconColor,
+        ),
+      );
+    }
+
+    return ColorFiltered(
+      colorFilter: _grayscale,
+      child: Image.asset(
+        image,
+        width: imageSize,
+        height: imageSize,
+        fit: BoxFit.contain,
+        cacheWidth: (imageSize * MediaQuery.devicePixelRatioOf(context))
+            .round(),
+      ),
+    );
+  }
+
   BoxDecoration get _cardDecoration => BoxDecoration(
     color: AppColors.whiteColor,
     borderRadius: BorderRadius.circular(12).r,
@@ -401,4 +426,12 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     ],
   );
+}
+
+class _MenuItem {
+  final String label;
+  final String? image;
+  final IconData? icon;
+
+  const _MenuItem(this.label, {this.image, this.icon});
 }

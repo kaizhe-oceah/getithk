@@ -12,6 +12,19 @@ class AppAssets {
   static String get coins => "assets/images/coins.png";
   static String get prize => "assets/images/prize.png";
   static String get topUp => "assets/images/topup.png";
+
+  // profile menu
+  static String get menuInviteFriends => "assets/images/menu_invite_friends.png";
+  static String get menuVouchers => "assets/images/menu_vouchers.png";
+  static String get menuBackpack => "assets/images/menu_backpack.png";
+  static String get menuMyOrders => "assets/images/menu_my_orders.png";
+  static String get menuShippingAddress => "assets/images/menu_shipping_address.png";
+  static String get menuSalesRecord => "assets/images/menu_sales_record.png";
+  static String get menuDrawRecord => "assets/images/menu_draw_record.png";
+  static String get menuHelpCenter => "assets/images/menu_help_center.png";
+  static String get menuCustomerService => "assets/images/menu_customer_service.png";
+  static String get menuSettings => "assets/images/menu_settings.png";
+  static String get menuLogout => "assets/images/menu_logout.png";
   static String get homeBackground => "assets/images/bg.jpg";
 
   // no data

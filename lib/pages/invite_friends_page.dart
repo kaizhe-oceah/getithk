@@ -51,18 +51,17 @@ class InviteFriendsPage extends StatelessWidget {
         children: [
           _header(context),
           12.heightSpace,
-          AppSkeletonizer(
-            enabled: controller.isLoading,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _stats(context, invitePoint),
-                12.heightSpace,
-                _inviteCode(context, controller),
-                12.heightSpace,
-                _rewards(context, controller, invitePoint),
-              ],
-            ),
+          // only the API's numbers and tiers show a skeleton while loading;
+          // the fixed text and images show at once
+          _stats(context, invitePoint, loading: controller.isLoading),
+          12.heightSpace,
+          _inviteCode(context, controller),
+          12.heightSpace,
+          _rewards(
+            context,
+            controller,
+            invitePoint,
+            loading: controller.isLoading,
           ),
         ],
       ),
@@ -191,7 +190,11 @@ class InviteFriendsPage extends StatelessWidget {
     );
   }
 
-  Widget _stats(BuildContext context, InvitePointModel invitePoint) {
+  Widget _stats(
+    BuildContext context,
+    InvitePointModel invitePoint, {
+    required bool loading,
+  }) {
     Widget divider() => Container(
       width: 1,
       height: 40.r,
@@ -212,23 +215,27 @@ class InviteFriendsPage extends StatelessWidget {
               AppStrings.peopleCount,
               args: ['${invitePoint.successfulInvites}'],
             ),
+            loading: loading,
           ),
           divider(),
           _stat(
             context.tr(AppStrings.claimableRewards),
             _points(invitePoint.claimablePoint),
+            loading: loading,
           ),
           divider(),
           _stat(
             context.tr(AppStrings.totalRewards),
             _points(invitePoint.totalClaimedPoint),
+            loading: loading,
           ),
         ],
       ),
     );
   }
 
-  Widget _stat(String label, String value) {
+  /// [label] above [value]; only the value is a skeleton while [loading].
+  Widget _stat(String label, String value, {required bool loading}) {
     return Expanded(
       child: Column(
         children: [
@@ -238,11 +245,14 @@ class InviteFriendsPage extends StatelessWidget {
             color: AppColors.whiteColor,
             fontWeight: FontWeight.w500,
           ),
-          AppText(
-            value,
-            fontSize: kFont20,
-            fontWeight: FontWeight.w600,
-            color: AppColors.whiteColor,
+          AppSkeletonizer(
+            enabled: loading,
+            child: AppText(
+              value,
+              fontSize: kFont20,
+              fontWeight: FontWeight.w600,
+              color: AppColors.whiteColor,
+            ),
           ),
         ],
       ),
@@ -351,8 +361,9 @@ class InviteFriendsPage extends StatelessWidget {
   Widget _rewards(
     BuildContext context,
     InviteFriendsController controller,
-    InvitePointModel invitePoint,
-  ) {
+    InvitePointModel invitePoint, {
+    required bool loading,
+  }) {
     final Color primary = context.color.primary;
     final EdgeInsets tableInset = const EdgeInsets.symmetric(horizontal: 12).r;
 
@@ -402,39 +413,50 @@ class InviteFriendsPage extends StatelessWidget {
           ),
           14.heightSpace,
 
-          Padding(
-            padding: EdgeInsets.only(right: tableInset.right),
-            child: Row(
+          // this round and its tiers: a skeleton while loading
+          AppSkeletonizer(
+            enabled: loading,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: AppText(
-                    context.tr(
-                      AppStrings.roundRewards,
-                      args: [_roundNumber(context, invitePoint.round)],
-                    ),
-                    fontSize: kFont14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.loginTextColor,
+                Padding(
+                  padding: EdgeInsets.only(right: tableInset.right),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AppText(
+                          context.tr(
+                            AppStrings.roundRewards,
+                            args: [_roundNumber(context, invitePoint.round)],
+                          ),
+                          fontSize: kFont14,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.loginTextColor,
+                        ),
+                      ),
+                      _smallButton(
+                        text: context.tr(AppStrings.claimAll),
+                        icon: Iconsax.gift,
+                        onTap: invitePoint.canClaimAll
+                            ? controller.onClaimAll
+                            : null,
+                      ),
+                    ],
                   ),
                 ),
-                _smallButton(
-                  text: context.tr(AppStrings.claimAll),
-                  icon: Iconsax.gift,
-                  onTap: invitePoint.canClaimAll ? controller.onClaimAll : null,
-                ),
+                6.heightSpace,
+                for (int i = 0; i < invitePoint.tiers.length; i++)
+                  _tier(
+                    context,
+                    controller,
+                    invitePoint.tiers[i],
+                    inset: tableInset,
+                    // no line under the last one
+                    divider: i < invitePoint.tiers.length - 1,
+                  ),
               ],
             ),
           ),
-          6.heightSpace,
-          for (int i = 0; i < invitePoint.tiers.length; i++)
-            _tier(
-              context,
-              controller,
-              invitePoint.tiers[i],
-              inset: tableInset,
-              // no line under the last one
-              divider: i < invitePoint.tiers.length - 1,
-            ),
         ],
       ),
     );
