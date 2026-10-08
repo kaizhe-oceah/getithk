@@ -4,13 +4,16 @@ import "package:page_transition/page_transition.dart";
 
 // Project imports:
 import "../imports.dart";
-import "../pages/cart_page.dart";
-import "../pages/favourite_page.dart";
+import "../pages/activity_page.dart";
+import "../pages/backpack_page.dart";
 import "../pages/home_page.dart";
+import "../pages/invite_friends_page.dart";
 import "../pages/login_page.dart";
 import "../pages/main_page.dart";
 import "../pages/profile_page.dart";
 import "../pages/splash_page.dart";
+import "../pages/tnc_page.dart";
+import "../pages/topup_page.dart";
 
 class RouteGenerator {
   static Route? generateRoute(RouteSettings settings) {
@@ -55,14 +58,25 @@ class RouteGenerator {
       case RouteName.homePage:
         return const HomePage();
 
-      case RouteName.cartPage:
-        return const CartPage();
+      case RouteName.backpackPage:
+        return const BackpackPage();
 
-      case RouteName.favouritePage:
-        return const FavouritePage();
+      case RouteName.activityPage:
+        return const ActivityPage();
 
       case RouteName.profilePage:
         return const ProfilePage();
+
+      // arguments: the TncType to show (terms of service by default)
+      case RouteName.inviteFriendsPage:
+        return const InviteFriendsPage();
+
+      case RouteName.topupPage:
+        return const TopupPage();
+
+      case RouteName.tncPage:
+        final Object? type = settings.arguments;
+        return TncPage(type: type is TncType ? type : TncType.terms);
 
       default:
         return null;

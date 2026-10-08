@@ -1,5 +1,6 @@
 // Flutter imports:
-import 'package:flutter/rendering.dart' show RenderAbstractViewport;
+import 'package:flutter/rendering.dart'
+    show RenderAbstractViewport, RenderProxySliver, RenderSliver;
 
 // Package imports:
 import 'package:carousel_slider/carousel_slider.dart';
@@ -7,12 +8,15 @@ import 'package:liquid_glass_bottom_nav/liquid_glass_bottom_nav.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // Project imports:
+import '../components/main_product/main_product_card.dart';
+import '../components/main_product/main_product_empty.dart';
+import '../components/main_product/product_tag_chip.dart';
 import '../controllers/home_controller.dart';
 import '../imports.dart';
 import '../models/banner_model.dart';
 import '../models/category_model.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   static const double _bannerAspectRatio = 15 / 8;
@@ -22,7 +26,25 @@ class HomePage extends StatelessWidget {
   static double get _categoryLogoHeight => 30.r;
 
   @override
+  State<HomePage> createState() => _HomePageState();
+
+  static EdgeInsets get _filterBarPadding =>
+      const EdgeInsets.symmetric(horizontal: 12, vertical: 6).r;
+  static const FontWeight _filterBarWeight = FontWeight.w500;
+
+  static const double _backgroundAspectRatio = 2560 / 1184;
+
+  static const Color _productsBackgroundColor = Color(0xFF2B1766);
+}
+
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin<HomePage> {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return ChangeNotifierProvider(
       create: (_) => HomeController(),
       child: AppScaffold.basic(
@@ -41,73 +63,205 @@ class HomePage extends StatelessWidget {
       horizontal: kHorizontalPadding.r,
     );
 
-    return SmartRefresherWrapper(
-      controller: controller.refreshController,
-      onRefresh: controller.onRefresh,
-      child: ListView(
-        // no side padding here, so the background can run edge to edge;
-        // the other sections pad themselves
-        padding: EdgeInsets.only(
-          top: 10.r,
-          bottom:
+    return Stack(
+      children: [
+        const Positioned.fill(
+          child: Column(
+            children: [
+              Expanded(child: ColoredBox(color: AppColors.whiteColor)),
+              Expanded(
+                child: ColoredBox(color: HomePage._productsBackgroundColor),
+              ),
+            ],
+          ),
+        ),
+
+        NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            final ScrollMetrics metrics = notification.metrics;
+            if (metrics.axis == Axis.vertical &&
+                metrics.extentAfter < metrics.viewportDimension) {
+              controller.onLoadMore();
+            }
+            return false;
+          },
+          child: SmartRefresherWrapper(
+            controller: controller.refreshController,
+            onRefresh: controller.onRefresh,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: ColoredBox(
+                    color: AppColors.whiteColor,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 10.r),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: sidePadding,
+                            child: controller.isLoading
+                                ? _skeleton()
+                                : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      if (controller.banners.isNotEmpty) ...[
+                                        _bannerCarousel(context, controller),
+                                        10.heightSpace,
+                                      ],
+                                      if (controller
+                                          .pageBanners
+                                          .isNotEmpty) ...[
+                                        _pageBanners(context, controller),
+                                        12.heightSpace,
+                                      ],
+                                      if (controller.categories.isNotEmpty)
+                                        _categoryTabs(context, controller),
+                                    ],
+                                  ),
+                          ),
+                          12.heightSpace,
+
+                          Padding(
+                            padding: sidePadding,
+                            child: _filterBar(context, controller),
+                          ),
+                          if (controller.filterTags.isNotEmpty) ...[
+                            6.heightSpace,
+                            _activeFilters(context, controller),
+                          ],
+                          12.heightSpace,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                _products(context, controller),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _products(BuildContext context, HomeController controller) {
+    final double width = MediaQuery.sizeOf(context).width;
+
+    return _FixedBackgroundSliver(
+      image: DecorationImage(
+        image: ResizeImage.resizeIfNeeded(
+          _cacheWidth(context, width),
+          null,
+          AssetImage(AppAssets.homeBackground),
+        ),
+        fit: BoxFit.fill,
+      ),
+      imageAspectRatio: HomePage._backgroundAspectRatio,
+      color: HomePage._productsBackgroundColor,
+      sliver: SliverPadding(
+        padding: EdgeInsets.fromLTRB(
+          kHorizontalPadding.r,
+          kHorizontalPadding.r,
+          kHorizontalPadding.r,
+          16.r +
               LiquidGlassNavBar.contentBottomInset +
               MediaQuery.paddingOf(context).bottom,
         ),
-        children: [
-          // from the API: a skeleton while loading
-          Padding(
-            padding: sidePadding,
-            child: controller.isLoading
-                ? _skeleton()
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (controller.banners.isNotEmpty) ...[
-                        _bannerCarousel(context, controller),
-                        10.heightSpace,
-                      ],
-                      if (controller.pageBanners.isNotEmpty) ...[
-                        _pageBanners(context, controller),
-                        12.heightSpace,
-                      ],
-                      if (controller.categories.isNotEmpty)
-                        _categoryTabs(context, controller),
-                    ],
-                  ),
-          ),
-          12.heightSpace,
-
-          Padding(padding: sidePadding, child: _filterBar(context, controller)),
-          12.heightSpace,
-
-          _background(context),
-        ],
+        sliver: _productList(context, controller),
       ),
     );
   }
 
-  /// 篩選 on the left, the sort dropdown on the right.
+  Widget _productList(BuildContext context, HomeController controller) {
+    if (controller.isLoading || controller.isLoadingProducts) {
+      return SliverList.list(
+        children: [
+          const MainProductCardSkeleton(),
+          12.heightSpace,
+          const MainProductCardSkeleton(),
+        ],
+      );
+    }
+
+    if (controller.products.isEmpty) {
+      return SliverToBoxAdapter(
+        child: MainProductEmpty(
+          onClearFilter: controller.tagIds.isEmpty
+              ? null
+              : () => controller.onFilterTags([]),
+        ),
+      );
+    }
+
+    return SliverList.builder(
+      itemCount: controller.products.length + 1,
+      itemBuilder: (context, index) {
+        if (index == controller.products.length) {
+          return _loadMoreStatus(context, controller);
+        }
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: 12.r),
+          child: MainProductCard(
+            product: controller.products[index],
+            onDraw: () =>
+                ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _loadMoreStatus(BuildContext context, HomeController controller) {
+    if (controller.isLoadingMoreProducts) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8).r,
+        child: const Center(child: CircularProgressIndicatorWidget(size: 36)),
+      );
+    }
+
+    if (controller.loadMoreFailed) {
+      return InkWellWrapper(
+        onTap: () => controller.onLoadMore(retry: true),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12).r,
+          child: AppText(
+            context.tr(AppStrings.loadFailTryAgain),
+            color: AppColors.whiteColor,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
   Widget _filterBar(BuildContext context, HomeController controller) {
     final Color primary = context.color.primary;
 
     return Row(
       children: [
-        SizedBox(
-          height: _filterBarHeight,
-          child: AppButtonWidget(
-            text: context.tr(AppStrings.filter),
-            isMinWidth: true,
-            radius: 8,
-            textSize: kFont12,
-            buttonColor: AppColors.whiteColor,
-            borderColor: primary,
-            textColor: primary,
-            icon: Icon(Iconsax.setting_4_copy, size: 15.r, color: primary),
-            iconSpace: 5,
-            padding: const EdgeInsets.symmetric(horizontal: 12).r,
-            // TODO(getithk): open the filter options
-            onTap: () =>
-                ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
+        AppButtonWidget(
+          text: controller.tagIds.isEmpty
+              ? context.tr(AppStrings.filter)
+              : '${context.tr(AppStrings.filter)} (${controller.tagIds.length})',
+          isMinWidth: true,
+          radius: 8,
+          textSize: kFont12,
+          fontWeight: HomePage._filterBarWeight,
+          buttonColor: AppColors.whiteColor,
+          borderColor: primary,
+          textColor: primary,
+          icon: Icon(Iconsax.setting_4_copy, size: 15.r, color: primary),
+          iconSpace: 5,
+          padding: HomePage._filterBarPadding,
+          onTap: () => BottomSheetHelper.tagFilter(
+            selected: controller.filterTags,
+            onConfirm: controller.onFilterTags,
           ),
         ),
         const Spacer(),
@@ -116,21 +270,102 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  static double get _filterBarHeight => 36.r;
+  Widget _activeFilters(BuildContext context, HomeController controller) {
+    final double fade = 12.r;
+
+    return Row(
+      children: [
+        Expanded(
+          child: ShaderMask(
+            blendMode: BlendMode.dstIn,
+            shaderCallback: (bounds) => LinearGradient(
+              colors: const [Colors.white, Colors.white, Colors.transparent],
+              stops: [0, 1 - fade / bounds.width, 1],
+            ).createShader(bounds),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.fromLTRB(
+                kHorizontalPadding.r,
+                4.r,
+                fade,
+                4.r,
+              ),
+              child: Row(
+                children: [
+                  for (final tag in controller.filterTags)
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.r),
+                      child: ProductTagChip(
+                        tag: tag,
+                        selected: true,
+                        fontSize: kFont10,
+                        onRemove: () => controller.onRemoveFilterTag(tag),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        InkWellWrapper(
+          onTap: () => controller.onFilterTags([]),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(4.r, 6.r, kHorizontalPadding.r, 6.r),
+            child: AppText(
+              context.tr(AppStrings.clearFilter),
+              fontSize: kFont12,
+              fontWeight: FontWeight.w500,
+              color: context.color.primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   String _sortLabel(BuildContext context, ProductSort sort) =>
       context.tr(switch (sort) {
         ProductSort.recommended => AppStrings.sortRecommended,
+        ProductSort.lowStock => AppStrings.sortLowStock,
         ProductSort.newest => AppStrings.sortNewest,
         ProductSort.priceLowToHigh => AppStrings.sortPriceLowToHigh,
         ProductSort.priceHighToLow => AppStrings.sortPriceHighToLow,
       });
 
-  /// Red-outlined sort picker: the choice with a ▼ right after it, both in
-  /// red; the open menu highlights the current choice.
+  Size _sortButtonSize(BuildContext context) {
+    final TextStyle style = DefaultTextStyle.of(context).style.merge(
+      TextStyle(fontSize: kFont12.sp, fontWeight: HomePage._filterBarWeight),
+    );
+    double textWidth = 0;
+    double textHeight = 0;
+
+    for (final ProductSort sort in ProductSort.values) {
+      final TextPainter painter = TextPainter(
+        text: TextSpan(text: _sortLabel(context, sort), style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      if (painter.width > textWidth) textWidth = painter.width;
+      if (painter.height > textHeight) textHeight = painter.height;
+      painter.dispose();
+    }
+
+    final EdgeInsets padding = HomePage._filterBarPadding;
+    const double border = 1;
+
+    return Size(
+      // the label, the gap and the ▾
+      padding.horizontal + textWidth + 4.r + 12.r + border * 2,
+      padding.vertical + textHeight + border * 2,
+    );
+  }
+
   Widget _sortDropdown(BuildContext context, HomeController controller) {
     final Color primary = context.color.primary;
     final BorderRadius radius = BorderRadius.circular(8).r;
+    // the menu is exactly as wide as the button, each option as tall
+    final Size size = _sortButtonSize(context);
 
     return DropdownButtonHideUnderline(
       child: DropdownButton2<ProductSort>(
@@ -142,36 +377,41 @@ class HomePage extends StatelessWidget {
           for (final ProductSort sort in ProductSort.values)
             DropdownItem(
               value: sort,
-              height: 40.r,
-              child: AppText(
-                _sortLabel(context, sort),
-                fontSize: kFont12,
-                color: AppColors.loginTextColor,
+              height: size.height,
+              child: ValueListenableBuilder<ProductSort>(
+                valueListenable: controller.sort,
+                builder: (context, current, _) => AppText(
+                  _sortLabel(context, sort),
+                  fontSize: kFont12,
+                  fontWeight: HomePage._filterBarWeight,
+                  color: current == sort ? primary : AppColors.loginTextColor,
+                ),
               ),
             ),
         ],
-        // Own button, sized to its content, so the ▼ sits right after the
-        // text (the default one pins the icon to a fixed width's far end).
         customButton: ValueListenableBuilder<ProductSort>(
           valueListenable: controller.sort,
           builder: (context, sort, _) => Container(
-            height: _filterBarHeight,
-            padding: const EdgeInsets.symmetric(horizontal: 12).r,
+            width: size.width,
+            padding: HomePage._filterBarPadding,
             decoration: BoxDecoration(
               color: AppColors.whiteColor,
               border: Border.all(color: primary),
               borderRadius: radius,
             ),
+            // the label where the menu's options start, the ▾ at the end
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                AppText(
-                  _sortLabel(context, sort),
-                  fontSize: kFont12,
-                  fontWeight: FontWeight.w500,
-                  color: primary,
+                Expanded(
+                  child: AppText(
+                    _sortLabel(context, sort),
+                    fontSize: kFont12,
+                    fontWeight: HomePage._filterBarWeight,
+                    color: primary,
+                    isOverflow: true,
+                  ),
                 ),
-                2.widthSpace,
+                4.widthSpace,
                 Icon(Iconsax.arrow_down, size: 12.r, color: primary),
               ],
             ),
@@ -181,10 +421,7 @@ class HomePage extends StatelessWidget {
           overlayColor: WidgetStateColor.transparent,
         ),
         dropdownStyleData: DropdownStyleData(
-          // wider than the button for the longer options; it's at the
-          // screen's right edge, so the menu grows leftwards
-          width: 150.r,
-          direction: DropdownDirection.left,
+          width: size.width,
           offset: Offset(0, -4.r),
           elevation: 0,
           decoration: BoxDecoration(
@@ -201,24 +438,14 @@ class HomePage extends StatelessWidget {
           ),
         ),
         menuItemStyleData: MenuItemStyleData(
-          padding: const EdgeInsets.symmetric(horizontal: 14).r,
+          // inset like the button's label, so the text lines up
+          padding: EdgeInsets.symmetric(
+            horizontal: HomePage._filterBarPadding.left,
+          ),
           selectedMenuItemBuilder: (context, child) =>
               ColoredBox(color: primary.wOpacity(0.06), child: child),
         ),
       ),
-    );
-  }
-
-  /// bg.jpg, full width with no padding, at its own proportions.
-  Widget _background(BuildContext context) {
-    final double width = MediaQuery.sizeOf(context).width;
-
-    return Image.asset(
-      AppAssets.homeBackground,
-      width: width,
-      fit: BoxFit.contain,
-      // decode no larger than the screen needs (never above its own 1184px)
-      cacheWidth: _cacheWidth(context, width),
     );
   }
 
@@ -255,7 +482,7 @@ class HomePage extends StatelessWidget {
                 ),
             ],
             options: CarouselOptions(
-              aspectRatio: _bannerAspectRatio,
+              aspectRatio: HomePage._bannerAspectRatio,
               viewportFraction: 1,
               autoPlay: multiple,
               enableInfiniteScroll: multiple,
@@ -302,7 +529,7 @@ class HomePage extends StatelessWidget {
               onTap: () =>
                   ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
               child: AspectRatio(
-                aspectRatio: _pageBannerAspectRatio,
+                aspectRatio: HomePage._pageBannerAspectRatio,
                 child: AppImage(
                   name: items[i].image,
                   radius: 12,
@@ -343,7 +570,8 @@ class HomePage extends StatelessWidget {
   ) {
     final CategoryModel category = controller.categories[index];
     final bool selected = index == controller.categoryIndex;
-    final double logoWidth = _categoryLogoHeight * _categoryLogoAspectRatio;
+    final double logoWidth =
+        HomePage._categoryLogoHeight * HomePage._categoryLogoAspectRatio;
 
     return Builder(
       builder: (tabContext) => InkWellWrapper(
@@ -352,14 +580,14 @@ class HomePage extends StatelessWidget {
           _centerCategoryTab(tabContext, controller.categoryScrollController);
         },
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 14, 10, 0).r,
+          padding: const EdgeInsets.fromLTRB(8, 14, 8, 0).r,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               AppImage(
                 name: category.image,
                 width: logoWidth,
-                height: _categoryLogoHeight,
+                height: HomePage._categoryLogoHeight,
                 fit: BoxFit.contain,
                 cacheWidth: _cacheWidth(context, logoWidth),
               ),
@@ -403,9 +631,10 @@ class HomePage extends StatelessWidget {
     border: Border.all(color: AppColors.greyLight2Color),
     boxShadow: [
       BoxShadow(
-        color: AppColors.blackColor.wOpacity(0.04),
-        blurRadius: 8,
-        offset: const Offset(0, 2),
+        color: AppColors.blackColor.wOpacity(0.12),
+        blurRadius: 20,
+        spreadRadius: -2,
+        offset: const Offset(0, 8),
       ),
     ],
   );
@@ -418,7 +647,7 @@ class HomePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AspectRatio(
-            aspectRatio: _bannerAspectRatio,
+            aspectRatio: HomePage._bannerAspectRatio,
             child: Bone(borderRadius: radius),
           ),
           10.heightSpace,
@@ -426,21 +655,24 @@ class HomePage extends StatelessWidget {
             children: [
               Expanded(
                 child: AspectRatio(
-                  aspectRatio: _pageBannerAspectRatio,
+                  aspectRatio: HomePage._pageBannerAspectRatio,
                   child: Bone(borderRadius: radius),
                 ),
               ),
               10.widthSpace,
               Expanded(
                 child: AspectRatio(
-                  aspectRatio: _pageBannerAspectRatio,
+                  aspectRatio: HomePage._pageBannerAspectRatio,
                   child: Bone(borderRadius: radius),
                 ),
               ),
             ],
           ),
           12.heightSpace,
-          Bone(height: _categoryLogoHeight + 27.r, borderRadius: radius),
+          Bone(
+            height: HomePage._categoryLogoHeight + 27.r,
+            borderRadius: radius,
+          ),
         ],
       ),
     );
@@ -455,7 +687,7 @@ class HomePage extends StatelessWidget {
       title: AppLogo(height: 28.r),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 12).r,
+          padding: const EdgeInsets.only(right: 8).r,
           child: Center(
             child: isLoggedIn
                 ? _pointsPill(context)
@@ -540,7 +772,6 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  /// Small pill button: filled, or white with a primary outline.
   Widget _authButton(
     BuildContext context, {
     required String text,
@@ -560,5 +791,129 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6).r,
       onTap: onTap,
     );
+  }
+}
+
+class _FixedBackgroundSliver extends SingleChildRenderObjectWidget {
+  final DecorationImage image;
+  final double imageAspectRatio;
+  final Color color;
+
+  const _FixedBackgroundSliver({
+    required this.image,
+    required this.imageAspectRatio,
+    required this.color,
+    required Widget sliver,
+  }) : super(child: sliver);
+
+  @override
+  _RenderFixedBackgroundSliver createRenderObject(BuildContext context) =>
+      _RenderFixedBackgroundSliver(
+        image: image,
+        imageAspectRatio: imageAspectRatio,
+        color: color,
+        configuration: createLocalImageConfiguration(context),
+      );
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderFixedBackgroundSliver renderObject,
+  ) {
+    renderObject
+      ..image = image
+      ..imageAspectRatio = imageAspectRatio
+      ..color = color
+      ..configuration = createLocalImageConfiguration(context);
+  }
+}
+
+class _RenderFixedBackgroundSliver extends RenderProxySliver {
+  _RenderFixedBackgroundSliver({
+    required DecorationImage image,
+    required double imageAspectRatio,
+    required Color color,
+    required ImageConfiguration configuration,
+  }) : _image = image,
+       _imageAspectRatio = imageAspectRatio,
+       _color = color,
+       _configuration = configuration;
+
+  DecorationImage _image;
+  set image(DecorationImage value) {
+    if (value == _image) return;
+    _image = value;
+    _imagePainter?.dispose();
+    _imagePainter = null;
+    markNeedsPaint();
+  }
+
+  double _imageAspectRatio;
+  set imageAspectRatio(double value) {
+    if (value == _imageAspectRatio) return;
+    _imageAspectRatio = value;
+    markNeedsPaint();
+  }
+
+  Color _color;
+  set color(Color value) {
+    if (value == _color) return;
+    _color = value;
+    markNeedsPaint();
+  }
+
+  ImageConfiguration _configuration;
+  set configuration(ImageConfiguration value) {
+    if (value == _configuration) return;
+    _configuration = value;
+    markNeedsPaint();
+  }
+
+  DecorationImagePainter? _imagePainter;
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final RenderSliver? child = this.child;
+    if (child == null || !child.geometry!.visible) return;
+
+    final double width = constraints.crossAxisExtent;
+    final Rect visible = offset & Size(width, geometry!.paintExtent);
+    final Rect imageRect = offset & Size(width, width * _imageAspectRatio);
+    final Rect fadeRect = Rect.fromLTRB(
+      imageRect.left,
+      imageRect.bottom - imageRect.height / 5,
+      imageRect.right,
+      imageRect.bottom,
+    );
+
+    final Canvas canvas = context.canvas
+      ..save()
+      ..clipRect(visible)
+      ..drawRect(visible, Paint()..color = _color);
+    (_imagePainter ??= _image.createPainter(markNeedsPaint)).paint(
+      canvas,
+      imageRect,
+      null,
+      _configuration.copyWith(size: imageRect.size),
+    );
+    canvas
+      ..drawRect(
+        fadeRect,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_color.wOpacity(0), _color],
+          ).createShader(fadeRect),
+      )
+      ..restore();
+
+    super.paint(context, offset);
+  }
+
+  @override
+  void dispose() {
+    _imagePainter?.dispose();
+    super.dispose();
   }
 }

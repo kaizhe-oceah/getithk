@@ -3,111 +3,85 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 // Project imports:
 import '../../imports.dart';
+import '../../models/phone_code_model.dart';
+import 'bottom_sheet_phone_country.dart';
 
+/// A phone number field: an [AppTextFormField] with a country button (flag
+/// + dial code) at its start, which opens a sheet to pick the country from
+/// [phoneCodes] (null: the phone-codes API's, loaded once per run).
+///
+/// It's a form field: the form's validate() checks the number is there and
+/// valid for the picked country (Google's libphonenumber), the error showing
+/// under the box.
 class AppPhoneFormField extends StatefulWidget {
   final TextEditingController? controller;
+  final FocusNode? focusNode;
+
+  /// The starting country: [PhoneNumber.isoCode] and [PhoneNumber.dialCode].
+  final PhoneNumber initPhoneNumber;
+
+  /// The countries to pick from; null: the phone-codes API's.
+  final List<PhoneCodeModel>? phoneCodes;
+
+  /// The number with its country ("+60132287524", dial code, ISO code), on
+  /// every change.
+  final ValueChanged<PhoneNumber>? onChanged;
+
+  /// Whether the number is valid for the picked country, on every change.
+  final ValueChanged<bool> onChecking;
+
+  /// Extra checks once the number is there and valid.
+  final String? Function(String?)? validator;
+  final AutovalidateMode? autovalidateMode;
+  final bool enabled;
+
   final String? labelText;
+  final double? labelTextSize;
+  final FontWeight? labelFontWeight;
+  final Color? labelColor;
   final String? hintText;
-  final Widget? prefixIcon;
-  final Widget? suffixIcon;
-  final bool isDense;
-  final double verticalPadding;
-  final double horizontalPadding;
-  final int minLines;
-  final int maxLines;
-  final int? maxLength;
-  final int errorMaxLines;
-  final TextInputType? textInputType;
-  final List<TextInputFormatter>? textInputFormatter;
   final Color? hintTextColor;
   final Color? textColor;
-  final Color? labelColor;
-  final bool shouldShowVisiblity;
-  final Function()? onVisibilityTap;
-  final bool enabled;
-  final double? hinTextLetterSpacing;
-  final Function(PhoneNumber)? onChanged;
-  final Color? disableFontColor;
-  final double labelTextSpacing;
-  final FocusNode? focusNode;
-  final String? errorText;
-  final bool labelIsRequired;
-  final double radius;
-  final FontWeight? labelFontWeight;
-  final double borderWidth;
-  final FontWeight? textFontWeight;
-  final Function(PointerDownEvent)? onTapOutside;
-  final String? Function(String?)? validator;
-  final Color? backgroundColor;
   final double? textSize;
-  final double? labelTextSize;
-  final double labelPaddingBottom;
-  final double? errorTextSize;
   final Color? borderColor;
   final Color? focusBorderColor;
-  final Color? unfocusBorderColor;
-  final AutovalidateMode? autovalidateMode;
-  final List<String>? countries;
-  final PhoneNumber initPhoneNumber;
-  final bool enabledClearText;
-  final double? spaceBetweenSelectorAndTextField;
-  final bool enabledPhoneOtp;
-  final GlobalKey<FormState>? formKey;
-  final Function(bool) onChecking;
-  final PhoneInputSelectorType phoneInputSelectorType =
-      PhoneInputSelectorType.DIALOG;
+  final double radius;
+
+  /// The box's height; null: [AppTextFormField]'s own.
+  final double? height;
+  final int errorMaxLines;
+  final double? errorTextSize;
+
+  /// Keep a line under the box for the error even when there's none, so
+  /// the form doesn't jump when one shows.
+  final bool reserveErrorSpace;
 
   const AppPhoneFormField({
     super.key,
     required this.initPhoneNumber,
     required this.onChecking,
-    this.focusNode,
     this.controller,
+    this.focusNode,
+    this.phoneCodes,
+    this.onChanged,
+    this.validator,
+    this.autovalidateMode,
+    this.enabled = true,
     this.labelText,
+    this.labelTextSize,
+    this.labelFontWeight,
+    this.labelColor,
     this.hintText,
-    this.prefixIcon,
-    this.suffixIcon,
-    this.isDense = true,
-    this.verticalPadding = 13,
-    this.horizontalPadding = 5,
-    this.minLines = 1,
-    this.maxLines = 1,
-    this.maxLength,
-    this.errorMaxLines = 2,
-    this.textInputType = TextInputType.text,
-    this.textInputFormatter,
     this.hintTextColor,
     this.textColor,
-    this.labelColor,
-    this.shouldShowVisiblity = false,
-    this.onVisibilityTap,
-    this.enabled = true,
-    this.hinTextLetterSpacing,
-    this.onChanged,
-    this.disableFontColor,
-    this.labelTextSpacing = 0.0,
-    this.errorText,
-    this.labelIsRequired = false,
-    this.radius = 8,
-    this.labelFontWeight,
-    this.borderWidth = 1.0,
-    this.textFontWeight,
-    this.onTapOutside,
-    this.validator,
-    this.backgroundColor,
     this.textSize,
-    this.labelTextSize,
-    this.labelPaddingBottom = 0.0,
-    this.errorTextSize = kFont13,
     this.borderColor,
     this.focusBorderColor,
-    this.unfocusBorderColor,
-    this.autovalidateMode,
-    this.countries,
-    this.enabledClearText = true,
-    this.spaceBetweenSelectorAndTextField,
-    this.enabledPhoneOtp = false,
-    this.formKey,
+    this.radius = kDefaultRadius,
+    this.height,
+    this.errorMaxLines = 2,
+    this.errorTextSize = kFont13,
+    this.reserveErrorSpace = false,
   });
 
   @override
@@ -115,344 +89,230 @@ class AppPhoneFormField extends StatefulWidget {
 }
 
 class _AppPhoneFormFieldState extends State<AppPhoneFormField> {
-  int resentIn = 60;
-  int resentInOriginal = 60;
-  Timer? timer;
-  bool canResentNow = true;
-  bool isPhoneValid = true;
-  late FocusNode _focusNode;
-  late TextEditingController _textController;
-  late final ThemeData _dialogTheme;
-  late final TextStyle _textModeTextStyle;
-  late final TextStyle _hintTextStyle;
-  // ignore: unused_field
-  PhoneNumber? _number;
+  /// The phone-codes API's countries, loaded by the first field that needs
+  /// them and kept for the run.
+  static List<PhoneCodeModel>? _apiPhoneCodes;
+
+  late final TextEditingController _textController =
+      widget.controller ?? TextEditingController();
+  final GlobalKey<FormFieldState<String>> _fieldKey = GlobalKey();
+
+  late PhoneCodeModel _country = PhoneCodeModel(
+    countryCode: widget.initPhoneNumber.isoCode ?? kDefaultPhoneCountry,
+    dialCode: widget.initPhoneNumber.dialCode ?? kDefaultPhoneDialCode,
+  );
+
+  /// Whether the number is valid for [_country].
+  bool _isValid = false;
+
+  /// The text last checked, so cursor moves don't check it again.
+  String? _checkedText;
+
+  /// Bumped by every check, so a slower one for older text is dropped.
+  int _checks = 0;
 
   @override
   void initState() {
     super.initState();
-    _focusNode = widget.focusNode ?? FocusNode();
-    _textController = widget.controller ?? TextEditingController();
-
-    _textModeTextStyle = TextStyle(
-      color: AppColors.blackColor,
-      fontSize: kFont13.sp,
-      fontWeight: FontWeight.normal,
-    );
-    _dialogTheme = ThemeData(
-      useMaterial3: false,
-    ).copyWith(canvasColor: AppColors.whiteColor);
-    _hintTextStyle = _textModeTextStyle.copyWith(
-      color: AppColors.hintColor.wOpacity(0.7),
-    );
-
-    _focusNode.addListener(_onFocusChange);
-  }
-
-  void _onFocusChange() {
-    if (mounted && !_focusNode.hasFocus) {
-      _focusNode.unfocus();
-      setState(() {});
-    }
+    _textController.addListener(_onTextChanged);
+    _loadPhoneCodes();
   }
 
   @override
   void dispose() {
-    timer?.cancel();
-    _focusNode.removeListener(_onFocusChange);
-
-    if (widget.focusNode == null) {
-      _focusNode.dispose();
-    }
-    if (widget.controller == null) {
-      _textController.dispose();
-    }
-
+    _textController.removeListener(_onTextChanged);
+    if (widget.controller == null) _textController.dispose();
     super.dispose();
+  }
+
+  /// [AppPhoneFormField.phoneCodes], else the API's, else (while they load)
+  /// just the starting country.
+  List<PhoneCodeModel> get _phoneCodes =>
+      widget.phoneCodes ?? _apiPhoneCodes ?? [_country];
+
+  Future<void> _loadPhoneCodes() async {
+    if (widget.phoneCodes != null || _apiPhoneCodes != null) return;
+
+    await ApiService.api.getPhoneCode(
+      onSuccess: (response) {
+        final List<PhoneCodeModel> codes = PhoneCodeModel.listFromJson(
+          response.data,
+        );
+        if (codes.isNotEmpty) _apiPhoneCodes = codes;
+      },
+    );
+
+    if (mounted) setState(() {});
+  }
+
+  void _onTextChanged() {
+    if (_textController.text == _checkedText) return;
+    _checkedText = _textController.text;
+    _onNumberChanged();
+  }
+
+  void _onCountryPicked(PhoneCodeModel code) {
+    if (code.countryCode == _country.countryCode) return;
+
+    setState(() => _country = code);
+    _onNumberChanged();
+  }
+
+  /// Tells [AppPhoneFormField.onChanged] the number with its country, then
+  /// checks it's valid for that country.
+  Future<void> _onNumberChanged() async {
+    final String countryCode = _country.countryCode ?? '';
+    final String dialCode = _country.dialCode ?? '';
+    String national = _textController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    // a trunk 0 typed before the local number ("0132287524")
+    if (national.startsWith('0')) national = national.substring(1);
+    final String number = '$dialCode$national';
+
+    widget.onChanged?.call(
+      PhoneNumber(
+        phoneNumber: number,
+        dialCode: dialCode,
+        isoCode: countryCode,
+      ),
+    );
+
+    final int check = ++_checks;
+    bool valid = false;
+    if (national.isNotEmpty) {
+      try {
+        valid =
+            await PhoneNumber.getPhoneNumberType(number, countryCode) !=
+            PhoneNumberType.UNKNOWN;
+      } catch (_) {
+        // not a number it can parse
+      }
+    }
+    if (!mounted || check != _checks) return;
+
+    _isValid = valid;
+    widget.onChecking(valid);
+
+    // an error showing goes as soon as the number is fixed
+    final FormFieldState<String>? field = _fieldKey.currentState;
+    if (field != null && field.hasError) field.validate();
+  }
+
+  /// The form's check: there's a number, valid for the picked country, and
+  /// it passes [AppPhoneFormField.validator].
+  String? _validate() {
+    final String text = _textController.text;
+
+    if (text.replaceAll(RegExp(r'[^0-9]'), '').isEmpty) {
+      return context.tr(AppStrings.phoneNumberRequired);
+    }
+    if (!_isValid) return context.tr(AppStrings.invalidMobileNumber);
+    return widget.validator?.call(text);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // label
-        if (widget.labelText != null)
-          Padding(
-            padding: EdgeInsets.only(
-              bottom: widget.labelText != null ? 5 : widget.labelPaddingBottom,
-            ).r,
-            child: AppText(
-              widget.labelText ?? "",
-              isRequired: widget.labelIsRequired,
-              fontWeight: widget.labelFontWeight ?? FontWeight.w600,
-              color: widget.labelColor ?? context.color.onSurface,
-              fontSize: widget.labelTextSize,
-            ),
-          ),
+    return FormField<String>(
+      key: _fieldKey,
+      autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.disabled,
+      validator: (_) => _validate(),
+      builder: (field) {
+        final Color? errorColor = field.hasError ? AppColors.redColor : null;
 
-        // textformfield
-        phone(context),
-
-        // error message
-        if (!isPhoneValid)
-          Padding(
-            padding: const EdgeInsets.only(top: 3, left: 20).r,
-            child: AppText(
-              context.tr(AppStrings.invalidMobileNumber),
-              color: AppColors.toastErrorColor,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppTextFormField(
+              controller: _textController,
+              focusNode: widget.focusNode,
+              enabled: widget.enabled,
+              textInputType: TextInputType.phone,
+              textInputFormatter: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(15),
+              ],
+              labelText: widget.labelText,
+              labelTextSize: widget.labelTextSize ?? kFont13,
+              labelFontWeight: widget.labelFontWeight,
+              labelColor: widget.labelColor,
+              hintText: widget.hintText,
+              hintTextColor: widget.hintTextColor,
+              textColor: widget.textColor,
+              textSize: widget.textSize ?? kFont13,
+              radius: widget.radius,
+              borderColor: errorColor ?? widget.borderColor,
+              focusBorderColor: errorColor ?? widget.focusBorderColor,
+              prefixIcon: _countryButton(),
             ),
-          ),
-      ],
+            _error(field.errorText),
+          ],
+        );
+      },
     );
   }
 
-  // phone widget
-  Widget phone(BuildContext context) {
-    final List<Widget> suffixChildren = [];
+  /// 🇲🇾 +60 ▾ │ — opens the country sheet when there's more than one.
+  Widget _countryButton() {
+    final List<PhoneCodeModel> codes = _phoneCodes;
+    final bool canPick = widget.enabled && codes.length > 1;
 
-    /// Clear Text Button
-    if (widget.enabledClearText && _textController.text.isNotEmpty) {
-      suffixChildren.add(
-        InkWellWrapper(
-          onTap: () {
-            _textController.clear();
-            isPhoneValid = false;
-            widget.onChecking(isPhoneValid);
-            setState(() {});
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8).r,
-            child: Icon(
-              Iconsax.close_circle,
-              size: 18.r,
-              color: AppColors.greyColor,
-            ),
-          ),
-        ),
-      );
-    }
-
-    /// Custom Suffix Icon
-    if (widget.suffixIcon != null) {
-      suffixChildren.add(widget.suffixIcon!);
-    }
-
-    /// Phone OTP Button
-    if (widget.enabledPhoneOtp) {
-      suffixChildren.add(
-        Container(
-          color: Colors.white,
-          child: InkWellWrapper(
-            onTap: () {
-              if (widget.formKey != null &&
-                  widget.formKey!.currentState!.validate()) {
-                if (isPhoneValid) {
-                  _focusNode.unfocus();
-                  actionResendCode();
-                }
-              } else {
-                printLog("Formkey is missing");
-              }
-              setState(() {});
-            },
-            child: AppText(
-              textAlign: TextAlign.end,
-              canResentNow ? context.tr(AppStrings.sendCode) : "$resentIn",
-              color: context.color.primary,
-            ),
-          ),
-        ),
-      );
-    }
-
-    /// Spacing (only if something else exists)
-    if (suffixChildren.isNotEmpty) {
-      suffixChildren.add(10.widthSpace);
-    }
-
-    return TapRegion(
-      onTapUpInside: (tap) {
-        _focusNode.requestFocus();
-        setState(() {});
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal:
-              widget.horizontalPadding +
-              (widget.phoneInputSelectorType == PhoneInputSelectorType.DIALOG
-                  ? 10
-                  : 0),
-        ).copyWith(right: 0).r,
-        decoration: BoxDecoration(
-          color: widget.enabled
-              ? AppColors.whiteColor
-              : AppColors.greyLightColor,
-          borderRadius: BorderRadius.circular(10).r,
-          border: Border.all(
-            color: !isPhoneValid
-                ? AppColors.toastErrorColor
-                : (_focusNode.hasFocus
-                      ? widget.focusBorderColor ?? context.color.primary
-                      : widget.unfocusBorderColor ?? AppColors.greyLightColor),
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Theme(
-                data: _dialogTheme,
-                child: InternationalPhoneNumberInput(
-                  // cursorColor: AppColors.of(context).primaryText(),
-                  isEnabled: widget.enabled,
-                  focusNode: _focusNode,
-                  onInputChanged: (val) {
-                    if (widget.onChanged != null) {
-                      widget.onChanged!(val);
-                    }
-
-                    _number = val;
-                    setState(() {});
-                  },
-                  onInputValidated: (bool value) {
-                    isPhoneValid = value;
-                    widget.onChecking(isPhoneValid);
-                    printLog("isPhoneValid: $value");
-                  },
-                  onSaved: (PhoneNumber number) {
-                    printLog("On Saved: $number");
-                  },
-                  countries:
-                      widget.countries ??
-                      [
-                        "MY", // Malaysia
-                      ],
-                  // ??
-                  //     const [
-                  //       "MY", // Malaysia
-                  //       "AU", // Australia
-                  //       "BD", // Bangladesh
-                  //       "BN", // Brunei
-                  //       "KH", // Cambodia
-                  //       "CA", // Canada
-                  //       "CN", // China
-                  //       "EG", // Egypt
-                  //       "DE", // Germany
-                  //       "HK", // Hong Kong
-                  //       "IN", // India
-                  //       "ID", // Indonesia
-                  //       "IR", // Iran
-                  //       "JP", // Japan
-                  //       "NZ", // New Zealand
-                  //       "NO", // Norway
-                  //       "PH", // Philippines
-                  //       "SA", // Saudi Arabia
-                  //       "SG", // Singapore
-                  //       "ZA", // South Africa
-                  //       "KR", // South Korea
-                  //       "LK", // Sri Lanka
-                  //       "TW", // Taiwan
-                  //       "TZ", // Tanzania
-                  //       "TH", // Thailand
-                  //       "TL", // Timor Leste
-                  //       "US", // United States
-                  //       "VN", // Vietnam
-                  //     ]
-                  selectorConfig: SelectorConfig(
-                    selectorType: widget.phoneInputSelectorType,
-                    trailingSpace: false,
-                  ),
-                  searchBoxDecoration: InputDecoration(
-                    hoverColor: Colors.transparent,
-                    hintText: context.tr(AppStrings.search),
-                    hintStyle: _hintTextStyle,
-                  ),
-                  inputDecoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: widget.hintText,
-                    hintStyle: _hintTextStyle,
-                    errorStyle: const TextStyle(height: 0),
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: widget.verticalPadding,
-                    ).r,
-                  ),
-                  validator: (value) {
-                    printLog("Phone validator: $value");
-
-                    setState(() {
-                      if (value != null) {
-                        if (value.isEmpty) {
-                          isPhoneValid = false;
-                        }
-                      }
-                    });
-
-                    return null;
-                  },
-                  selectorTextStyle: _textModeTextStyle,
-                  initialValue: widget.initPhoneNumber,
-                  textFieldController: _textController,
-                  formatInput: false,
-                  spaceBetweenSelectorAndTextField:
-                      widget.spaceBetweenSelectorAndTextField ?? 0,
-                  textStyle: _textModeTextStyle,
-                  errorMessage: null,
+    return InkWellWrapper(
+      onTap: canPick
+          ? () => BottomSheetHelper.phoneCountry(
+              codes: codes,
+              selected: _country.countryCode,
+              onSelected: _onCountryPicked,
+            )
+          : null,
+      child: SizedBox(
+        height: widget.height,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 14, right: 10).r,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PhoneCountryFlag(countryCode: _country.countryCode, width: 22.r),
+              6.widthSpace,
+              AppText(
+                _country.dialCode ?? '',
+                fontSize: widget.textSize ?? kFont13,
+                fontWeight: FontWeight.w500,
+                color: widget.textColor ?? AppColors.loginTextColor,
+              ),
+              if (canPick)
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18.r,
+                  color: widget.hintTextColor ?? AppColors.greyColor,
                 ),
+              8.widthSpace,
+              Container(
+                width: 1,
+                height: 20.r,
+                color: widget.borderColor ?? AppColors.greyLightColor,
               ),
-            ),
-
-            // suffix
-            if (suffixChildren.isNotEmpty)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: suffixChildren,
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  /// Phone OTP
-  /// Timer Functions
+  /// Under the box: [message], or (with
+  /// [AppPhoneFormField.reserveErrorSpace]) an empty line of the same height.
+  Widget _error(String? message) {
+    if (message == null && !widget.reserveErrorSpace) {
+      return const SizedBox.shrink();
+    }
 
-  void startResentCountDown() {
-    timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (Timer timer) => setState(() {
-        if (resentIn < 2) {
-          allowResent();
-        } else {
-          resentIn = resentIn - 1;
-        }
-      }),
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, left: 18).r,
+      child: AppText(
+        message ?? ' ',
+        fontSize: widget.errorTextSize,
+        color: AppColors.redColor,
+        maxLines: widget.errorMaxLines,
+        isOverflow: true,
+      ),
     );
-  }
-
-  void allowResent() {
-    canResentNow = true;
-    timer!.cancel();
-  }
-
-  void actionResendCode() async {
-    if (!isPhoneValid) return;
-    if (!canResentNow) return;
-
-    // await ApiService.api.phoneSendOtp(
-    //   showLoader: true,
-    //   phoneNo: _number?.phoneNumber?.replaceAll("+", "") ?? "",
-    //   onSuccess: (_) {
-    //     resetTimer();
-    //   },
-    // );
-  }
-
-  void resetTimer() {
-    resentIn = resentInOriginal;
-    canResentNow = false;
-    startResentCountDown();
-    setState(() {});
   }
 }

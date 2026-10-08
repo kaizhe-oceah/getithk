@@ -2,13 +2,15 @@
 const kTrialAccounts = <String>{};
 
 // PHONE
-/// Country code sent with phone numbers; the forms have no picker yet.
-const String kDefaultPhoneCode = "+60";
+/// The phone fields' country until another is picked (ISO code), and its
+/// dial code.
+const String kDefaultPhoneCountry = "MY";
+const String kDefaultPhoneDialCode = "+60";
 
 // BOTTOM NAV
 const int kBottomNavHome = 0;
-const int kBottomNavCart = 1;
-const int kBottomNavFavourite = 2;
+const int kBottomNavBackpack = 1;
+const int kBottomNavActivity = 2;
 const int kBottomNavProfile = 3;
 
 // FONT SIZE

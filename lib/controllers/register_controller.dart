@@ -1,4 +1,5 @@
 import 'package:getithk/imports.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class RegisterController extends ChangeNotifier {
   BuildContext context = NavigationService.context;
@@ -15,6 +16,23 @@ class RegisterController extends ChangeNotifier {
 
   /// The chosen sign-up method; `null` shows the list of options.
   ContactType? type;
+
+  /// The phone field's starting country; one instance, as the field resets
+  /// whenever it gets a new one.
+  final PhoneNumber initialPhoneNumber = PhoneNumber(
+    isoCode: kDefaultPhoneCountry,
+    dialCode: kDefaultPhoneDialCode,
+  );
+
+  /// The phone field's number with its country, as typed.
+  PhoneNumber? phoneNumber;
+
+  /// Whether that number is valid for its country (the OTP button listens).
+  final ValueNotifier<bool> phoneValid = ValueNotifier(false);
+
+  void onPhoneChanged(PhoneNumber value) => phoneNumber = value;
+
+  void onPhoneChecking(bool valid) => phoneValid.value = valid;
 
   /// Wait between OTP sends.
   static const int _otpCooldownSeconds = 120;
@@ -74,7 +92,7 @@ class RegisterController extends ChangeNotifier {
   /// so an OTP can be sent to it.
   bool canSendOtpTo(String value) => type == ContactType.email
       ? AppRegex.registerEmail.hasMatch(value.trim())
-      : StringValidator.phoneValidator(value) == null;
+      : phoneValid.value;
 
   /// Sends the OTP to the email / phone typed in the form.
   Future<void> onSendOtp() async {
@@ -93,8 +111,8 @@ class RegisterController extends ChangeNotifier {
       showLoader: true,
       type: type,
       email: isEmail ? emailController.text.trim() : null,
-      phoneCode: isEmail ? null : kDefaultPhoneCode,
-      phoneNo: isEmail ? null : localPhoneNo(phoneController.text),
+      phoneCode: isEmail ? null : phoneNumber?.dialCode,
+      phoneNo: isEmail ? null : nationalPhoneNo(phoneNumber!),
       onSuccess: (response) {
         response.showMessage();
         _startOtpCooldown();
@@ -131,8 +149,8 @@ class RegisterController extends ChangeNotifier {
       showLoader: true,
       type: type,
       email: isEmail ? emailController.text.trim() : null,
-      phoneCode: isEmail ? null : kDefaultPhoneCode,
-      phoneNo: isEmail ? null : localPhoneNo(phoneController.text),
+      phoneCode: isEmail ? null : phoneNumber?.dialCode,
+      phoneNo: isEmail ? null : nationalPhoneNo(phoneNumber!),
       authMethod: AuthMethod.password,
       password: passwordController.text,
       // the server asks for an OTP even on password sign-ups
@@ -157,6 +175,7 @@ class RegisterController extends ChangeNotifier {
     referralCodeController.dispose();
     _otpTimer?.cancel();
     otpCooldown.dispose();
+    phoneValid.dispose();
 
     super.dispose();
   }

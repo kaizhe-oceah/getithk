@@ -6,8 +6,6 @@ enum ToastType { normal, success, error, warning }
 
 enum AppLanguage { en, zh, ms }
 
-/// Whether the player uses a phone number or an email; [value] is the API's
-/// `type` for login, register and send-otp.
 enum ContactType {
   phone(1),
   email(2);
@@ -16,7 +14,6 @@ enum ContactType {
   final int value;
 }
 
-/// How the player proves the account; [value] is the API's `auth_method`.
 enum AuthMethod {
   otp(1),
   password(2);
@@ -25,5 +22,21 @@ enum AuthMethod {
   final int value;
 }
 
-/// Product order picked in the home page's sort dropdown.
-enum ProductSort { recommended, newest, priceLowToHigh, priceHighToLow }
+enum TncType {
+  terms(1),
+  privacy(2);
+
+  const TncType(this.value);
+  final int value;
+}
+
+enum ProductSort {
+  recommended('recommended'),
+  lowStock('low_stock'),
+  newest('newest'),
+  priceHighToLow('price_desc'),
+  priceLowToHigh('price_asc');
+
+  const ProductSort(this.value);
+  final String value;
+}

@@ -1,18 +1,20 @@
 // Project imports:
 import '../../imports.dart';
 
-/// The app's loading indicator: an image spinning, one full turn every
-/// [_turnDuration]. Used by the Loader overlay, pull-to-refresh and
-/// CustomFutureBuilder.
 class CircularProgressIndicatorWidget extends StatefulWidget {
   final double size;
 
-  /// The spinning image; the app icon unless set.
   final String? image;
+
+  final String? text;
+
+  final bool showText;
 
   const CircularProgressIndicatorWidget({
     this.size = 56,
     this.image,
+    this.text,
+    this.showText = true,
     super.key,
   });
 
@@ -42,7 +44,7 @@ class _CircularProgressIndicatorWidgetState
   Widget build(BuildContext context) {
     final double size = widget.size.fh;
 
-    return RepaintBoundary(
+    final Widget image = RepaintBoundary(
       child: SizedBox(
         width: size,
         height: size,
@@ -53,13 +55,26 @@ class _CircularProgressIndicatorWidgetState
             width: size,
             height: size,
             fit: BoxFit.contain,
-            // the asset is 512px; decode it at the size it's shown, and filter
-            // it smoothly so the edges don't shimmer while it turns
             cacheWidth: (size * MediaQuery.devicePixelRatioOf(context)).round(),
             filterQuality: FilterQuality.medium,
           ),
         ),
       ),
+    );
+    if (!widget.showText) return image;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        image,
+        8.heightSpace,
+        AppText(
+          widget.text ?? context.tr(AppStrings.loading),
+          fontSize: kFont12,
+          color: AppColors.greyColor,
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

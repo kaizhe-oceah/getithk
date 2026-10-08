@@ -5,7 +5,11 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import '../components/default/bottom_sheet_language.dart';
 import '../components/default/bottom_sheet_logout.dart';
 import '../components/default/bottom_sheet_no_internet_connection.dart';
+import '../components/default/bottom_sheet_phone_country.dart';
+import '../components/default/bottom_sheet_tag_filter.dart';
 import '../imports.dart';
+import '../models/phone_code_model.dart';
+import '../models/product_tag_model.dart';
 
 class BottomSheetHelper {
   static BuildContext context = NavigationService.context;
@@ -95,6 +99,43 @@ class BottomSheetHelper {
       backgroundColor: AppColors.darkSurfaceColor,
       builder: (context) => BottomSheetLanguage(onSelected: onSelected),
       topControl: const SizedBox.shrink(),
+    );
+  }
+
+  /// The home product filter: tags to pick; [onConfirm] gets the picked tags
+  /// on 確定篩選 (none on 重設).
+  static Future<void> tagFilter({
+    required List<ProductTagModel> selected,
+    required ValueChanged<List<ProductTagModel>> onConfirm,
+  }) {
+    return showBarModalBottomSheet<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      shape: roundShapeBorder,
+      backgroundColor: AppColors.whiteColor,
+      topControl: const SizedBox.shrink(),
+      builder: (context) =>
+          BottomSheetTagFilter(selected: selected, onConfirm: onConfirm),
+    );
+  }
+
+  /// The phone field's country picker; [onSelected] gets the picked one.
+  static Future<void> phoneCountry({
+    required List<PhoneCodeModel> codes,
+    String? selected,
+    required ValueChanged<PhoneCodeModel> onSelected,
+  }) {
+    return showBarModalBottomSheet<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      shape: roundShapeBorder,
+      backgroundColor: AppColors.whiteColor,
+      topControl: const SizedBox.shrink(),
+      builder: (context) => BottomSheetPhoneCountry(
+        codes: codes,
+        selected: selected,
+        onSelected: onSelected,
+      ),
     );
   }
 

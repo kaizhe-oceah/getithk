@@ -6,9 +6,6 @@ class Api {
   String? apiUrl;
   Api({required String this.apiUrl});
 
-  // player login (JSON: as form-data this endpoint rejects `type` as "not an
-  // integer"). [email] for ContactType.email; [phoneCode] (e.g. "+60") +
-  // [phoneNo] for ContactType.phone. Password only.
   Future<void> login({
     required ContactType type,
     String? email,
@@ -41,8 +38,6 @@ class Api {
     );
   }
 
-  // player logout: ends the token's session on the server. No error toast:
-  // the app logs out locally whatever the server answers.
   Future<void> logout({
     Function(ApiResponseModel)? onSuccess,
     bool showLoader = false,
@@ -52,6 +47,22 @@ class Api {
       showLoader: showLoader,
       apiUrl: apiUrl,
       endPoint: kLogout,
+      withBearer: true,
+      params: {},
+      onSuccess: (response) => onSuccess?.call(response),
+      onError: (error) => onError?.call(error),
+    );
+  }
+
+  Future<void> getPhoneCode({
+    Function(ApiResponseModel)? onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpGet(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kPhoneCodes,
       withBearer: true,
       params: {},
       onSuccess: (response) => onSuccess?.call(response),
@@ -72,7 +83,7 @@ class Api {
     bool showLoader = false,
     Function(String)? onError,
   }) async {
-    await HttpClientCustom.multipartPost(
+    await HttpClientCustom.httpPost(
       showLoader: showLoader,
       apiUrl: apiUrl,
       endPoint: kRegister,
@@ -96,9 +107,6 @@ class Api {
     );
   }
 
-  // send otp (form-data)
-  // [email] for ContactType.email; [phoneCode] (e.g. "+60") + [phoneNo] for
-  // ContactType.phone.
   Future<void> sendOtp({
     required ContactType type,
     String? email,
@@ -108,7 +116,7 @@ class Api {
     bool showLoader = false,
     Function(String)? onError,
   }) async {
-    await HttpClientCustom.multipartPost(
+    await HttpClientCustom.httpPost(
       showLoader: showLoader,
       apiUrl: apiUrl,
       endPoint: kSendOtp,
@@ -128,7 +136,6 @@ class Api {
     );
   }
 
-  // player profile: data.user + data.level
   Future<void> getProfile({
     required Function(ApiResponseModel) onSuccess,
     bool showLoader = false,
@@ -150,7 +157,6 @@ class Api {
     );
   }
 
-  // home carousel banners
   Future<void> getBanners({
     required Function(ApiResponseModel) onSuccess,
     bool showLoader = false,
@@ -171,7 +177,6 @@ class Api {
     );
   }
 
-  // home page banners (promos under the carousel)
   Future<void> getPageBanners({
     required Function(ApiResponseModel) onSuccess,
     bool showLoader = false,
@@ -192,7 +197,6 @@ class Api {
     );
   }
 
-  // product categories
   Future<void> getProductCategories({
     required Function(ApiResponseModel) onSuccess,
     bool showLoader = false,
@@ -202,6 +206,168 @@ class Api {
       showLoader: showLoader,
       apiUrl: apiUrl,
       endPoint: kProductCategoryListing,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> getTnc({
+    required TncType type,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kTNC,
+      params: {"type": type.value},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> getProductMainProductListing({
+    required int page,
+    required int perPage,
+    required int productCategoryId,
+    required int drawAmountType,
+    required ProductSort sort,
+    List<int> tags = const [],
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kProductMainProductListing,
+      params: {
+        "page": page,
+        "per_page": perPage,
+        "product_category_id": productCategoryId,
+        "draw_amount_type": drawAmountType,
+        "sort": sort.value,
+        if (tags.isNotEmpty) "tags": tags,
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> getProductTagListing({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kProductTagListing,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> getWalletBalance({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kWalletBalance,
+      withBearer: true,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // invite-friends rewards (needs the token): data.successful_invites,
+  // data.claimable_point, data.tiers ...
+  Future<void> getInvitePointListing({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kPlayerInvitePointListing,
+      withBearer: true,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // top-up packages: data = [{id, amount, rate, bonus_amount, credited_amount}]
+  Future<void> getTopupBonusListing({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kTopupBonusListing,
+      withBearer: true,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // payment methods (GET): data = [{gateway, name, icon}]
+  Future<void> getPaymentMethods({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpGet(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kPaymentMethod,
+      withBearer: true,
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {

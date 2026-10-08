@@ -17,7 +17,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final RefreshController _refreshController = RefreshController();
 
-  static const double _points = 0;
   static const int _cardCount = 0;
 
   static const List<(IconData, String)> _menuItems = [
@@ -42,7 +41,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _onRefresh() async {
-    await context.read<AppController>().getUser();
+    final AppController app = context.read<AppController>();
+    await Future.wait([app.getUser(), app.getWalletBalance()]);
     _refreshController.refreshCompleted();
   }
 
@@ -92,7 +92,10 @@ class _ProfilePageState extends State<ProfilePage> {
               color: AppColors.loginTextColor,
             ),
             10.heightSpace,
-            for (final item in _menuItems) ...[_menuTile(item), 8.heightSpace],
+            for (final item in _menuItems) ...[
+              _menuTile(item, onTap: _menuAction(item.$2)),
+              8.heightSpace,
+            ],
 
             _menuTile(
               (Iconsax.logout, AppStrings.logout),
@@ -297,14 +300,19 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: _cardDecoration,
       child: Row(
         children: [
-          Icon(Iconsax.coin, size: 32.r, color: AppColors.coinColor),
+          Image.asset(
+            AppAssets.coins,
+            width: 32.r,
+            height: 32.r,
+            cacheWidth: (32.r * MediaQuery.devicePixelRatioOf(context)).round(),
+          ),
           10.widthSpace,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppText(
-                  '${NumberFormat('#,##0.00').format(_points)} pts',
+                  '${NumberFormat('#,##0.00').format(context.watch<AppController>().points)} pts',
                   fontSize: kFont16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.loginTextColor,
@@ -324,12 +332,21 @@ class _ProfilePageState extends State<ProfilePage> {
             textSize: kFont13,
             textColor: AppColors.whiteColor,
             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8).r,
-            onTap: _comingSoon,
+            onTap: () => AppNavigator.pushNamed(context, RouteName.topupPage),
           ),
         ],
       ),
     );
   }
+
+  /// What a menu item opens; null: "coming soon".
+  VoidCallback? _menuAction(String label) => switch (label) {
+    AppStrings.inviteFriends => () => AppNavigator.pushNamed(
+      context,
+      RouteName.inviteFriendsPage,
+    ),
+    _ => null,
+  };
 
   Widget _menuTile(
     (IconData, String) item, {

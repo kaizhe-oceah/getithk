@@ -168,3 +168,10 @@ String parsePrice(dynamic v, [String d = "0"]) {
 
   return RegExp(r'^\d+(\.\d+)?$').hasMatch(str) ? str : d;
 }
+
+/// "#FF4500" (or "FF4500") as a Color; null if it isn't a 6-digit hex.
+Color? parseHexColor(dynamic v) {
+  final String hex = '${v ?? ''}'.replaceFirst('#', '');
+  final int? value = hex.length == 6 ? int.tryParse(hex, radix: 16) : null;
+  return value == null ? null : Color(0xFF000000 | value);
+}

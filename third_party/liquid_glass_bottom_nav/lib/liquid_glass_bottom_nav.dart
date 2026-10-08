@@ -608,11 +608,12 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                                       // No tint while held — the light gray stroke (or the
                                       // rainbow sheen, if opted into) is the only drag-state
                                       // accent.
+                                      // (getithk patch) light tint lowered from 0.15.
                                       color: isDragging
                                           ? Colors.transparent
                                           : (isDark
                                               ? Colors.white.withValues(alpha: 0.08)
-                                              : activeColor.withValues(alpha: 0.15)),
+                                              : activeColor.withValues(alpha: 0.08)),
                                       borderRadius: BorderRadius.circular(widget.borderRadius),
                                     ),
                                   ),

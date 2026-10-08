@@ -2,6 +2,7 @@
 import 'dart:math' as math;
 
 // Package imports:
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:liquid_glass_bottom_nav/liquid_glass_bottom_nav.dart';
 
 // Project imports:
@@ -12,8 +13,6 @@ import '../imports.dart';
 class LoginPage extends StatefulWidget {
   final bool isRegister;
 
-  /// Shown as the profile tab (while logged out) instead of as its own
-  /// route: no back button, and room for the floating nav bar.
   final bool isTab;
 
   const LoginPage({this.isRegister = false, this.isTab = false, super.key});
@@ -30,6 +29,11 @@ class _LoginPageState extends State<LoginPage>
     vsync: this,
   );
 
+  late final TapGestureRecognizer _termsRecognizer = TapGestureRecognizer()
+    ..onTap = () => _openTnc(TncType.terms);
+  late final TapGestureRecognizer _privacyRecognizer = TapGestureRecognizer()
+    ..onTap = () => _openTnc(TncType.privacy);
+
   @override
   void initState() {
     super.initState();
@@ -39,8 +43,27 @@ class _LoginPageState extends State<LoginPage>
   @override
   void dispose() {
     _tabController.dispose();
+    _termsRecognizer.dispose();
+    _privacyRecognizer.dispose();
     super.dispose();
   }
+
+  static const String _testEmail = 'lamkaizhe2001@gmail.com';
+  static const String _testPassword = '123123123';
+
+  /// Debug builds only (the logo's double tap): the login tab's email form,
+  /// filled in with the test account.
+  void _fillTestAccount(BuildContext context) {
+    final LoginController login = context.read<LoginController>();
+
+    _tabController.animateTo(0);
+    login.onSelectMethod(LoginMethod.email);
+    login.emailController.text = _testEmail;
+    login.passwordController.text = _testPassword;
+  }
+
+  void _openTnc(TncType type) =>
+      AppNavigator.pushNamed(context, RouteName.tncPage, arguments: type);
 
   void _onBack() {
     if (Navigator.of(context).canPop()) {
@@ -68,7 +91,13 @@ class _LoginPageState extends State<LoginPage>
             backgroundColor: AppColors.whiteColor,
             isDivider: false,
             leading: widget.isTab ? null : AppBarBackButton(onTap: _onBack),
-            title: AppLogo(height: 32.r),
+            // debug builds: a double tap fills in the test account
+            title: Builder(
+              builder: (context) => GestureDetector(
+                onDoubleTap: kDebugMode ? () => _fillTestAccount(context) : null,
+                child: AppLogo(height: 32.r),
+              ),
+            ),
           ),
         ],
         child: Column(
@@ -97,6 +126,7 @@ class _LoginPageState extends State<LoginPage>
                           ? _registerOptions(controller)
                           : _registerForm(controller),
                     ),
+                    footer: _registerAgreement(),
                   ),
                 ],
               ),
@@ -166,22 +196,85 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  Widget _tabPage(Widget child) {
-    return SingleChildScrollView(
+  Widget _tabPage(Widget child, {Widget? footer}) {
+    final double navBarInset = widget.isTab
+        ? LiquidGlassNavBar.contentBottomInset +
+              MediaQuery.paddingOf(context).bottom
+        : 16.r;
+
+    final Widget scrollView = SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
         20.r,
         0,
         20.r,
-        // as a tab, the last button can scroll clear of the floating nav bar
-        widget.isTab
-            ? LiquidGlassNavBar.contentBottomInset +
-                  MediaQuery.paddingOf(context).bottom
-            : 16.r,
+        footer == null ? navBarInset : 16.r,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [kHorizontalPadding.heightSpace, child],
       ),
+    );
+    if (footer == null) return scrollView;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(child: scrollView),
+        if (!KeyboardVisibilityProvider.isKeyboardVisible(context))
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              20.r,
+              0,
+              20.r,
+              widget.isTab
+                  ? navBarInset
+                  : navBarInset + MediaQuery.paddingOf(context).bottom,
+            ),
+            child: footer,
+          ),
+      ],
+    );
+  }
+
+  Widget _registerAgreement() {
+    final Color primary = context.color.primary;
+    final TextStyle style = TextStyle(
+      fontSize: kFont12.sp,
+      color: AppColors.loginHintColor,
+    );
+    final TextStyle linkStyle = style.copyWith(
+      color: primary,
+      decoration: TextDecoration.underline,
+      decorationColor: primary,
+    );
+    final List<TextSpan> links = [
+      TextSpan(
+        text: context.tr(AppStrings.termsOfService),
+        style: linkStyle,
+        recognizer: _termsRecognizer,
+      ),
+      TextSpan(
+        text: context.tr(AppStrings.privacyPolicy),
+        style: linkStyle,
+        recognizer: _privacyRecognizer,
+      ),
+    ];
+
+    final List<String> parts = context
+        .tr(AppStrings.registerAgreement)
+        .split('{}');
+
+    return Text.rich(
+      TextSpan(
+        style: style,
+        children: [
+          for (int i = 0; i < parts.length; i++) ...[
+            TextSpan(text: parts[i]),
+            if (i < parts.length - 1 && i < links.length) links[i],
+          ],
+        ],
+      ),
+      textAlign: TextAlign.center,
     );
   }
 
@@ -296,30 +389,34 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  Widget _formHeader({required String title, required VoidCallback onBack}) {
-    return Row(
-      children: [
-        InkWellWrapper(
-          onTap: onBack,
-          child: Padding(
-            padding: const EdgeInsets.all(4).r,
-            child: Icon(
-              Iconsax.arrow_left_copy,
-              size: 20.r,
-              color: AppColors.loginTextColor,
-            ),
+  /// ← 返回選擇方式, back to the list of login / sign-up options (the whole
+  /// line is tappable).
+  Widget _formHeader({required VoidCallback onBack}) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: InkWellWrapper(
+        onTap: onBack,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(4, 4, 8, 4).r,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Iconsax.arrow_left_copy,
+                size: 20.r,
+                color: AppColors.loginTextColor,
+              ),
+              8.widthSpace,
+              AppText(
+                context.tr(AppStrings.backToOptions),
+                fontSize: kFont13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.loginTextColor,
+              ),
+            ],
           ),
         ),
-        8.widthSpace,
-        Expanded(
-          child: AppText(
-            title,
-            fontSize: kFont13,
-            fontWeight: FontWeight.w500,
-            color: AppColors.loginTextColor,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -331,12 +428,7 @@ class _LoginPageState extends State<LoginPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _formHeader(
-            title: context.tr(
-              isEmail ? AppStrings.loginWithEmail : AppStrings.loginWithPhone,
-            ),
-            onBack: controller.onBackToOptions,
-          ),
+          _formHeader(onBack: controller.onBackToOptions),
           10.heightSpace,
 
           if (isEmail)
@@ -350,14 +442,11 @@ class _LoginPageState extends State<LoginPage>
               icon: Iconsax.sms_copy,
             )
           else
-            _textField(
+            _phoneField(
               key: const ValueKey('phone'),
               controller: controller.phoneController,
-              validator: StringValidator.phoneValidator,
-              textInputType: TextInputType.phone,
-              labelText: context.tr(AppStrings.phoneNumber),
-              hintText: context.tr(AppStrings.enterPhoneNumber),
-              icon: Iconsax.call_copy,
+              initialPhoneNumber: controller.initialPhoneNumber,
+              onChanged: controller.onPhoneChanged,
             ),
           16.heightSpace,
 
@@ -407,14 +496,7 @@ class _LoginPageState extends State<LoginPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _formHeader(
-            title: context.tr(
-              isEmail
-                  ? AppStrings.registerWithEmail
-                  : AppStrings.registerWithPhone,
-            ),
-            onBack: controller.onBackToOptions,
-          ),
+          _formHeader(onBack: controller.onBackToOptions),
           10.heightSpace,
 
           if (isEmail)
@@ -429,15 +511,13 @@ class _LoginPageState extends State<LoginPage>
               icon: Iconsax.sms,
             )
           else
-            _textField(
+            _phoneField(
               key: const ValueKey('register_phone'),
               controller: controller.phoneController,
-              validator: StringValidator.phoneValidator,
-              textInputType: TextInputType.phone,
+              initialPhoneNumber: controller.initialPhoneNumber,
+              onChanged: controller.onPhoneChanged,
+              onChecking: controller.onPhoneChecking,
               reserveErrorSpace: true,
-              labelText: context.tr(AppStrings.phoneNumber),
-              hintText: context.tr(AppStrings.enterPhoneNumber),
-              icon: Iconsax.call,
             ),
           _textField(
             controller: controller.passwordController,
@@ -527,6 +607,35 @@ class _LoginPageState extends State<LoginPage>
 
   double get _fieldHeight => math.max(kMinInteractiveDimension, 48.r);
 
+  Widget _phoneField({
+    Key? key,
+    required TextEditingController controller,
+    required PhoneNumber initialPhoneNumber,
+    required ValueChanged<PhoneNumber> onChanged,
+    ValueChanged<bool>? onChecking,
+    bool reserveErrorSpace = false,
+  }) {
+    return AppPhoneFormField(
+      key: key,
+      controller: controller,
+      initPhoneNumber: initialPhoneNumber,
+      onChanged: onChanged,
+      onChecking: onChecking ?? (_) {},
+      height: _fieldHeight,
+      radius: 12,
+      reserveErrorSpace: reserveErrorSpace,
+      errorMaxLines: 1,
+      errorTextSize: kFont12,
+      labelText: context.tr(AppStrings.phoneNumber),
+      labelFontWeight: FontWeight.w500,
+      labelColor: AppColors.loginTextColor,
+      textColor: AppColors.loginTextColor,
+      hintText: context.tr(AppStrings.enterPhoneNumber),
+      hintTextColor: AppColors.loginHintColor,
+      borderColor: AppColors.greyLightColor,
+    );
+  }
+
   Widget _fieldLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5).r,
@@ -584,7 +693,11 @@ class _LoginPageState extends State<LoginPage>
         : controller.phoneController;
 
     return ListenableBuilder(
-      listenable: Listenable.merge([target, controller.otpCooldown]),
+      listenable: Listenable.merge([
+        target,
+        controller.otpCooldown,
+        controller.phoneValid,
+      ]),
       builder: (context, _) {
         final int seconds = controller.otpCooldown.value;
         final bool canSend =

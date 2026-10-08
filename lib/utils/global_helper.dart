@@ -2,6 +2,7 @@
 import "package:device_info_plus/device_info_plus.dart";
 import "package:device_marketing_names/device_marketing_names.dart";
 import "package:dio/dio.dart";
+import "package:intl_phone_number_input/intl_phone_number_input.dart";
 import "package:permission_handler/permission_handler.dart";
 
 // Project imports:
@@ -184,13 +185,19 @@ void unfocusKeyboard() {
   }
 }
 
-/// The local part of a phone number, for the API's `phone_no` (sent with
-/// [kDefaultPhoneCode]): "+60 13-228 7524", "60132287524" and "0132287524"
-/// all become "132287524".
-String localPhoneNo(String input) {
-  final String phone = input.replaceAll(RegExp(r'[^0-9]'), '');
+/// [phone] without its country code, for the API's `phone_no` (sent with
+/// [PhoneNumber.dialCode] as `phone_code`): "+60132287524" becomes
+/// "132287524", "+85291234567" "91234567". A trunk 0 typed before the
+/// local number ("0132287524") is dropped too.
+String nationalPhoneNo(PhoneNumber phone) {
+  final String digits = (phone.phoneNumber ?? '').replaceAll(
+    RegExp(r'[^0-9]'),
+    '',
+  );
+  final String dial = (phone.dialCode ?? '').replaceAll(RegExp(r'[^0-9]'), '');
+  final String national = dial.isNotEmpty && digits.startsWith(dial)
+      ? digits.substring(dial.length)
+      : digits;
 
-  if (phone.startsWith("60")) return phone.substring(2);
-  if (phone.startsWith("0")) return phone.substring(1);
-  return phone;
+  return national.startsWith('0') ? national.substring(1) : national;
 }

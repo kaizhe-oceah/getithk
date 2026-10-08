@@ -16,13 +16,17 @@ class HttpClientCustom {
     ),
   )..interceptors.add(HttpLoggerCustom());
 
+  /// The app's current language as the API expects it: the full locale tag,
+  /// "zh_TW" (the default), "en" or "ms" — not just the language code "zh".
+  static String get _language => NavigationService.context.locale.toString();
+
   /// Headers sent with every request.
   static Map<String, String> _headers({
     required bool withBearer,
     String? token,
   }) => {
     "Accept": "application/json",
-    "Accept-Language": kApiLanguage,
+    "Accept-Language": _language,
     "Accept-Timezone": kApiTimezone,
     if (withBearer) "Authorization": "Bearer $token",
   };
@@ -47,7 +51,8 @@ class HttpClientCustom {
       final String url = customUrl ?? "$apiUrl$endPoint";
 
       final queryParams = <String, dynamic>{
-        "language": NavigationService.context.locale.languageCode,
+        "language": _language,
+        "timezone": kApiTimezone,
         if (params != null) ...params,
       };
 
@@ -105,7 +110,8 @@ class HttpClientCustom {
       String? token = tempToken ?? await ApiService.getApiToken();
       final String url = customUrl ?? "$apiUrl$endPoint";
 
-      params["language"] = NavigationService.context.locale.languageCode;
+      params["language"] = _language;
+      params["timezone"] = kApiTimezone;
 
       final response = await _dio.post(
         url,
@@ -162,12 +168,11 @@ class HttpClientCustom {
       String? token = tempToken ?? await ApiService.getApiToken();
       final String url = customUrl ?? "$apiUrl$endPoint";
 
-      final Map<String, dynamic> formMap = {};
-
-      if (params != null) {
-        params["language"] = NavigationService.context.locale.languageCode;
-        formMap.addAll(params);
-      }
+      final Map<String, dynamic> formMap = {
+        "language": _language,
+        "timezone": kApiTimezone,
+        ...?params,
+      };
 
       final formData = FormData.fromMap(formMap);
 

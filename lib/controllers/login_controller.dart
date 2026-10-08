@@ -1,3 +1,6 @@
+// Package imports:
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+
 // Project imports:
 import '../imports.dart';
 
@@ -14,6 +17,18 @@ class LoginController extends ChangeNotifier {
 
   /// The chosen login method; `null` shows the list of login options.
   LoginMethod? method;
+
+  /// The phone field's starting country; one instance, as the field resets
+  /// whenever it gets a new one.
+  final PhoneNumber initialPhoneNumber = PhoneNumber(
+    isoCode: kDefaultPhoneCountry,
+    dialCode: kDefaultPhoneDialCode,
+  );
+
+  /// The phone field's number with its country, as typed.
+  PhoneNumber? phoneNumber;
+
+  void onPhoneChanged(PhoneNumber value) => phoneNumber = value;
 
   void onSelectMethod(LoginMethod value) {
     method = value;
@@ -44,8 +59,8 @@ class LoginController extends ChangeNotifier {
       showLoader: true,
       type: isEmail ? ContactType.email : ContactType.phone,
       email: isEmail ? emailController.text.trim() : null,
-      phoneCode: isEmail ? null : kDefaultPhoneCode,
-      phoneNo: isEmail ? null : localPhoneNo(phoneController.text),
+      phoneCode: isEmail ? null : phoneNumber?.dialCode,
+      phoneNo: isEmail ? null : nationalPhoneNo(phoneNumber!),
       password: passwordController.text,
       onSuccess: (response) {
         response.showMessage();

@@ -131,19 +131,15 @@ class _LoaderState extends State<Loader> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicatorWidget(),
-                // Live status: prefers the notifier (updatable mid-task),
-                // falling back to the status passed at construction.
+                // Live status as the indicator's text: prefers the notifier
+                // (updatable mid-task), falling back to the status passed at
+                // construction, then to the indicator's own "Loading...".
                 ValueListenableBuilder<String?>(
                   valueListenable: Loader._statusNotifier,
-                  builder: (context, liveStatus, _) {
-                    final text = liveStatus ?? widget._status;
-                    if (text == null) return const SizedBox.shrink();
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 10).r,
-                      child: AppText(text),
-                    );
-                  },
+                  builder: (context, liveStatus, _) =>
+                      CircularProgressIndicatorWidget(
+                        text: liveStatus ?? widget._status,
+                      ),
                 ),
               ],
             ),

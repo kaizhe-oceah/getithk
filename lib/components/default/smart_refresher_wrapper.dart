@@ -45,23 +45,38 @@ class SmartRefresherWrapper extends StatelessWidget {
     this.alwaysShowStartShadow = false,
   });
 
+  /// How the list springs back after a pull: critically damped, so it
+  /// settles without overshooting (the package's default spring is
+  /// under-damped and bounced after every refresh).
+  static final SpringDescription _spring = SpringDescription.withDampingRatio(
+    mass: 2.2,
+    stiffness: 150,
+  );
+
   @override
   Widget build(BuildContext context) {
+    final Widget refresher = RefreshConfiguration(
+      springDescription: _spring,
+      child: mainWidget(context),
+    );
+
     return scrollShadowEnabled
         ? ScrollShadow(
             enableStartShadow: enableStartShadow,
             enableEndShadow: enableEndShadow,
             alwaysShowStartShadow: alwaysShowStartShadow,
-            child: mainWidget(context),
+            child: refresher,
           )
-        : mainWidget(context);
+        : refresher;
   }
 
   Widget mainWidget(BuildContext context) {
     return Stack(
       children: [
         SmartRefresher(
-          physics: physics ?? const CustomBouncingScrollPhysics(),
+          // no bounce at either end; pulling down to refresh still works
+          // (the package allows that much overscroll at the top)
+          physics: physics ?? const ClampingScrollPhysics(),
           enablePullDown: enablePullDown,
           enablePullUp: enablePullUp,
           reverse: reverse,
@@ -98,8 +113,10 @@ class SmartRefresherWrapper extends StatelessWidget {
                       SizedBox(
                         height: 32.fh,
                         width: 32.fh,
+                        // the "refreshing" text beside it says it already
                         child: CircularProgressIndicatorWidget(
                           image: AppAssets.appLogo,
+                          showText: false,
                         ),
                       ),
                       const SizedBox(width: 10),

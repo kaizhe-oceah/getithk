@@ -10,6 +10,8 @@ class AppAssets {
   // home
   static String get banner => "assets/images/banner.png";
   static String get coins => "assets/images/coins.png";
+  static String get prize => "assets/images/prize.png";
+  static String get topUp => "assets/images/topup.png";
   static String get homeBackground => "assets/images/bg.jpg";
 
   // no data

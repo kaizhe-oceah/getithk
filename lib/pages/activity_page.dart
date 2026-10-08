@@ -1,8 +1,9 @@
 // Project imports:
 import '../imports.dart';
 
-class FavouritePage extends StatelessWidget {
-  const FavouritePage({super.key});
+/// The 活動 tab.
+class ActivityPage extends StatelessWidget {
+  const ActivityPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class FavouritePage extends StatelessWidget {
       child: SafeArea(
         child: Center(
           child: AppText(
-            context.tr(AppStrings.favourite),
+            context.tr(AppStrings.activity),
             fontSize: kFont18,
             fontWeight: FontWeight.w600,
             color: AppColors.blackColor,
