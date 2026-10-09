@@ -5,6 +5,19 @@ import '../../models/main_product_model.dart';
 String formatMainProductAmount(double value) =>
     NumberFormat('#,##0.##').format(value);
 
+class MainProductImage extends StatelessWidget {
+  final String? image;
+
+  const MainProductImage({required this.image, super.key});
+
+  static const double bannerAspectRatio = 1280 / 714;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppImage(name: image, width: double.infinity, fit: BoxFit.cover);
+  }
+}
+
 class MainProductTags extends StatelessWidget {
   final List<MainProductTagModel> tags;
 
@@ -24,9 +37,6 @@ class MainProductTags extends StatelessWidget {
 
   Widget _tag(MainProductTagModel tag) {
     final Color color = tag.colorValue ?? AppColors.greyColor;
-    // a light color (e.g. "Free", #FFF700) barely shows on white: a stronger
-    // tint of it, and its text darkened until it reads; the outline and tint
-    // stay the API's color
     final bool light = color.computeLuminance() > 0.55;
 
     return Container(
@@ -45,8 +55,6 @@ class MainProductTags extends StatelessWidget {
     );
   }
 
-  /// [color], same hue, darkened just enough to read as text on white
-  /// (about 3:1 contrast); dark enough colors come back unchanged.
   static Color _readableOnWhite(Color color) {
     HSLColor hsl = HSLColor.fromColor(color);
     while (hsl.toColor().computeLuminance() > 0.3 && hsl.lightness > 0) {
@@ -66,14 +74,21 @@ class MainProductPriceAndStock extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        _price(context),
+        MainProductPrice(product: product),
         16.widthSpace,
-        Expanded(child: _stock(context)),
+        Expanded(child: MainProductStock(product: product)),
       ],
     );
   }
+}
 
-  Widget _price(BuildContext context) {
+class MainProductPrice extends StatelessWidget {
+  final MainProductModel product;
+
+  const MainProductPrice({required this.product, super.key});
+
+  @override
+  Widget build(BuildContext context) {
     final double coinSize = 18.r;
 
     return Row(
@@ -112,14 +127,29 @@ class MainProductPriceAndStock extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _stock(BuildContext context) {
-    final Color primary = context.color.primary;
+class MainProductStock extends StatelessWidget {
+  final MainProductModel product;
+
+  const MainProductStock({required this.product, super.key});
+
+  static const Color _amber = Color(0xFFF59E0B);
+  static const Color _green = Color(0xFF22C55E);
+
+  @override
+  Widget build(BuildContext context) {
     final double left = product.totalDraws > 0
         ? (product.remainingDraws / product.totalDraws).clamp(0.0, 1.0)
         : 0;
+    final Color barColor = left < 0.2
+        ? context.color.primary
+        : left < 0.5
+        ? _amber
+        : _green;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text.rich(
@@ -142,11 +172,10 @@ class MainProductPriceAndStock extends StatelessWidget {
         ),
         4.heightSpace,
         Container(
-          height: 10.r,
-          padding: const EdgeInsets.all(1.5).r,
+          height: 8.r,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: primary.wOpacity(0.1),
-            border: Border.all(color: primary.wOpacity(0.25)),
+            color: barColor.wOpacity(0.15),
             borderRadius: BorderRadius.circular(100),
           ),
           child: Align(
@@ -156,7 +185,12 @@ class MainProductPriceAndStock extends StatelessWidget {
               heightFactor: 1,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: primary,
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.lerp(barColor, AppColors.whiteColor, 0.35)!,
+                      barColor,
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),
@@ -168,116 +202,164 @@ class MainProductPriceAndStock extends StatelessWidget {
   }
 }
 
-class MainProductTopupUnlock extends StatelessWidget {
+class MainProductTopupUnlock extends StatefulWidget {
   final MainProductModel product;
 
   const MainProductTopupUnlock({required this.product, super.key});
 
+  @override
+  State<MainProductTopupUnlock> createState() => _MainProductTopupUnlockState();
+}
+
+class _MainProductTopupUnlockState extends State<MainProductTopupUnlock>
+    with SingleTickerProviderStateMixin {
   static const Color _background = Color(0xFFF6F4FF);
-  static const Color _border = Color(0xFFDCD5F7);
-  static const Color _blue = Color(0xFF1E7BF2);
-  static const LinearGradient _ribbonGradient = LinearGradient(
-    colors: [Color(0xFF1E7BF2), Color(0xFFE6248C)],
-  );
-  static const LinearGradient _amountGradient = LinearGradient(
-    colors: [Color(0xFF2F6BFF), Color(0xFFA334D6)],
-  );
+  static const double _borderWidth = 1.5;
+  static const Duration _flowDuration = Duration(seconds: 6);
+  static const List<Color> _amountColors = [
+    Color(0xFF2F6BFF),
+    Color(0xFFA334D6),
+    Color(0xFFE6248C),
+    Color(0xFF2F6BFF),
+  ];
+
+  late final AnimationController _flow = AnimationController(
+    vsync: this,
+    duration: _flowDuration,
+  )..repeat();
+
+  @override
+  void dispose() {
+    _flow.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final MainProductModel product = widget.product;
     final int? left = product.remainingUnlockedDraws;
 
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: _background,
-        border: Border.all(color: _border),
-        borderRadius: BorderRadius.circular(10).r,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _ribbon(context),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12).r,
-            child: Row(
+    final double radius = 10.r;
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _flow,
+        builder: (context, child) => DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: _flowingGradient(_amountColors, _flow.value),
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          child: child,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(_borderWidth),
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: _background,
+              borderRadius: BorderRadius.circular(radius - _borderWidth),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                _ribbon(context),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12).r,
+                  child: Row(
                     children: [
-                      AppText(
-                        context.tr(AppStrings.topupMore),
-                        fontSize: kFont14,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.loginTextColor,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AppText(
+                              context.tr(AppStrings.topupMore),
+                              fontSize: kFont14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.loginTextColor,
+                            ),
+                            _amount(product.topupToNextUnlock ?? 0),
+                          ],
+                        ),
                       ),
-                      _amount(product.topupToNextUnlock ?? 0),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _info(
+                            context.tr(AppStrings.drawsAvailableNow),
+                            context.tr(
+                              AppStrings.drawTimes,
+                              args: ['${product.availableDraws ?? 0}'],
+                            ),
+                            flowing: true,
+                          ),
+                          6.heightSpace,
+                          _info(
+                            context.tr(AppStrings.chanceToGet),
+                            left == null
+                                ? context.tr(AppStrings.unlimited)
+                                : context.tr(
+                                    AppStrings.drawTimes,
+                                    args: ['$left'],
+                                  ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _info(
-                      context.tr(AppStrings.drawsAvailableNow),
-                      context.tr(
-                        AppStrings.drawTimes,
-                        args: ['${product.availableDraws ?? 0}'],
-                      ),
-                      valueColor: _blue,
-                    ),
-                    6.heightSpace,
-                    _info(
-                      context.tr(AppStrings.chanceToGet),
-                      left == null
-                          ? context.tr(AppStrings.unlimited)
-                          : context.tr(AppStrings.drawTimes, args: ['$left']),
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _ribbon(BuildContext context) {
-    return ClipPath(
-      clipper: const _ArrowTipClipper(),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(10, 4, 18, 4).r,
-        decoration: const BoxDecoration(gradient: _ribbonGradient),
-        child: AppText(
-          context.tr(
-            AppStrings.topupPerDraw,
-            args: [formatMainProductAmount(product.topupPerDraw ?? 0)],
+    return RepaintBoundary(
+      child: ClipPath(
+        clipper: const _SwallowtailClipper(),
+        child: AnimatedBuilder(
+          animation: _flow,
+          builder: (context, child) => DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: _flowingGradient(_amountColors, _flow.value),
+            ),
+            child: child,
           ),
-          fontSize: kFont12,
-          fontWeight: FontWeight.w700,
-          color: AppColors.whiteColor,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 20, 4).r,
+            child: AppText(
+              context.tr(
+                AppStrings.topupPerDraw,
+                args: [
+                  formatMainProductAmount(widget.product.topupPerDraw ?? 0),
+                ],
+              ),
+              fontSize: kFont12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.whiteColor,
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget _amount(double value) {
-    return ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: _amountGradient.createShader,
+    return _FlowingGradient(
+      flow: _flow,
+      colors: _amountColors,
       child: Text.rich(
         TextSpan(
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: const TextStyle(fontWeight: FontWeight.w700),
           children: [
             TextSpan(
               text: formatMainProductAmount(value),
-              style: TextStyle(fontSize: kFont26.sp),
+              style: const TextStyle(fontSize: kFont26),
             ),
-            TextSpan(
+            const TextSpan(
               text: ' pt',
-              style: TextStyle(fontSize: kFont14.sp),
+              style: TextStyle(fontSize: kFont14),
             ),
           ],
         ),
@@ -285,57 +367,155 @@ class MainProductTopupUnlock extends StatelessWidget {
     );
   }
 
-  Widget _info(String label, String value, {Color? valueColor}) {
-    return Text.rich(
-      TextSpan(
-        style: TextStyle(fontSize: kFont13.sp, color: AppColors.loginTextColor),
-        children: [
-          TextSpan(text: label),
-          TextSpan(
-            text: value,
-            style: TextStyle(fontWeight: FontWeight.w700, color: valueColor),
-          ),
-        ],
-      ),
+  Widget _info(String label, String value, {bool flowing = false}) {
+    final TextStyle style = TextStyle(
+      fontSize: kFont13.sp,
+      color: AppColors.loginTextColor,
+    );
+    final Widget valueText = Text(
+      value,
+      style: style.copyWith(fontWeight: FontWeight.w700),
+    );
+
+    // a Row rather than one Text.rich, so the value alone can take the
+    // flowing gradient; baseline-aligned so it still reads as one line
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(label, style: style),
+        if (flowing)
+          _FlowingGradient(flow: _flow, colors: _amountColors, child: valueText)
+        else
+          valueText,
+      ],
     );
   }
 }
 
-class _ArrowTipClipper extends CustomClipper<Path> {
-  const _ArrowTipClipper();
+/// A ribbon whose right end has a V notch cut into it.
+class _SwallowtailClipper extends CustomClipper<Path> {
+  const _SwallowtailClipper();
 
   @override
   Path getClip(Size size) {
-    final double tip = size.height * 0.4;
+    final double notch = size.height * 0.3;
 
     return Path()
-      ..lineTo(size.width - tip, 0)
-      ..lineTo(size.width, size.height / 2)
-      ..lineTo(size.width - tip, size.height)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width - notch, size.height / 2)
+      ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
   }
 
   @override
-  bool shouldReclip(_ArrowTipClipper oldClipper) => false;
+  bool shouldReclip(_SwallowtailClipper oldClipper) => false;
 }
 
-class MainProductDrawButton extends StatelessWidget {
-  final MainProductModel product;
-  final VoidCallback? onDraw;
+/// [colors] spread over twice the painted width, slid left by [progress] of
+/// that span: about half the colors show at once, so they drift in from the
+/// right rather than flash, and 0 and 1 look the same. [colors] should start
+/// and end on the same color, or the loop shows a seam.
+LinearGradient _flowingGradient(List<Color> colors, double progress) {
+  return LinearGradient(
+    end: const Alignment(3, 0),
+    colors: colors,
+    tileMode: TileMode.repeated,
+    transform: _SlideGradient(progress),
+  );
+}
 
-  const MainProductDrawButton({required this.product, this.onDraw, super.key});
+/// Paints [child] in [_flowingGradient], moving as [flow] runs.
+class _FlowingGradient extends StatelessWidget {
+  final Animation<double> flow;
+  final List<Color> colors;
+  final Widget child;
+
+  const _FlowingGradient({
+    required this.flow,
+    required this.colors,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AppButtonWidget(
-      text: context.tr(
-        product.isSoldOut ? AppStrings.soldOut : AppStrings.draw,
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: flow,
+        child: child,
+        builder: (context, child) => ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: _flowingGradient(colors, flow.value).createShader,
+          child: child,
+        ),
       ),
+    );
+  }
+}
+
+/// Shifts a gradient left by [progress] of one full tile (twice the width,
+/// matching [_flowingGradient]).
+class _SlideGradient extends GradientTransform {
+  final double progress;
+
+  const _SlideGradient(this.progress);
+
+  @override
+  Matrix4 transform(Rect bounds, {TextDirection? textDirection}) =>
+      Matrix4.translationValues(-bounds.width * 2 * progress, 0, 0);
+}
+
+/// 抽1次 · 連抽10 · 連抽100, each off while the remaining stock can't cover
+/// it; one 已售罄 button once sold out. [onDraw] gets how many to draw.
+class MainProductDrawButtons extends StatelessWidget {
+  final MainProductModel product;
+  final ValueChanged<int>? onDraw;
+
+  const MainProductDrawButtons({required this.product, this.onDraw, super.key});
+
+  static const Color _disabled = Color(0xFFDBE2EB);
+
+  @override
+  Widget build(BuildContext context) {
+    if (product.isSoldOut) {
+      return _button(context.tr(AppStrings.soldOut));
+    }
+
+    return Row(
+      children: [
+        Expanded(child: _draw(context, 1, AppColors.blackColor)),
+        6.widthSpace,
+        Expanded(child: _draw(context, 10, context.color.primary)),
+        6.widthSpace,
+        Expanded(child: _draw(context, 100, context.color.primary)),
+      ],
+    );
+  }
+
+  Widget _draw(BuildContext context, int count, Color color) {
+    final bool enabled =
+        onDraw != null && product.canDraw && product.remainingDraws >= count;
+
+    return _button(
+      count == 1
+          ? context.tr(AppStrings.drawOnce)
+          : context.tr(AppStrings.drawMulti, args: ['$count']),
+      color: color,
+      onTap: enabled ? () => onDraw!(count) : null,
+    );
+  }
+
+  Widget _button(String text, {Color? color, VoidCallback? onTap}) {
+    return AppButtonWidget(
+      text: text,
+      buttonColor: color,
+      disabledColor: _disabled,
       radius: 10,
-      textSize: kFont15,
+      textSize: kFont14,
       textColor: AppColors.whiteColor,
-      onTap: product.canDraw ? onDraw : null,
+      onTap: onTap,
     );
   }
 }

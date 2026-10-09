@@ -35,6 +35,10 @@ class AppImage extends StatefulWidget {
   /// shown small, so they aren't held in memory at full size.
   final int? cacheWidth;
 
+  /// A network image's size (in its own pixels) once it has loaded, after
+  /// that frame; for laying things out against the picture itself.
+  final ValueChanged<Size>? onImageSize;
+
   const AppImage({
     super.key,
     this.name,
@@ -52,6 +56,7 @@ class AppImage extends StatefulWidget {
     this.fallbackEnabled = true,
     this.isThumbnail = true,
     this.cacheWidth,
+    this.onImageSize,
   });
 
   @override
@@ -344,6 +349,18 @@ class _AppImageState extends State<AppImage> {
             case LoadState.loading:
               return _skeletonPlaceholder();
             case LoadState.completed:
+              final ImageInfo? info = state.extendedImageInfo;
+              final ValueChanged<Size>? onImageSize = widget.onImageSize;
+              if (info != null && onImageSize != null) {
+                final Size size = Size(
+                  info.image.width.toDouble(),
+                  info.image.height.toDouble(),
+                );
+                // not mid-build: the listener may set state
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => onImageSize(size),
+                );
+              }
               return null; // use default rendering
             case LoadState.failed:
               return widget.fallbackEnabled

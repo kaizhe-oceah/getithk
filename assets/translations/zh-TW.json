@@ -57,6 +57,8 @@
   "chance_to_get": "有機會獲得：",
   "unlimited": "無上限",
   "draw": "抽籤",
+  "draw_once": "抽1次",
+  "draw_multi": "連抽{}",
   "sold_out": "已售罄",
   "logging_out": "正在登出",
   "login": "登入",

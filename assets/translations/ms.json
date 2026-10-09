@@ -57,6 +57,8 @@
   "chance_to_get": "Boleh dapat: ",
   "unlimited": "Tanpa had",
   "draw": "Cabut",
+  "draw_once": "Cabut 1",
+  "draw_multi": "Cabut {}",
   "sold_out": "Habis Dijual",
   "logging_out": "Log keluar",
   "login": "Log Masuk",

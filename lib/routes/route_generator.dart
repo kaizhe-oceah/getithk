@@ -11,7 +11,9 @@ import "../pages/invite_friends_page.dart";
 import "../pages/login_page.dart";
 import "../pages/main_page.dart";
 import "../pages/profile_page.dart";
+import "../models/main_product_model.dart";
 import "../pages/splash_page.dart";
+import "../pages/sub_product_page.dart";
 import "../pages/tnc_page.dart";
 import "../pages/topup_page.dart";
 
@@ -73,6 +75,13 @@ class RouteGenerator {
 
       case RouteName.topupPage:
         return const TopupPage();
+
+      // arguments: the MainProductModel tapped in the listing
+      case RouteName.subProductPage:
+        final Object? product = settings.arguments;
+        return product is MainProductModel
+            ? SubProductPage(product: product)
+            : null;
 
       case RouteName.tncPage:
         final Object? type = settings.arguments;

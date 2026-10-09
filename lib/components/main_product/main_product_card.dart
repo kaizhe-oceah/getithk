@@ -2,24 +2,32 @@
 import '../../imports.dart';
 import '../../models/main_product_model.dart';
 import 'main_product_get_it_card.dart';
+import 'main_product_parts.dart';
 
-/// A main product, in its category's own card design: each
-/// product_category_id gets its card here. A new design is a new
-/// MainProduct…Card (built from main_product_parts.dart) and a case below.
 class MainProductCard extends StatelessWidget {
   final MainProductModel product;
-  final VoidCallback? onDraw;
+  final ValueChanged<int>? onDraw;
+  final VoidCallback? onTap;
 
-  const MainProductCard({required this.product, this.onDraw, super.key});
+  const MainProductCard({
+    required this.product,
+    this.onDraw,
+    this.onTap,
+    super.key,
+  });
 
   static const int getItCategoryId = 1;
 
   @override
   Widget build(BuildContext context) {
     return switch (product.categoryId) {
-      getItCategoryId => MainProductGetItCard(product: product, onDraw: onDraw),
+      getItCategoryId => MainProductGetItCard(
+        product: product,
+        onDraw: onDraw,
+        onTap: onTap,
+      ),
 
-      _ => MainProductGetItCard(product: product, onDraw: onDraw),
+      _ => MainProductGetItCard(product: product, onDraw: onDraw, onTap: onTap),
     };
   }
 }
@@ -42,7 +50,7 @@ class MainProductCardSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const AspectRatio(
-              aspectRatio: MainProductGetItCard.imageAspectRatio,
+              aspectRatio: MainProductImage.bannerAspectRatio,
               child: Bone(),
             ),
             Padding(

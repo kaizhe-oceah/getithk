@@ -12,6 +12,15 @@ class AppAssets {
   static String get coins => "assets/images/coins.png";
   static String get prize => "assets/images/prize.png";
   static String get topUp => "assets/images/topup.png";
+  static String get psa => "assets/images/psa.png";
+
+  // sub product grade titles (尾賞, 一等獎 … 五等獎)
+  static String get gradeLast => "assets/images/黑金奢華立體「尾賞」徽章.png";
+  static String get gradeFirst => "assets/images/霓虹彩虹立體一等獎標誌.png";
+  static String get gradeSecond => "assets/images/奢華金色二等獎立體字.png";
+  static String get gradeThird => "assets/images/三等獎金紅立體徽章.png";
+  static String get gradeFourth => "assets/images/冰晶藍光四等獎立體字.png";
+  static String get gradeFifth => "assets/images/霓虹綠光五等賞立體字標.png";
 
   // profile menu
   static String get menuInviteFriends => "assets/images/menu_invite_friends.png";

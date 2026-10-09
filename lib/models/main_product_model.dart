@@ -25,6 +25,9 @@ class MainProductModel {
   bool isNewUsersOnly = false;
   bool isAvailable = false;
   bool isSoldOut = false;
+
+  /// Whether to show how many draws are left (the stock bar).
+  bool isShowQuantity = true;
   double? topupPerDraw;
   double? currentTopupAmount;
   double? topupToNextUnlock;
@@ -57,6 +60,7 @@ class MainProductModel {
     isNewUsersOnly = parseBool(json['is_new_users_only']);
     isAvailable = parseBool(json['is_available']);
     isSoldOut = parseBool(json['is_sold_out']);
+    isShowQuantity = parseBool(json['is_show_quantity'], true);
     topupPerDraw = double.tryParse('${json['topup_per_draw']}');
     currentTopupAmount = double.tryParse('${json['current_topup_amount']}');
     topupToNextUnlock = double.tryParse('${json['topup_to_next_unlock']}');
@@ -124,6 +128,36 @@ class MainProductGradeVideoModel {
               MainProductGradeVideoModel.fromJson(
                 Map<String, dynamic>.from(item),
               ),
+        ]
+      : [];
+}
+
+/// A grade a main product's prizes come in, from the sub-product-listing
+/// API's `main_product_grades`: [gradeName] (尾賞, 一等獎, …), drawn
+/// [displayPercentage]% of the time. Its prizes are the sub products whose
+/// `grade_id` is [productGradeId]; the grades are shown by [sortOrder].
+class MainProductGradeModel {
+  int? id;
+  int? productGradeId;
+  String? gradeName;
+  double displayPercentage = 0;
+  int sortOrder = 0;
+  List<int> videoIds = [];
+
+  MainProductGradeModel.fromJson(Map<String, dynamic> json) {
+    id = int.tryParse('${json['id']}');
+    productGradeId = int.tryParse('${json['product_grade_id']}');
+    gradeName = json['grade_name']?.toString();
+    displayPercentage = parseDouble(json['display_percentage']);
+    sortOrder = parseInt(json['sort_order']);
+    videoIds = parseListInt(json['video_ids']);
+  }
+
+  static List<MainProductGradeModel> listFromJson(dynamic data) => data is List
+      ? [
+          for (final item in data)
+            if (item is Map)
+              MainProductGradeModel.fromJson(Map<String, dynamic>.from(item)),
         ]
       : [];
 }

@@ -10,6 +10,7 @@ import '../../imports.dart';
 
 class BottomNavigationWidget extends StatelessWidget {
   const BottomNavigationWidget({super.key});
+  static const double _lowerBy = 20;
 
   @override
   Widget build(BuildContext context) {
@@ -51,17 +52,26 @@ class BottomNavigationWidget extends StatelessWidget {
         );
 
         final ThemeData theme = Theme.of(context);
+        final MediaQueryData media = MediaQuery.of(context);
 
         return Theme(
-          // every page is white: always the package's light glass (it picks
-          // light or dark from this brightness)
           data: theme.copyWith(
             colorScheme: theme.colorScheme.copyWith(
               brightness: Brightness.light,
             ),
           ),
           child: glassSupported
-              ? navBar
+              ? MediaQuery(
+                  data: media.copyWith(
+                    padding: media.padding.copyWith(
+                      bottom: (media.padding.bottom - _lowerBy).clamp(
+                        0.0,
+                        double.infinity,
+                      ),
+                    ),
+                  ),
+                  child: navBar,
+                )
               : Positioned(left: 0, right: 0, bottom: 0, child: navBar),
         );
       },

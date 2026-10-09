@@ -57,6 +57,8 @@
   "chance_to_get": "Can earn: ",
   "unlimited": "Unlimited",
   "draw": "Draw",
+  "draw_once": "Draw 1",
+  "draw_multi": "Draw {}",
   "sold_out": "Sold Out",
   "logging_out": "Logging out",
   "login": "Login",

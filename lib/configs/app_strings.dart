@@ -69,6 +69,8 @@ class AppStrings {
   static const String chanceToGet = 'chance_to_get';
   static const String unlimited = 'unlimited';
   static const String draw = 'draw';
+  static const String drawOnce = 'draw_once';
+  static const String drawMulti = 'draw_multi';
   static const String soldOut = 'sold_out';
   static const String loggingOut = 'logging_out';
   static const String login = 'login';

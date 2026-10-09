@@ -1,3 +1,6 @@
+// Dart imports:
+import 'dart:math' as math;
+
 // Flutter imports:
 import 'package:flutter/rendering.dart'
     show RenderAbstractViewport, RenderProxySliver, RenderSliver;
@@ -11,10 +14,12 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../components/main_product/main_product_card.dart';
 import '../components/main_product/main_product_empty.dart';
 import '../components/main_product/product_tag_chip.dart';
+import '../components/points_pill.dart';
 import '../controllers/home_controller.dart';
 import '../imports.dart';
 import '../models/banner_model.dart';
 import '../models/category_model.dart';
+import '../models/main_product_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,6 +29,10 @@ class HomePage extends StatefulWidget {
 
   static const double _categoryLogoAspectRatio = 2.7;
   static double get _categoryLogoHeight => 30.r;
+  static double get _categoryLogoWidth =>
+      _categoryLogoHeight * _categoryLogoAspectRatio;
+  static EdgeInsets get _categoryTabPadding =>
+      const EdgeInsets.fromLTRB(8, 14, 8, 0).r;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -38,9 +47,38 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with AutomaticKeepAliveClientMixin<HomePage> {
+    with AutomaticKeepAliveClientMixin<HomePage>, TickerProviderStateMixin {
   @override
   bool get wantKeepAlive => true;
+
+  late final AnimationController _swipe = AnimationController.unbounded(
+    vsync: this,
+  );
+  double _dragDx = 0;
+  bool _swiping = false;
+
+  double _productsTop = 0;
+
+  final ScrollController _scroll = ScrollController();
+  final GlobalKey _stackKey = GlobalKey();
+  final GlobalKey _headerKey = GlobalKey();
+  final Map<int, GlobalKey> _tabKeys = {};
+
+  late final AnimationController _tabLine = AnimationController.unbounded(
+    vsync: this,
+  );
+  double _tabLineFrom = 0;
+  double _tabLineTo = 0;
+
+  static const Duration _swipeDuration = Duration(milliseconds: 280);
+
+  @override
+  void dispose() {
+    _swipe.dispose();
+    _tabLine.dispose();
+    _scroll.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +102,7 @@ class _HomePageState extends State<HomePage>
     );
 
     return Stack(
+      key: _stackKey,
       children: [
         const Positioned.fill(
           child: Column(
@@ -76,73 +115,92 @@ class _HomePageState extends State<HomePage>
           ),
         ),
 
-        NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            final ScrollMetrics metrics = notification.metrics;
-            if (metrics.axis == Axis.vertical &&
-                metrics.extentAfter < metrics.viewportDimension) {
-              controller.onLoadMore();
-            }
-            return false;
+        RawGestureDetector(
+          gestures: {
+            _ProductsSwipeRecognizer:
+                GestureRecognizerFactoryWithHandlers<_ProductsSwipeRecognizer>(
+                  () => _ProductsSwipeRecognizer(allows: _startsOnProducts),
+                  (recognizer) => recognizer
+                    ..onStart = ((_) => _onSwipeStart(controller))
+                    ..onUpdate = ((details) =>
+                        _onSwipeUpdate(controller, details.primaryDelta ?? 0))
+                    ..onEnd = ((details) =>
+                        _onSwipeEnd(controller, details.primaryVelocity ?? 0))
+                    ..onCancel = (() => _onSwipeEnd(controller, 0)),
+                ),
           },
-          child: SmartRefresherWrapper(
-            controller: controller.refreshController,
-            onRefresh: controller.onRefresh,
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: ColoredBox(
-                    color: AppColors.whiteColor,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 10.r),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Padding(
-                            padding: sidePadding,
-                            child: controller.isLoading
-                                ? _skeleton()
-                                : Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      if (controller.banners.isNotEmpty) ...[
-                                        _bannerCarousel(context, controller),
-                                        10.heightSpace,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              final ScrollMetrics metrics = notification.metrics;
+              if (metrics.axis == Axis.vertical &&
+                  metrics.extentAfter < metrics.viewportDimension) {
+                controller.onLoadMore();
+              }
+              return false;
+            },
+            child: SmartRefresherWrapper(
+              controller: controller.refreshController,
+              onRefresh: controller.onRefresh,
+              scrollController: _scroll,
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: ColoredBox(
+                      key: _headerKey,
+                      color: AppColors.whiteColor,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10.r),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Padding(
+                              padding: sidePadding,
+                              child: controller.isLoading
+                                  ? _skeleton()
+                                  : Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        if (controller.banners.isNotEmpty) ...[
+                                          _bannerCarousel(context, controller),
+                                          10.heightSpace,
+                                        ],
+                                        if (controller
+                                            .pageBanners
+                                            .isNotEmpty) ...[
+                                          _pageBanners(context, controller),
+                                          12.heightSpace,
+                                        ],
+                                        if (controller.categories.isNotEmpty)
+                                          _categoryTabs(context, controller),
                                       ],
-                                      if (controller
-                                          .pageBanners
-                                          .isNotEmpty) ...[
-                                        _pageBanners(context, controller),
-                                        12.heightSpace,
-                                      ],
-                                      if (controller.categories.isNotEmpty)
-                                        _categoryTabs(context, controller),
-                                    ],
-                                  ),
-                          ),
-                          12.heightSpace,
+                                    ),
+                            ),
+                            12.heightSpace,
 
-                          Padding(
-                            padding: sidePadding,
-                            child: _filterBar(context, controller),
-                          ),
-                          if (controller.filterTags.isNotEmpty) ...[
-                            6.heightSpace,
-                            _activeFilters(context, controller),
+                            Padding(
+                              padding: sidePadding,
+                              child: _filterBar(context, controller),
+                            ),
+                            if (controller.filterTags.isNotEmpty) ...[
+                              6.heightSpace,
+                              _activeFilters(context, controller),
+                            ],
+                            12.heightSpace,
                           ],
-                          12.heightSpace,
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                _products(context, controller),
-              ],
+                  _products(context, controller),
+                ],
+              ),
             ),
           ),
         ),
+
+        _swipeNeighbor(context, controller),
       ],
     );
   }
@@ -179,36 +237,201 @@ class _HomePageState extends State<HomePage>
     if (controller.isLoading || controller.isLoadingProducts) {
       return SliverList.list(
         children: [
-          const MainProductCardSkeleton(),
-          12.heightSpace,
-          const MainProductCardSkeleton(),
+          for (final Widget child in _productsSkeleton())
+            _movesWithSwipe(child),
         ],
       );
     }
 
     if (controller.products.isEmpty) {
       return SliverToBoxAdapter(
-        child: MainProductEmpty(
-          onClearFilter: controller.tagIds.isEmpty
-              ? null
-              : () => controller.onFilterTags([]),
-        ),
+        child: _movesWithSwipe(_productsEmpty(controller)),
       );
     }
 
     return SliverList.builder(
       itemCount: controller.products.length + 1,
-      itemBuilder: (context, index) {
-        if (index == controller.products.length) {
-          return _loadMoreStatus(context, controller);
-        }
+      itemBuilder: (context, index) => _movesWithSwipe(
+        index == controller.products.length
+            ? _loadMoreStatus(context, controller)
+            : _productCard(context, controller.products[index]),
+      ),
+    );
+  }
 
-        return Padding(
-          padding: EdgeInsets.only(bottom: 12.r),
-          child: MainProductCard(
-            product: controller.products[index],
-            onDraw: () =>
-                ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
+  Widget _productCard(BuildContext context, MainProductModel product) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.r),
+      child: MainProductCard(
+        product: product,
+        onDraw: (_) => ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
+        onTap: () => AppNavigator.pushNamed(
+          context,
+          RouteName.subProductPage,
+          arguments: product,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _productsSkeleton() => [
+    const MainProductCardSkeleton(),
+    12.heightSpace,
+    const MainProductCardSkeleton(),
+  ];
+
+  Widget _productsEmpty(HomeController controller) => MainProductEmpty(
+    onClearFilter: controller.tagIds.isEmpty
+        ? null
+        : () => controller.onFilterTags([]),
+  );
+
+  /// [child], one of the product list's items, moved sideways by the swipe.
+  Widget _movesWithSwipe(Widget child) {
+    return AnimatedBuilder(
+      animation: _swipe,
+      child: child,
+      builder: (context, child) =>
+          Transform.translate(offset: Offset(_swipe.value, 0), child: child),
+    );
+  }
+
+  /// Whether a drag from [position] (global) is on the products, below the
+  /// header: the banners and the category tabs keep their own swipes.
+  bool _startsOnProducts(Offset position) {
+    final RenderObject? header = _headerKey.currentContext?.findRenderObject();
+    if (header is! RenderBox || !header.attached) return false;
+
+    return position.dy >=
+        header.localToGlobal(Offset(0, header.size.height)).dy;
+  }
+
+  /// The category a swipe of [dx] heads for: the next one for a swipe left,
+  /// the one before for a swipe right; null past either end.
+  int? _swipeTarget(HomeController controller, double dx) {
+    if (dx == 0) return null;
+    final int index = controller.categoryIndex + (dx < 0 ? 1 : -1);
+    return index >= 0 && index < controller.categories.length ? index : null;
+  }
+
+  void _onSwipeStart(HomeController controller) {
+    _swiping = !controller.isLoading && controller.categories.length > 1;
+    if (!_swiping) return;
+
+    _swipe.stop();
+    _tabLine.stop();
+    _dragDx = _swipe.value;
+    _productsTop = _measureProductsTop();
+    // the cards on either side, so they're there to slide in
+    controller.prefetchCategory(controller.categoryIndex - 1);
+    controller.prefetchCategory(controller.categoryIndex + 1);
+  }
+
+  void _onSwipeUpdate(HomeController controller, double delta) {
+    if (!_swiping) return;
+
+    final double width = MediaQuery.sizeOf(context).width;
+    _dragDx = (_dragDx + delta).clamp(-width, width);
+    // past the first or last category it only gives a little
+    _swipe.value = _swipeTarget(controller, _dragDx) == null
+        ? _dragDx * 0.2
+        : _dragDx;
+  }
+
+  /// Past a third of the width, or flung that way, it lands on the next
+  /// category; otherwise the cards spring back.
+  Future<void> _onSwipeEnd(HomeController controller, double velocity) async {
+    if (!_swiping) return;
+    _swiping = false;
+
+    final double width = MediaQuery.sizeOf(context).width;
+    final double dx = _swipe.value;
+    final int? target = _swipeTarget(controller, dx);
+    final bool flung = velocity.abs() > 600 && velocity.sign == dx.sign;
+
+    if (target == null || (dx.abs() < width / 3 && !flung)) {
+      await _swipe.animateTo(
+        0,
+        duration: _swipeDuration,
+        curve: Curves.easeOutCubic,
+      );
+      return;
+    }
+
+    await _swipe.animateTo(
+      dx.sign * width,
+      duration: _swipeDuration,
+      curve: Curves.easeOutCubic,
+    );
+    if (!mounted) return;
+
+    // the new category's list takes the place of its cards, which were
+    // drawn from its top: scrolled past the header, back to where it ends
+    if (_productsTop < 0 && _scroll.hasClients) {
+      _scroll.jumpTo(_scroll.offset + _productsTop);
+    }
+    controller.onSelectCategory(target);
+    _swipe.value = 0;
+    _centerCategoryTabAt(target, controller);
+  }
+
+  /// Where the products start in the stack: the header's bottom.
+  double _measureProductsTop() {
+    final RenderObject? header = _headerKey.currentContext?.findRenderObject();
+    final RenderObject? stack = _stackKey.currentContext?.findRenderObject();
+    if (header is! RenderBox || stack is! RenderBox || !header.attached) {
+      return 0;
+    }
+
+    return header
+        .localToGlobal(Offset(0, header.size.height), ancestor: stack)
+        .dy;
+  }
+
+  /// The category being swiped to: its cards, drawn from the list's top,
+  /// sliding in beside the swiped ones.
+  Widget _swipeNeighbor(BuildContext context, HomeController controller) {
+    return AnimatedBuilder(
+      animation: _swipe,
+      builder: (context, _) {
+        final double dx = _swipe.value;
+        final int? target = _swipeTarget(controller, dx);
+        if (target == null) return const SizedBox.shrink();
+
+        final double width = MediaQuery.sizeOf(context).width;
+        final List<MainProductModel>? products = controller.cachedProducts(
+          target,
+        );
+
+        return Positioned(
+          left: 0,
+          right: 0,
+          top: math.max(0, _productsTop),
+          bottom: 0,
+          child: IgnorePointer(
+            child: ClipRect(
+              child: Transform.translate(
+                offset: Offset(dx - dx.sign * width, 0),
+                child: ListView(
+                  primary: false,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(
+                    kHorizontalPadding.r,
+                    kHorizontalPadding.r,
+                    kHorizontalPadding.r,
+                    0,
+                  ),
+                  children: products == null
+                      ? _productsSkeleton()
+                      : products.isEmpty
+                      ? [_productsEmpty(controller)]
+                      : [
+                          for (final MainProductModel product in products)
+                            _productCard(context, product),
+                        ],
+                ),
+              ),
+            ),
           ),
         );
       },
@@ -547,20 +770,87 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _categoryTabs(BuildContext context, HomeController controller) {
+    // every tab is as wide, so the line's spot comes from its position
+    final double tabWidth =
+        HomePage._categoryLogoWidth + HomePage._categoryTabPadding.horizontal;
+    final double lineWidth = HomePage._categoryLogoWidth * 0.8;
+
     return Container(
       decoration: _cardDecoration,
       child: SingleChildScrollView(
         controller: controller.categoryScrollController,
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 6).r,
-        child: Row(
+        child: Stack(
           children: [
-            for (int i = 0; i < controller.categories.length; i++)
-              _categoryTab(context, controller, i),
+            Row(
+              children: [
+                for (int i = 0; i < controller.categories.length; i++)
+                  _categoryTab(context, controller, i),
+              ],
+            ),
+
+            // the selected tab's line, one for all of them, so it can slide
+            AnimatedBuilder(
+              animation: Listenable.merge([_swipe, _tabLine]),
+              builder: (context, _) {
+                final ({double position, double progress}) line = _tabLineState(
+                  controller,
+                );
+                // narrow mid-way, full on a tab
+                final double travel = math.sin(math.pi * line.progress);
+                final double width = lineWidth * (1 - 0.6 * travel);
+
+                return Positioned(
+                  left: line.position * tabWidth + (tabWidth - width) / 2,
+                  bottom: 0,
+                  child: Container(
+                    width: width,
+                    height: 3.r,
+                    decoration: BoxDecoration(
+                      color: context.color.primary,
+                      borderRadius: BorderRadius.circular(2).r,
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  /// Where the tabs' line sits, in tabs from the first, and how far along
+  /// its trip it is (0 leaving a tab, 1 there): under the selected tab; part
+  /// of the way to the next while a swipe heads there, as far as the cards
+  /// have moved; or sliding over to a tapped tab.
+  ({double position, double progress}) _tabLineState(
+    HomeController controller,
+  ) {
+    final double dx = _swipe.value;
+    final int? target = _swipeTarget(controller, dx);
+    if (target != null) {
+      final double progress = (dx.abs() / MediaQuery.sizeOf(context).width)
+          .clamp(0.0, 1.0);
+      return (
+        position:
+            controller.categoryIndex +
+            (target - controller.categoryIndex) * progress,
+        progress: progress,
+      );
+    }
+
+    if (_tabLine.isAnimating && _tabLineTo != _tabLineFrom) {
+      return (
+        position: _tabLine.value,
+        progress:
+            ((_tabLine.value - _tabLineFrom) / (_tabLineTo - _tabLineFrom))
+                .clamp(0.0, 1.0),
+      );
+    }
+
+    return (position: controller.categoryIndex.toDouble(), progress: 0);
   }
 
   Widget _categoryTab(
@@ -569,18 +859,28 @@ class _HomePageState extends State<HomePage>
     int index,
   ) {
     final CategoryModel category = controller.categories[index];
-    final bool selected = index == controller.categoryIndex;
-    final double logoWidth =
-        HomePage._categoryLogoHeight * HomePage._categoryLogoAspectRatio;
+    final double logoWidth = HomePage._categoryLogoWidth;
 
     return Builder(
+      key: _tabKeys.putIfAbsent(index, GlobalKey.new),
       builder: (tabContext) => InkWellWrapper(
         onTap: () {
+          if (index != controller.categoryIndex) {
+            _tabLineFrom = controller.categoryIndex.toDouble();
+            _tabLineTo = index.toDouble();
+            _tabLine
+              ..value = _tabLineFrom
+              ..animateTo(
+                _tabLineTo,
+                duration: _swipeDuration,
+                curve: Curves.easeOutCubic,
+              );
+          }
           controller.onSelectCategory(index);
           _centerCategoryTab(tabContext, controller.categoryScrollController);
         },
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 14, 8, 0).r,
+          padding: HomePage._categoryTabPadding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -592,21 +892,19 @@ class _HomePageState extends State<HomePage>
                 cacheWidth: _cacheWidth(context, logoWidth),
               ),
               10.heightSpace,
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOut,
-                height: 3.r,
-                width: selected ? logoWidth * 0.8 : 0,
-                decoration: BoxDecoration(
-                  color: context.color.primary,
-                  borderRadius: BorderRadius.circular(2).r,
-                ),
-              ),
+              // room for the line, drawn over all the tabs
+              SizedBox(height: 3.r),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _centerCategoryTabAt(int index, HomeController controller) {
+    final BuildContext? tabContext = _tabKeys[index]?.currentContext;
+    if (tabContext == null) return;
+    _centerCategoryTab(tabContext, controller.categoryScrollController);
   }
 
   void _centerCategoryTab(BuildContext tabContext, ScrollController scroll) {
@@ -690,7 +988,7 @@ class _HomePageState extends State<HomePage>
           padding: const EdgeInsets.only(right: 8).r,
           child: Center(
             child: isLoggedIn
-                ? _pointsPill(context)
+                ? const PointsPill()
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -717,58 +1015,6 @@ class _HomePageState extends State<HomePage>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _pointsPill(BuildContext context) {
-    final Color primary = context.color.primary;
-    final double points = context.watch<AppController>().points;
-    final double coinSize = 22.r;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4).r,
-      decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: primary),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppImage(
-            name: AppAssets.coins,
-            width: coinSize,
-            height: coinSize,
-            fit: BoxFit.contain,
-            cacheWidth: (coinSize * MediaQuery.devicePixelRatioOf(context))
-                .round(),
-          ),
-          4.widthSpace,
-          AppText(
-            '${NumberFormat('#,##0.00').format(points)} pts',
-            fontSize: kFont13,
-            fontWeight: FontWeight.w700,
-            color: AppColors.loginTextColor,
-          ),
-          6.widthSpace,
-
-          // top up
-          InkWellWrapper(
-            onTap: () =>
-                ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
-            child: Container(
-              width: 20.r,
-              height: 20.r,
-              decoration: BoxDecoration(color: primary, shape: BoxShape.circle),
-              child: Icon(
-                Iconsax.add_copy,
-                size: 14.r,
-                color: AppColors.whiteColor,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -916,4 +1162,15 @@ class _RenderFixedBackgroundSliver extends RenderProxySliver {
     _imagePainter?.dispose();
     super.dispose();
   }
+}
+
+/// A horizontal drag that only starts where [allows] says.
+class _ProductsSwipeRecognizer extends HorizontalDragGestureRecognizer {
+  final bool Function(Offset position) allows;
+
+  _ProductsSwipeRecognizer({required this.allows});
+
+  @override
+  bool isPointerAllowed(PointerEvent event) =>
+      allows(event.position) && super.isPointerAllowed(event);
 }

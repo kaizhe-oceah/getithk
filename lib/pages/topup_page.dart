@@ -4,9 +4,6 @@ import '../imports.dart';
 import '../models/payment_method_model.dart';
 import '../models/topup_bonus_model.dart';
 
-/// 充值: the balance, how to pay, and the top-up packages (from the
-/// wallet-balance, payment-methods and topup-bonus-listing APIs). Pull to
-/// refresh.
 class TopupPage extends StatelessWidget {
   const TopupPage({super.key});
 
@@ -33,7 +30,6 @@ class TopupPage extends StatelessWidget {
   }
 
   Widget _content(BuildContext context, TopupController controller) {
-    // stand-ins under the skeleton the first time
     final bool skeleton = controller.isLoading && controller.bonuses.isEmpty;
     final List<TopupBonusModel> bonuses = skeleton
         ? List.generate(3, (_) => TopupBonusModel.placeholder())
@@ -59,11 +55,13 @@ class TopupPage extends StatelessWidget {
               children: [
                 _paymentMethods(context, controller, skeleton: skeleton),
                 18.heightSpace,
-                AppText(
-                  context.tr(AppStrings.selectTopUpAmount),
-                  fontSize: kFont15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.loginTextColor,
+                Skeleton.keep(
+                  child: AppText(
+                    context.tr(AppStrings.selectTopUpAmount),
+                    fontSize: kFont15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.loginTextColor,
+                  ),
                 ),
                 10.heightSpace,
                 for (final TopupBonusModel bonus in bonuses) ...[
@@ -126,7 +124,6 @@ class TopupPage extends StatelessWidget {
                   color: AppColors.whiteColor.wOpacity(0.9),
                 ),
                 6.heightSpace,
-                // a long balance shrinks to fit beside the wallet
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
@@ -145,8 +142,6 @@ class TopupPage extends StatelessWidget {
     );
   }
 
-  /// The picked method in a dropdown, then every method's logo (tapping one
-  /// picks it too).
   Widget _paymentMethods(
     BuildContext context,
     TopupController controller, {
@@ -221,7 +216,6 @@ class TopupPage extends StatelessWidget {
     );
   }
 
-  /// A method's logo in a small box; outlined in primary when picked.
   Widget _methodLogo(
     BuildContext context,
     TopupController controller,
@@ -229,29 +223,22 @@ class TopupPage extends StatelessWidget {
   ) {
     final bool selected = method == controller.paymentMethod;
 
-    return InkWellWrapper(
-      onTap: () => controller.onSelectPaymentMethod(method),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6).r,
-        decoration: BoxDecoration(
-          color: AppColors.whiteColor,
-          borderRadius: BorderRadius.circular(6).r,
-          border: Border.all(
-            color: selected ? context.color.primary : AppColors.greyLight2Color,
-          ),
-        ),
-        child: AppImage(
-          name: method.icon,
-          width: 30.r,
-          height: 18.r,
-          fit: BoxFit.contain,
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6).r,
+      decoration: BoxDecoration(
+        color: AppColors.whiteColor,
+        borderRadius: BorderRadius.circular(6).r,
+        border: Border.all(color: AppColors.greyLight2Color),
+      ),
+      child: AppImage(
+        name: method.icon,
+        width: 30.r,
+        height: 18.r,
+        fit: BoxFit.contain,
       ),
     );
   }
 
-  /// A package: the coins, 2,100.00 pts with its + 5% Bonus, what it costs
-  /// and the bonus in pts, then 立即充值.
   Widget _bonusCard(
     BuildContext context,
     TopupController controller,
@@ -343,7 +330,6 @@ class TopupPage extends StatelessWidget {
     );
   }
 
-  /// "2,100.00"
   String _pts(double value) => NumberFormat('#,##0.00').format(value);
 
   List<BoxShadow> get _cardShadow => [

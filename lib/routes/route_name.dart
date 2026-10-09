@@ -10,6 +10,7 @@ class RouteName {
   static const String tncPage = '/tnc';
   static const String inviteFriendsPage = '/invite-friends';
   static const String topupPage = '/top-up';
+  static const String subProductPage = '/sub-product';
 
   static List<String> allRoutes = [
     splashPage,
@@ -23,6 +24,7 @@ class RouteName {
     tncPage,
     inviteFriendsPage,
     topupPage,
+    subProductPage,
   ];
 
   static bool containsRoute(String routeName) {

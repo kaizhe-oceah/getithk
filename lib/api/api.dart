@@ -107,6 +107,28 @@ class Api {
     );
   }
 
+  Future<void> resetPassword({
+    required String password,
+    required String currentPassword,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kResetPassword,
+      params: {"current_password": currentPassword, "password": password},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
   Future<void> sendOtp({
     required ContactType type,
     String? email,
@@ -261,6 +283,27 @@ class Api {
         "sort": sort.value,
         if (tags.isNotEmpty) "tags": tags,
       },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> getSubProductListing({
+    required int mainProductId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kSubMainProductListing,
+      params: {"main_product_id": mainProductId},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
         ToastHelper.showToast(error);
