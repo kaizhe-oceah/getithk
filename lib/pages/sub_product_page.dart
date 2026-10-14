@@ -35,13 +35,13 @@ class SubProductPage extends StatelessWidget {
     return AppBarWidget(
       backgroundColor: AppColors.whiteColor,
       leading: const AppBarBackButton(),
-      actions: [
-        if (isLoggedIn)
-          Padding(
-            padding: const EdgeInsets.only(right: 8).r,
-            child: const Center(child: PointsPill()),
-          ),
-      ],
+      // actions: [
+      //   if (isLoggedIn)
+      //     Padding(
+      //       padding: const EdgeInsets.only(right: 8).r,
+      //       child: const Center(child: PointsPill()),
+      //     ),
+      // ],
     );
   }
 
@@ -210,7 +210,11 @@ class SubProductPage extends StatelessWidget {
           else
             MainProductPrice(product: product),
           10.heightSpace,
-          MainProductDrawButtons(product: product, onDraw: controller.onDraw),
+          MainProductDrawButtons(
+            product: product,
+            onDraw: controller.onDraw,
+            onTopUp: controller.onRefresh,
+          ),
         ],
       ),
     );

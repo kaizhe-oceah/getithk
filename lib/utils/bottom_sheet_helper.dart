@@ -2,12 +2,14 @@
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 // Project imports:
+import '../components/default/bottom_sheet_category_filter.dart';
 import '../components/default/bottom_sheet_language.dart';
 import '../components/default/bottom_sheet_logout.dart';
 import '../components/default/bottom_sheet_no_internet_connection.dart';
 import '../components/default/bottom_sheet_phone_country.dart';
 import '../components/default/bottom_sheet_tag_filter.dart';
 import '../imports.dart';
+import '../models/category_model.dart';
 import '../models/phone_code_model.dart';
 import '../models/product_tag_model.dart';
 
@@ -116,6 +118,23 @@ class BottomSheetHelper {
       topControl: const SizedBox.shrink(),
       builder: (context) =>
           BottomSheetTagFilter(selected: selected, onConfirm: onConfirm),
+    );
+  }
+
+  /// The backpack filter: a category to pick; [onConfirm] gets it on
+  /// 確定篩選 (null, every category, on 重設).
+  static Future<void> categoryFilter({
+    required CategoryModel? selected,
+    required ValueChanged<CategoryModel?> onConfirm,
+  }) {
+    return showBarModalBottomSheet<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      shape: roundShapeBorder,
+      backgroundColor: AppColors.whiteColor,
+      topControl: const SizedBox.shrink(),
+      builder: (context) =>
+          BottomSheetCategoryFilter(selected: selected, onConfirm: onConfirm),
     );
   }
 

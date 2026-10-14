@@ -1,6 +1,7 @@
 // Project imports:
 import '../../imports.dart';
 import '../../models/main_product_model.dart';
+import 'main_product_trial_dialog.dart';
 
 String formatMainProductAmount(double value) =>
     NumberFormat('#,##0.##').format(value);
@@ -237,7 +238,6 @@ class _MainProductTopupUnlockState extends State<MainProductTopupUnlock>
   @override
   Widget build(BuildContext context) {
     final MainProductModel product = widget.product;
-    final int? left = product.remainingUnlockedDraws;
 
     final double radius = 10.r;
     return RepaintBoundary(
@@ -264,25 +264,21 @@ class _MainProductTopupUnlockState extends State<MainProductTopupUnlock>
                 _ribbon(context),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 12).r,
-                  child: Row(
+                  child: Table(
+                    columnWidths: const {
+                      0: FlexColumnWidth(),
+                      1: IntrinsicColumnWidth(),
+                    },
+                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AppText(
-                              context.tr(AppStrings.topupMore),
-                              fontSize: kFont14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.loginTextColor,
-                            ),
-                            _amount(product.topupToNextUnlock ?? 0),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      TableRow(
                         children: [
+                          AppText(
+                            context.tr(AppStrings.topupMore),
+                            fontSize: kFont14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.loginTextColor,
+                          ),
                           _info(
                             context.tr(AppStrings.drawsAvailableNow),
                             context.tr(
@@ -291,15 +287,27 @@ class _MainProductTopupUnlockState extends State<MainProductTopupUnlock>
                             ),
                             flowing: true,
                           ),
-                          6.heightSpace,
-                          _info(
-                            context.tr(AppStrings.chanceToGet),
-                            left == null
-                                ? context.tr(AppStrings.unlimited)
-                                : context.tr(
-                                    AppStrings.drawTimes,
-                                    args: ['$left'],
-                                  ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          _amount(product.topupToNextUnlock ?? 0),
+                          Padding(
+                            padding: EdgeInsets.only(top: 2.r),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _info(
+                                  context.tr(AppStrings.remainingUnlock),
+                                  _drawTimes(product.remainingUnlockedDraws),
+                                ),
+                                2.heightSpace,
+                                _info(
+                                  context.tr(AppStrings.chanceToGet),
+                                  _drawTimes(product.maxUnlockTimes),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -367,6 +375,10 @@ class _MainProductTopupUnlockState extends State<MainProductTopupUnlock>
     );
   }
 
+  String _drawTimes(int? times) => times == null
+      ? context.tr(AppStrings.unlimited)
+      : context.tr(AppStrings.drawTimes, args: ['$times']);
+
   Widget _info(String label, String value, {bool flowing = false}) {
     final TextStyle style = TextStyle(
       fontSize: kFont13.sp,
@@ -377,8 +389,6 @@ class _MainProductTopupUnlockState extends State<MainProductTopupUnlock>
       style: style.copyWith(fontWeight: FontWeight.w700),
     );
 
-    // a Row rather than one Text.rich, so the value alone can take the
-    // flowing gradient; baseline-aligned so it still reads as one line
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -467,20 +477,45 @@ class _SlideGradient extends GradientTransform {
       Matrix4.translationValues(-bounds.width * 2 * progress, 0, 0);
 }
 
-/// 抽1次 · 連抽10 · 連抽100, each off while the remaining stock can't cover
-/// it; one 已售罄 button once sold out. [onDraw] gets how many to draw.
+/// 抽1次 · 連抽10 · 連抽100, each off while the stock (and, topping up to
+/// draw, the draws unlocked) can't cover it. Instead, one button: 已售罄 or
+/// 暫不可抽 (off), or 購買積分 until topping up has unlocked a draw.
+/// [onDraw] gets how many to draw; [onTopUp] runs back from topping up.
 class MainProductDrawButtons extends StatelessWidget {
   final MainProductModel product;
   final ValueChanged<int>? onDraw;
+  final VoidCallback? onTopUp;
 
-  const MainProductDrawButtons({required this.product, this.onDraw, super.key});
+  const MainProductDrawButtons({
+    required this.product,
+    this.onDraw,
+    this.onTopUp,
+    super.key,
+  });
 
   static const Color _disabled = Color(0xFFDBE2EB);
 
   @override
   Widget build(BuildContext context) {
-    if (product.isSoldOut) {
-      return _button(context.tr(AppStrings.soldOut));
+    // is_available first: false once sold out, or once every unlock (topping
+    // up to draw) has been drawn
+    if (!product.isAvailable || product.isSoldOut) {
+      return _button(
+        context.tr(
+          product.isSoldOut ? AppStrings.soldOut : AppStrings.drawUnavailable,
+        ),
+      );
+    }
+
+    // logged out: 購買積分, or 抽籤 · 試玩抽籤 for a trial product
+    if (context.watch<AppController>().user == null) {
+      return product.isTrialDraw
+          ? _trialButtons(context)
+          : _buyPointsButton(context);
+    }
+
+    if (product.hasTopupUnlock && (product.availableDraws ?? 0) <= 0) {
+      return _buyPointsButton(context);
     }
 
     return Row(
@@ -494,9 +529,81 @@ class MainProductDrawButtons extends StatelessWidget {
     );
   }
 
+  /// Logged out, it opens the login page instead (checkLogin).
+  Widget _buyPointsButton(BuildContext context) {
+    return _button(
+      context.tr(AppStrings.buyPoints),
+      color: context.color.primary,
+      onTap: () async {
+        await AppNavigator.pushNamed(context, RouteName.topupPage);
+        onTopUp?.call();
+      },
+    );
+  }
+
+  /// 抽籤 (opens the login page, checkLogin) and 試玩抽籤 with a 免費 badge
+  /// on its top edge.
+  Widget _trialButtons(BuildContext context) {
+    final Color primary = context.color.primary;
+
+    return Row(
+      children: [
+        Expanded(
+          child: _button(
+            context.tr(AppStrings.drawLots),
+            color: primary,
+            onTap: () => onDraw?.call(1),
+          ),
+        ),
+        10.widthSpace,
+        Expanded(
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.topCenter,
+            children: [
+              AppButtonWidget(
+                text: context.tr(AppStrings.trialDraw),
+                buttonColor: AppColors.whiteColor,
+                borderColor: primary,
+                radius: 10,
+                textSize: kFont14,
+                textColor: primary,
+                onTap: () => MainProductTrialDialog.show(context, product),
+              ),
+              Positioned(
+                top: -8.r,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 1,
+                  ).r,
+                  decoration: BoxDecoration(
+                    color: primary,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: AppText(
+                    context.tr(AppStrings.free),
+                    fontSize: kFont10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.whiteColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _draw(BuildContext context, int count, Color color) {
-    final bool enabled =
-        onDraw != null && product.canDraw && product.remainingDraws >= count;
+    // topping up to draw: no more than the draws it has unlocked
+    final int limit =
+        product.hasTopupUnlock &&
+            (product.availableDraws ?? 0) < product.remainingDraws
+        ? product.availableDraws ?? 0
+        : product.remainingDraws;
+    final bool enabled = onDraw != null && count <= limit;
 
     return _button(
       count == 1
@@ -515,6 +622,8 @@ class MainProductDrawButtons extends StatelessWidget {
       radius: 10,
       textSize: kFont14,
       textColor: AppColors.whiteColor,
+      // logged out: the login page instead
+      checkLogin: true,
       onTap: onTap,
     );
   }

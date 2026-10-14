@@ -26,10 +26,16 @@ class _MainPageState extends State<MainPage> {
         builder: (BuildContext context, _appController, _mainController, _) {
           final navItems = _mainController.navItems;
           final pages = navItems.map((e) => e.page).toList();
+          final bool glassNav = BottomNavigationWidget.glassSupported;
 
           return Scaffold(
             backgroundColor: AppColors.darkBackgroundColor,
             resizeToAvoidBottomInset: false,
+            // Without glass support the nav bar is a plain bar docked below
+            // the pages instead of floating over them.
+            bottomNavigationBar: glassNav
+                ? null
+                : const BottomNavigationWidget(),
             body: Stack(
               children: [
                 // Background
@@ -38,7 +44,7 @@ class _MainPageState extends State<MainPage> {
                 // PageView for main navigation; runs under the floating nav
                 // bar so the glass has something to show through. Scrollable
                 // tab content should pad its bottom by
-                // LiquidGlassNavBar.contentBottomInset.
+                // BottomNavigationWidget.contentBottomInset.
                 Positioned.fill(
                   child: PageView(
                     physics: const NeverScrollableScrollPhysics(),
@@ -48,8 +54,8 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
 
-                // Bottom navigation bar (positions itself)
-                const BottomNavigationWidget(),
+                // Floating glass nav bar (positions itself)
+                if (glassNav) const BottomNavigationWidget(),
               ],
             ),
           );

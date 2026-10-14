@@ -293,6 +293,21 @@ class Api {
     );
   }
 
+  Future<void> getAllDrawVideoListing({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kAllDrawVideoListing,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) => onError?.call(error),
+    );
+  }
+
   Future<void> getSubProductListing({
     required int mainProductId,
     required Function(ApiResponseModel) onSuccess,
@@ -368,6 +383,92 @@ class Api {
       endPoint: kPlayerInvitePointListing,
       withBearer: true,
       params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // the player's backpack cards (needs the token), [status] 1, 4 or 5;
+  // no [productCategoryId]: every category
+  Future<void> getPlayerStockListing({
+    required int page,
+    required int perPage,
+    required StockStatus status,
+    int? productCategoryId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kPlayerStockListing,
+      withBearer: true,
+      params: {
+        "page": page,
+        "per_page": perPage,
+        "status": status.value,
+        "product_category_id": ?productCategoryId,
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> drawProduct({
+    required int mainProductId,
+    required double drawAmount,
+    required int drawCount,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kDrawProduct,
+      withBearer: true,
+      params: {
+        "main_product_id": mainProductId,
+        "mode_id": 1, // hardcode
+        "draw_amount": drawAmount,
+        "draw_count": drawCount,
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // a free trial draw of a trial product, [drawCount] 1 or 10: data as
+  // drawProduct's. No token: it's for players not logged in (and a 401
+  // would otherwise log a player out)
+  Future<void> trialDrawProduct({
+    required int mainProductId,
+    required int drawCount,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kProductTrialDraw,
+      params: {"main_product_id": mainProductId, "draw_count": drawCount},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
         ToastHelper.showToast(error);

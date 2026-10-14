@@ -3,9 +3,9 @@ import 'dart:math' as math;
 
 // Package imports:
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-import 'package:liquid_glass_bottom_nav/liquid_glass_bottom_nav.dart';
 
 // Project imports:
+import '../components/default/bottom_nav_bar_widget.dart';
 import '../controllers/login_controller.dart';
 import '../controllers/register_controller.dart';
 import '../imports.dart';
@@ -198,8 +198,7 @@ class _LoginPageState extends State<LoginPage>
 
   Widget _tabPage(Widget child, {Widget? footer}) {
     final double navBarInset = widget.isTab
-        ? LiquidGlassNavBar.contentBottomInset +
-              MediaQuery.paddingOf(context).bottom
+        ? BottomNavigationWidget.contentBottomInset(context)
         : 16.r;
 
     final Widget scrollView = SingleChildScrollView(

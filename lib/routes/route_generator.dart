@@ -11,7 +11,9 @@ import "../pages/invite_friends_page.dart";
 import "../pages/login_page.dart";
 import "../pages/main_page.dart";
 import "../pages/profile_page.dart";
+import "../models/draw_result_model.dart";
 import "../models/main_product_model.dart";
+import "../pages/prize_result_page.dart";
 import "../pages/splash_page.dart";
 import "../pages/sub_product_page.dart";
 import "../pages/tnc_page.dart";
@@ -81,6 +83,13 @@ class RouteGenerator {
         final Object? product = settings.arguments;
         return product is MainProductModel
             ? SubProductPage(product: product)
+            : null;
+
+      // arguments: the DrawResultModel of the draw just made
+      case RouteName.prizeResultPage:
+        final Object? result = settings.arguments;
+        return result is DrawResultModel
+            ? PrizeResultPage(result: result)
             : null;
 
       case RouteName.tncPage:

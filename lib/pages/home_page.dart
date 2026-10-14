@@ -7,10 +7,10 @@ import 'package:flutter/rendering.dart'
 
 // Package imports:
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:liquid_glass_bottom_nav/liquid_glass_bottom_nav.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // Project imports:
+import '../components/default/bottom_nav_bar_widget.dart';
 import '../components/main_product/main_product_card.dart';
 import '../components/main_product/main_product_empty.dart';
 import '../components/main_product/product_tag_chip.dart';
@@ -129,73 +129,71 @@ class _HomePageState extends State<HomePage>
                     ..onCancel = (() => _onSwipeEnd(controller, 0)),
                 ),
           },
-          child: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              final ScrollMetrics metrics = notification.metrics;
-              if (metrics.axis == Axis.vertical &&
-                  metrics.extentAfter < metrics.viewportDimension) {
-                controller.onLoadMore();
-              }
-              return false;
-            },
-            child: SmartRefresherWrapper(
-              controller: controller.refreshController,
-              onRefresh: controller.onRefresh,
-              scrollController: _scroll,
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: ColoredBox(
-                      key: _headerKey,
-                      color: AppColors.whiteColor,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10.r),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Padding(
-                              padding: sidePadding,
-                              child: controller.isLoading
-                                  ? _skeleton()
-                                  : Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        if (controller.banners.isNotEmpty) ...[
-                                          _bannerCarousel(context, controller),
-                                          10.heightSpace,
-                                        ],
-                                        if (controller
-                                            .pageBanners
-                                            .isNotEmpty) ...[
-                                          _pageBanners(context, controller),
-                                          12.heightSpace,
-                                        ],
-                                        if (controller.categories.isNotEmpty)
-                                          _categoryTabs(context, controller),
+          child: SmartRefresherWrapper(
+            controller: controller.refreshController,
+            onRefresh: controller.onRefresh,
+            enablePullUp:
+                !controller.isLoading && !controller.isLoadingProducts,
+            onLoading: controller.onLoading,
+            footerHeight:
+                kHorizontalPadding +
+                BottomNavigationWidget.contentBottomInset(context),
+            footerTextColor: AppColors.whiteColor,
+            showNoDataText: false,
+            scrollController: _scroll,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: ColoredBox(
+                    key: _headerKey,
+                    color: AppColors.whiteColor,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 10.r),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: sidePadding,
+                            child: controller.isLoading
+                                ? _skeleton()
+                                : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      if (controller.banners.isNotEmpty) ...[
+                                        _bannerCarousel(context, controller),
+                                        10.heightSpace,
                                       ],
-                                    ),
-                            ),
-                            12.heightSpace,
+                                      if (controller
+                                          .pageBanners
+                                          .isNotEmpty) ...[
+                                        _pageBanners(context, controller),
+                                        12.heightSpace,
+                                      ],
+                                      if (controller.categories.isNotEmpty)
+                                        _categoryTabs(context, controller),
+                                    ],
+                                  ),
+                          ),
+                          12.heightSpace,
 
-                            Padding(
-                              padding: sidePadding,
-                              child: _filterBar(context, controller),
-                            ),
-                            if (controller.filterTags.isNotEmpty) ...[
-                              6.heightSpace,
-                              _activeFilters(context, controller),
-                            ],
-                            12.heightSpace,
+                          Padding(
+                            padding: sidePadding,
+                            child: _filterBar(context, controller),
+                          ),
+                          if (controller.filterTags.isNotEmpty) ...[
+                            6.heightSpace,
+                            _activeFilters(context, controller),
                           ],
-                        ),
+                          12.heightSpace,
+                        ],
                       ),
                     ),
                   ),
+                ),
 
-                  _products(context, controller),
-                ],
-              ),
+                _products(context, controller),
+              ],
             ),
           ),
         ),
@@ -224,9 +222,8 @@ class _HomePageState extends State<HomePage>
           kHorizontalPadding.r,
           kHorizontalPadding.r,
           kHorizontalPadding.r,
-          16.r +
-              LiquidGlassNavBar.contentBottomInset +
-              MediaQuery.paddingOf(context).bottom,
+          // the refresher's footer clears the nav bar
+          16.r,
         ),
         sliver: _productList(context, controller),
       ),
@@ -234,7 +231,9 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _productList(BuildContext context, HomeController controller) {
-    if (controller.isLoading || controller.isLoadingProducts) {
+    // a category seen already shows its cards while they reload
+    if (controller.isLoading ||
+        (controller.isLoadingProducts && controller.products.isEmpty)) {
       return SliverList.list(
         children: [
           for (final Widget child in _productsSkeleton())
@@ -250,12 +249,9 @@ class _HomePageState extends State<HomePage>
     }
 
     return SliverList.builder(
-      itemCount: controller.products.length + 1,
-      itemBuilder: (context, index) => _movesWithSwipe(
-        index == controller.products.length
-            ? _loadMoreStatus(context, controller)
-            : _productCard(context, controller.products[index]),
-      ),
+      itemCount: controller.products.length,
+      itemBuilder: (context, index) =>
+          _movesWithSwipe(_productCard(context, controller.products[index])),
     );
   }
 
@@ -264,7 +260,9 @@ class _HomePageState extends State<HomePage>
       padding: EdgeInsets.only(bottom: 12.r),
       child: MainProductCard(
         product: product,
-        onDraw: (_) => ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
+        onDraw: (count) =>
+            context.read<HomeController>().onDraw(product, count),
+        onTopUp: context.read<HomeController>().onRefreshProducts,
         onTap: () => AppNavigator.pushNamed(
           context,
           RouteName.subProductPage,
@@ -436,31 +434,6 @@ class _HomePageState extends State<HomePage>
         );
       },
     );
-  }
-
-  Widget _loadMoreStatus(BuildContext context, HomeController controller) {
-    if (controller.isLoadingMoreProducts) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8).r,
-        child: const Center(child: CircularProgressIndicatorWidget(size: 36)),
-      );
-    }
-
-    if (controller.loadMoreFailed) {
-      return InkWellWrapper(
-        onTap: () => controller.onLoadMore(retry: true),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12).r,
-          child: AppText(
-            context.tr(AppStrings.loadFailTryAgain),
-            color: AppColors.whiteColor,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
-
-    return const SizedBox.shrink();
   }
 
   Widget _filterBar(BuildContext context, HomeController controller) {
@@ -749,6 +722,8 @@ class _HomePageState extends State<HomePage>
           if (i > 0) SizedBox(width: gap),
           Expanded(
             child: InkWellWrapper(
+              // logged out: the login page instead
+              checkLogin: true,
               onTap: () =>
                   ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
               child: AspectRatio(
@@ -1122,20 +1097,28 @@ class _RenderFixedBackgroundSliver extends RenderProxySliver {
     final RenderSliver? child = this.child;
     if (child == null || !child.geometry!.visible) return;
 
+    // from the section's top down to the screen's bottom, past the list's
+    // end (under the refresher's footer): the image stays on the bottom
     final double width = constraints.crossAxisExtent;
-    final Rect visible = offset & Size(width, geometry!.paintExtent);
-    final Rect imageRect = offset & Size(width, width * _imageAspectRatio);
+    final Rect area = offset & Size(width, constraints.remainingPaintExtent);
+    final double imageHeight = width * _imageAspectRatio;
+    final Rect imageRect = Rect.fromLTWH(
+      area.left,
+      area.bottom - imageHeight,
+      width,
+      imageHeight,
+    );
     final Rect fadeRect = Rect.fromLTRB(
       imageRect.left,
-      imageRect.bottom - imageRect.height / 5,
+      imageRect.top,
       imageRect.right,
-      imageRect.bottom,
+      imageRect.top + imageRect.height / 5,
     );
 
     final Canvas canvas = context.canvas
       ..save()
-      ..clipRect(visible)
-      ..drawRect(visible, Paint()..color = _color);
+      ..clipRect(area)
+      ..drawRect(area, Paint()..color = _color);
     (_imagePainter ??= _image.createPainter(markNeedsPaint)).paint(
       canvas,
       imageRect,
@@ -1149,7 +1132,7 @@ class _RenderFixedBackgroundSliver extends RenderProxySliver {
           ..shader = LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [_color.wOpacity(0), _color],
+            colors: [_color, _color.wOpacity(0)],
           ).createShader(fadeRect),
       )
       ..restore();

@@ -2,6 +2,7 @@
 import '../imports.dart';
 import '../models/main_product_model.dart';
 import '../models/sub_product_model.dart';
+import '../utils/draw_helper.dart';
 
 class SubProductController extends ChangeNotifier {
   BuildContext context = NavigationService.context;
@@ -74,9 +75,11 @@ class SubProductController extends ChangeNotifier {
             );
           }
           subProducts = SubProductModel.listFromJson(data['sub_products']);
-          grades = MainProductGradeModel.listFromJson(
-            data['main_product_grades'],
-          )..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+          grades =
+              List.from(data['main_product_grades'] ?? [])
+                  .map((element) => MainProductGradeModel.fromJson(element))
+                  .toList()
+                ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
           combProduct = comb is Map
               ? SubProductModel.fromJson(Map<String, dynamic>.from(comb))
               : null;
@@ -93,9 +96,10 @@ class SubProductController extends ChangeNotifier {
     refreshController.refreshCompleted();
   }
 
-  // TODO(getithk): draw [count] once there's a draw API
-  void onDraw(int count) =>
-      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+  Future<void> onDraw(int count) async {
+    await DrawHelper.drawProduct(product, count);
+    update();
+  }
 
   @override
   void dispose() {

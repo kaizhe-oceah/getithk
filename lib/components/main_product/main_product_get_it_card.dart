@@ -6,11 +6,13 @@ import 'main_product_parts.dart';
 class MainProductGetItCard extends StatelessWidget {
   final MainProductModel product;
   final ValueChanged<int>? onDraw;
+  final VoidCallback? onTopUp;
   final VoidCallback? onTap;
 
   const MainProductGetItCard({
     required this.product,
     this.onDraw,
+    this.onTopUp,
     this.onTap,
     super.key,
   });
@@ -44,7 +46,11 @@ class MainProductGetItCard extends StatelessWidget {
                     MainProductTopupUnlock(product: product),
                   ],
                   12.heightSpace,
-                  MainProductDrawButtons(product: product, onDraw: onDraw),
+                  MainProductDrawButtons(
+                    product: product,
+                    onDraw: onDraw,
+                    onTopUp: onTopUp,
+                  ),
                 ],
               ),
             ),

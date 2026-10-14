@@ -11,12 +11,16 @@ const kTNC = "/term-condition";
 const kProductMainProductListing = "/product/main-product-listing";
 const kSubMainProductListing = "/product/sub-product-listing";
 const kProductTagListing = "/product/tag-listing";
+const kAllDrawVideoListing = "/product/all-draw-video-listing";
 const kProfile = "/player/profile";
 const kWalletBalance = "/player/wallet-balance";
 const kPlayerInvitePointListing = "/player/invite-point-listing";
 const kTopupBonusListing = "/topup-bonus-listing";
 const kPaymentMethod = "/payment-methods";
 const kResetPassword = "/player/reset-password";
+const kPlayerStockListing = "/player/stock-listing";
+const kDrawProduct = "/player/draw-product";
+const kProductTrialDraw = "/product/trial-draw";
 
 // API Timezone
 const kApiTimezone = "Asia/Kuala_Lumpur";

@@ -108,6 +108,9 @@ class AppColors {
   static const Color coinColor = Color(0xFFF6B100);
   static const Color profileMenuIconColor = Color(0xFF3A3A3A);
 
+  // sub product
+  static const Color quantityBadgeColor = Color(0xFF3A3A3A);
+
   // shadow
   static final List<BoxShadow> shadowDefault = [
     BoxShadow(

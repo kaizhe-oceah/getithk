@@ -22,6 +22,9 @@ class SmartRefresherWrapper extends StatelessWidget {
   final Color? footerTextColor;
   final bool alwaysShowStartShadow;
 
+  /// Whether the footer says there's no more data at the list's end.
+  final bool showNoDataText;
+
   const SmartRefresherWrapper({
     super.key,
     required this.controller,
@@ -43,6 +46,7 @@ class SmartRefresherWrapper extends StatelessWidget {
     this.footerHeight,
     this.footerTextColor,
     this.alwaysShowStartShadow = false,
+    this.showNoDataText = true,
   });
 
   /// How the list springs back after a pull: critically damped, so it
@@ -127,6 +131,8 @@ class SmartRefresherWrapper extends StatelessWidget {
                     ],
                   ),
                 );
+              } else if (!showNoDataText) {
+                body = const SizedBox.shrink();
               } else {
                 body = Row(
                   mainAxisAlignment: MainAxisAlignment.center,

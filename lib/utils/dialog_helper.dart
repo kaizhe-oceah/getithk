@@ -45,10 +45,14 @@ class DialogHelper<T> {
     required Widget child,
     BuildContext? context2,
     bool barrierDismissible = true,
+    Color? barrierColor,
+    bool useSafeArea = true,
   }) async {
     return showDialog<T>(
       context: context2 ?? context,
       barrierDismissible: barrierDismissible,
+      barrierColor: barrierColor,
+      useSafeArea: useSafeArea,
       builder: (_) => child,
     );
   }
@@ -139,6 +143,9 @@ class DialogHelper<T> {
     String? image,
     bool barrierDismissible = true,
 
+    // Custom content, under the description
+    Widget? content,
+
     // Left button
     Function()? leftFunction,
     String? leftButtonText,
@@ -166,6 +173,7 @@ class DialogHelper<T> {
           children: [
             if (description != null)
               AppText(description, textAlign: TextAlign.center),
+            if (content != null) ...[12.heightSpace, content],
             hasButtons ? 10.heightSpace : 20.heightSpace,
             if (hasButtons)
               Padding(

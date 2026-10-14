@@ -1,7 +1,6 @@
-// Package imports:
-import 'package:liquid_glass_bottom_nav/liquid_glass_bottom_nav.dart';
-
 // Project imports:
+import '../components/default/bottom_nav_bar_widget.dart';
+import '../components/points_pill.dart';
 import '../imports.dart';
 import '../models/level_model.dart';
 import '../models/user_model.dart';
@@ -72,10 +71,15 @@ class _ProfilePageState extends State<ProfilePage> {
       forceOverlayStyle: SystemUiOverlayStyle.dark,
       headerWidgets: [
         AppBarWidget(
-          text: context.tr(AppStrings.profile),
-          textSize: kFont16,
+          centerTitle: false,
           backgroundColor: AppColors.whiteColor,
-          isDivider: true,
+          title: AppLogo(height: 28.r),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8).r,
+              child: const Center(child: PointsPill()),
+            ),
+          ],
         ),
       ],
       child: SmartRefresherWrapper(
@@ -86,14 +90,11 @@ class _ProfilePageState extends State<ProfilePage> {
             kHorizontalPadding.r,
             kHorizontalPadding.r,
             kHorizontalPadding.r,
-            LiquidGlassNavBar.contentBottomInset +
-                MediaQuery.paddingOf(context).bottom,
+            BottomNavigationWidget.contentBottomInset(context),
           ),
           children: [
             _header(user, app.level),
-            12.heightSpace,
-            _balanceCard(),
-            20.heightSpace,
+            kHorizontalPadding.heightSpace,
 
             AppText(
               context.tr(AppStrings.commonFunctions),

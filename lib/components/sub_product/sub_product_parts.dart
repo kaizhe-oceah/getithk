@@ -9,18 +9,11 @@ class SubProductGradeTitle extends StatelessWidget {
 
   const SubProductGradeTitle({this.gradeId, this.name, super.key});
 
-  static Map<int, String> get _artwork => {
-    1: AppAssets.gradeLast,
-    2: AppAssets.gradeFirst,
-    3: AppAssets.gradeSecond,
-    4: AppAssets.gradeThird,
-    5: AppAssets.gradeFourth,
-    6: AppAssets.gradeFifth,
-  };
-  static const double _artworkAspectRatio = 548 / 272;
+  /// The grade artwork's width over its height.
+  static const double artworkAspectRatio = 548 / 272;
 
-  /// The grade's artwork, by product_grade_id; null for a grade without.
-  static String? artworkFor(int? gradeId) => _artwork[gradeId];
+  static String? artworkFor(int? gradeId) =>
+      ProductGrade.fromValue(gradeId)?.image;
 
   static const LinearGradient _rainbow = LinearGradient(
     colors: [
@@ -35,9 +28,9 @@ class SubProductGradeTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String? artwork = _artwork[gradeId];
+    final String? artwork = artworkFor(gradeId);
     if (artwork != null) {
-      final double width = 40.r * _artworkAspectRatio;
+      final double width = 40.r * artworkAspectRatio;
 
       return AppImage(
         name: artwork,
@@ -81,6 +74,32 @@ class SubProductGradeTitle extends StatelessWidget {
           child: Text(text, style: style),
         ),
       ],
+    );
+  }
+}
+
+class SubProductQuantityBadge extends StatelessWidget {
+  final int quantity;
+
+  const SubProductQuantityBadge({required this.quantity, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3).r,
+      decoration: BoxDecoration(
+        color: AppColors.quantityBadgeColor,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10),
+          bottomRight: Radius.circular(10),
+        ).r,
+      ),
+      child: AppText(
+        'x${NumberFormat('#,##0').format(quantity)}',
+        fontSize: kFont12,
+        fontWeight: FontWeight.w500,
+        color: AppColors.whiteColor,
+      ),
     );
   }
 }
@@ -154,22 +173,7 @@ class _SubProductTileState extends State<SubProductTile> {
                   Positioned(
                     right: box.width - picture.right + 4.r,
                     bottom: box.height - picture.bottom + 4.r,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ).r,
-                      decoration: BoxDecoration(
-                        color: AppColors.greyColor,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: AppText(
-                        'x${NumberFormat('#,##0').format(product.quantity)}',
-                        fontSize: kFont12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.whiteColor,
-                      ),
-                    ),
+                    child: SubProductQuantityBadge(quantity: product.quantity!),
                   ),
                 if (product.isPsa10)
                   Positioned(
