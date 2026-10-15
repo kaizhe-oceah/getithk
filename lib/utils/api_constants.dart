@@ -22,6 +22,16 @@ const kPlayerStockListing = "/player/stock-listing";
 const kDrawProduct = "/player/draw-product";
 const kProductTrialDraw = "/product/trial-draw";
 const kPlayerSellStock = "/player/sell-stock";
+const kPlayerShippingAddress = "/player/shipping-address-listing";
+const kPlayerShippingCountryList = "/player/shipping-country-listing";
+const kPlayerCreateShipping = "/player/create-shipping";
+const kPlayerShippingAddressForm = '/player/shipping-address-form';
+const kPlayerCreateShippingAddress = "/player/create-shipping-address";
+const kPlayerDeleteShippingAddress = "/player/delete-shipping-address";
+const kPlayerUpdateShippingAddress = "/player/update-shipping-address";
+const kPlayerShippingSetting = "/player/shipping-setting";
+const kPlayerShippingListing = "/player/shipping-listing";
+
 
 
 // Socket events

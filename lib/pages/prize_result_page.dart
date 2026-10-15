@@ -62,6 +62,7 @@ class PrizeResultPage extends StatelessWidget {
           fontSize: kFont13,
           color: AppColors.textLightColor,
         ),
+        if (controller.isTrial) ...[14.heightSpace, _trialNotice(context)],
         for (final List<DrawHistoryModel> group in controller.gradeGroups) ...[
           18.heightSpace,
           _gradeHeader(context, group),
@@ -72,6 +73,22 @@ class PrizeResultPage extends StatelessWidget {
           ],
         ],
       ],
+    );
+  }
+
+  /// 試玩版抽獎結果: nothing from a trial can be shipped or exchanged.
+  Widget _trialNotice(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12).r,
+      decoration: BoxDecoration(
+        color: AppColors.lightPrimaryColor,
+        borderRadius: BorderRadius.circular(10).r,
+      ),
+      child: AppText(
+        context.tr(AppStrings.trialResultNotice),
+        fontSize: kFont12,
+        color: AppColors.secondaryColorSoild,
+      ),
     );
   }
 
@@ -110,7 +127,7 @@ class PrizeResultPage extends StatelessWidget {
     final double imageWidth = _imageWidth.r;
 
     return InkWellWrapper(
-      onTap: () => controller.onToggle(prize),
+      onTap: controller.isTrial ? null : () => controller.onToggle(prize),
       child: Container(
         padding: const EdgeInsets.all(12).r,
         decoration: BoxDecoration(
@@ -222,7 +239,11 @@ class PrizeResultPage extends StatelessWidget {
     );
   }
 
+  /// The select-alls, then 合計, 申請出貨 and 兌換PTS. For a trial, all of it
+  /// disabled, and 會員註冊 above them.
   Widget _actionBar(BuildContext context, PrizeResultController controller) {
+    final bool isTrial = controller.isTrial;
+
     return Container(
       padding: EdgeInsets.fromLTRB(
         kHorizontalPadding.r,
@@ -251,23 +272,36 @@ class PrizeResultPage extends StatelessWidget {
               BackpackSelectAll(
                 label: AppStrings.selectAll,
                 value: controller.isAllSelected,
+                enabled: !isTrial,
                 onTap: controller.onSelectAll,
               ),
               BackpackSelectAll(
                 label: AppStrings.selectAllDeliveryOnly,
                 value: controller.isAllDeliveryOnlySelected,
-                enabled: controller.deliveryOnly.isNotEmpty,
+                enabled: !isTrial && controller.deliveryOnly.isNotEmpty,
                 onTap: controller.onSelectAllDeliveryOnly,
               ),
               BackpackSelectAll(
                 label: AppStrings.selectAllNonDeliveryOnly,
                 value: controller.isAllNonDeliveryOnlySelected,
-                enabled: controller.nonDeliveryOnly.isNotEmpty,
+                enabled: !isTrial && controller.nonDeliveryOnly.isNotEmpty,
                 onTap: controller.onSelectAllNonDeliveryOnly,
               ),
             ],
           ),
           12.heightSpace,
+          if (isTrial) ...[
+            AppButtonWidget(
+              text: context.tr(AppStrings.memberRegister),
+              radius: 10,
+              textSize: kFont14,
+              fontWeight: FontWeight.w600,
+              textColor: AppColors.whiteColor,
+              padding: const EdgeInsets.symmetric(vertical: 12).r,
+              onTap: controller.onRegister,
+            ),
+            10.heightSpace,
+          ],
           BackpackCheckoutRow(
             amount: controller.selectedAmount,
             hasSelection: controller.selectedPrizes.isNotEmpty,

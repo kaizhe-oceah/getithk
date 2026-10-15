@@ -3,6 +3,7 @@ import '../components/main_product/main_product_parts.dart';
 import '../components/sub_product/sub_product_parts.dart';
 import '../controllers/checkout_controller.dart';
 import '../imports.dart';
+import '../models/address_model.dart';
 import '../models/backpack_model.dart';
 import '../models/shipment_item_model.dart';
 
@@ -10,6 +11,10 @@ class CheckoutPage extends StatelessWidget {
   final List<ShipmentItemModel> items;
 
   const CheckoutPage({required this.items, super.key});
+
+  /// The cards' padding; with their 1px border, where their text starts and
+  /// ends.
+  static const double _cardPadding = 14;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,6 @@ class CheckoutPage extends StatelessWidget {
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.confirmShipmentDetails),
-            textSize: kFont16,
             backgroundColor: AppColors.whiteColor,
             leading: const AppBarBackButton(),
           ),
@@ -66,7 +70,7 @@ class CheckoutPage extends StatelessWidget {
     return InkWellWrapper(
       onTap: controller.onAddress,
       child: Container(
-        padding: const EdgeInsets.all(14).r,
+        padding: const EdgeInsets.all(_cardPadding).r,
         decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(14).r,
@@ -90,11 +94,7 @@ class CheckoutPage extends StatelessWidget {
                     ],
                   ),
                   8.heightSpace,
-                  AppText(
-                    context.tr(AppStrings.addShippingAddress),
-                    fontSize: kFont12,
-                    color: AppColors.loginHintColor,
-                  ),
+                  _addressDetails(context, controller),
                 ],
               ),
             ),
@@ -106,21 +106,60 @@ class CheckoutPage extends StatelessWidget {
     );
   }
 
+  /// The name and phone, the address under it; a prompt to add one when
+  /// there's none. A skeleton while it loads.
+  Widget _addressDetails(BuildContext context, CheckoutController controller) {
+    final AddressModel? address = controller.isAddressLoading
+        ? AddressModel.placeholder()
+        : controller.address;
+
+    if (address == null) {
+      return AppText(
+        context.tr(AppStrings.addShippingAddress),
+        fontSize: kFont12,
+        color: AppColors.loginHintColor,
+      );
+    }
+
+    return AppSkeletonizer(
+      enabled: controller.isAddressLoading,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            '${address.name ?? ''} (${address.phone})',
+            fontSize: kFont13,
+            fontWeight: FontWeight.w700,
+          ),
+          4.heightSpace,
+          AppText(
+            address.address ?? '',
+            fontSize: kFont12,
+            color: AppColors.textLightColor,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _shippingFee(BuildContext context, CheckoutController controller) {
     final TextStyle style = TextStyle(
-      fontSize: kFont12.sp,
+      fontSize: kFont11.sp,
       color: AppColors.loginHintColor,
       height: 1.6,
     );
     final List<String> parts = context
         .tr(AppStrings.shippingAgreement)
         .split('{}');
+    final double? threshold = controller.shippingSetting?.freeShippingThreshold;
 
     return Container(
-      padding: const EdgeInsets.all(14).r,
+      padding: const EdgeInsets.all(_cardPadding).r,
       decoration: BoxDecoration(
         color: AppColors.greyBackgroundColor,
         borderRadius: BorderRadius.circular(14).r,
+        // unseen, but insets the text as the address card's border does
+        border: Border.all(color: AppColors.greyBackgroundColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -128,13 +167,33 @@ class CheckoutPage extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: AppText(
-                  context.tr(AppStrings.shippingFee),
-                  fontSize: kFont14,
-                  fontWeight: FontWeight.w600,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText(
+                      context.tr(AppStrings.shippingFee),
+                      fontSize: kFont14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    if (threshold != null) ...[
+                      2.heightSpace,
+                      AppText(
+                        context.tr(
+                          AppStrings.freeShippingOver,
+                          args: [formatMainProductAmount(threshold)],
+                        ),
+                        fontSize: kFont12,
+                        color: context.color.primary,
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              _coinAmount(context, controller.shippingFee),
+              8.widthSpace,
+              AppSkeletonizer(
+                enabled: controller.isLoading,
+                child: _shippingFeeAmount(context, controller),
+              ),
             ],
           ),
           12.heightSpace,
@@ -146,7 +205,7 @@ class CheckoutPage extends StatelessWidget {
           12.heightSpace,
           AppText(
             context.tr(AppStrings.shippingFeeDescription),
-            fontSize: kFont12,
+            fontSize: kFont11,
             color: AppColors.loginHintColor,
           ),
           4.heightSpace,
@@ -171,6 +230,35 @@ class CheckoutPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// The fee; past the free-shipping threshold, it crossed out and 免費.
+  Widget _shippingFeeAmount(
+    BuildContext context,
+    CheckoutController controller,
+  ) {
+    if (!controller.isFreeShipping) {
+      return _coinAmount(context, controller.shippingFee);
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AppText(
+          formatMainProductAmount(controller.shippingSetting?.shippingFee ?? 0),
+          fontSize: kFont13,
+          color: AppColors.loginHintColor,
+          decoration: TextDecoration.lineThrough,
+        ),
+        6.widthSpace,
+        AppText(
+          context.tr(AppStrings.free),
+          fontSize: kFont16,
+          fontWeight: FontWeight.w600,
+          color: context.color.primary,
+        ),
+      ],
     );
   }
 

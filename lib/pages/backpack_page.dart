@@ -1,6 +1,7 @@
 // Project imports:
 import '../components/backpack/backpack_stock_card.dart';
 import '../components/default/bottom_nav_bar_widget.dart';
+import '../components/default/tab_bar_widget.dart';
 import '../components/points_pill.dart';
 import '../controllers/backpack_controller.dart';
 import '../imports.dart';
@@ -23,7 +24,7 @@ class BackpackPage extends StatefulWidget {
 }
 
 class _BackpackPageState extends State<BackpackPage>
-    with AutomaticKeepAliveClientMixin<BackpackPage> {
+    with AutomaticKeepAliveClientMixin<BackpackPage>, TickerProviderStateMixin {
   @override
   bool get wantKeepAlive => false;
 
@@ -35,7 +36,7 @@ class _BackpackPageState extends State<BackpackPage>
     }
 
     return ChangeNotifierProvider(
-      create: (_) => BackpackController(),
+      create: (_) => BackpackController(vsync: this),
       child: AppScaffold.basic(
         backgroundColor: AppColors.whiteColor,
         forceOverlayStyle: SystemUiOverlayStyle.dark,
@@ -50,6 +51,9 @@ class _BackpackPageState extends State<BackpackPage>
                 child: const Center(child: PointsPill()),
               ),
             ],
+            bottomWidget: Consumer<BackpackController>(
+              builder: (context, controller, _) => _tabBar(context, controller),
+            ),
           ),
         ],
         child: Consumer<BackpackController>(
@@ -62,16 +66,13 @@ class _BackpackPageState extends State<BackpackPage>
   Widget _content(BuildContext context, BackpackController controller) {
     return Column(
       children: [
-        _tabBar(context, controller),
         Expanded(
-          child: SmartRefresherWrapper(
-            controller: controller.refreshController,
-            onRefresh: controller.onRefresh,
-            // nothing to load more of: just the no data widget, no footer
-            enablePullUp: !controller.isLoading && controller.stocks.isNotEmpty,
-            onLoading: controller.onLoading,
-            showNoDataText: true,
-            child: _stocks(context, controller),
+          child: TabBarView(
+            controller: controller.tabController,
+            children: [
+              for (final BackpackTab tab in BackpackTab.values)
+                _page(context, controller, tab),
+            ],
           ),
         ),
         if (controller.canSelect) _actionBar(context, controller),
@@ -79,27 +80,42 @@ class _BackpackPageState extends State<BackpackPage>
     );
   }
 
+  /// A tab's page: its stocks once it's the current tab, a skeleton till
+  /// then (while swiping over to it).
+  Widget _page(
+    BuildContext context,
+    BackpackController controller,
+    BackpackTab tab,
+  ) {
+    final bool isCurrent = tab == controller.tab;
+
+    return SmartRefresherWrapper(
+      controller: controller.refreshControllers[tab]!,
+      onRefresh: controller.onRefresh,
+      // nothing to load more of: just the no data widget, no footer
+      enablePullUp:
+          isCurrent && !controller.isLoading && controller.stocks.isNotEmpty,
+      onLoading: controller.onLoading,
+      showNoDataText: true,
+      child: _stocks(context, controller, tab),
+    );
+  }
+
   Widget _tabBar(BuildContext context, BackpackController controller) {
     final Color primary = context.color.primary;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        kHorizontalPadding,
-        12,
-        kHorizontalPadding,
-        4,
-      ).r,
+      padding: const EdgeInsets.only(right: 8).r,
       child: Row(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (final BackpackTab tab in BackpackTab.values)
-                    _tab(context, controller, tab),
-                ],
-              ),
+            child: TabBarWidget(
+              tabController: controller.tabController,
+              labels: [
+                for (final BackpackTab tab in BackpackTab.values)
+                  context.tr(tab.label),
+              ],
+              tabAlignment: TabAlignment.start,
             ),
           ),
           8.widthSpace,
@@ -108,14 +124,13 @@ class _BackpackPageState extends State<BackpackPage>
                 ? context.tr(AppStrings.filter)
                 : '${context.tr(AppStrings.filter)} (1)',
             isMinWidth: true,
-            radius: 8,
+            radius: 10,
             textSize: kFont12,
             fontWeight: FontWeight.w500,
             buttonColor: AppColors.whiteColor,
             borderColor: primary,
             textColor: primary,
             icon: Icon(Iconsax.setting_4_copy, size: 15.r, color: primary),
-            iconSpace: 5,
             padding: BackpackPage._filterPadding,
             onTap: () => BottomSheetHelper.categoryFilter(
               selected: controller.filterCategory,
@@ -127,56 +142,23 @@ class _BackpackPageState extends State<BackpackPage>
     );
   }
 
-  Widget _tab(
+  Widget _stocks(
     BuildContext context,
     BackpackController controller,
     BackpackTab tab,
   ) {
-    final bool selected = tab == controller.tab;
-    final Color primary = context.color.primary;
-
-    return InkWellWrapper(
-      onTap: () => controller.onSelectTab(tab),
-      child: Padding(
-        padding: const EdgeInsets.only(right: 20).r,
-        child: IntrinsicWidth(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppText(
-                context.tr(tab.label),
-                fontSize: kFont14,
-                fontWeight: FontWeight.w700,
-                color: selected ? primary : AppColors.loginTextColor,
-                textAlign: TextAlign.center,
-              ),
-              5.heightSpace,
-              Container(
-                height: 2.r,
-                decoration: BoxDecoration(
-                  color: selected ? primary : AppColors.transparentColor,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _stocks(BuildContext context, BackpackController controller) {
     final EdgeInsets padding = EdgeInsets.fromLTRB(
       kHorizontalPadding.r,
       12.r,
       kHorizontalPadding.r,
-      controller.canSelect
+      // 卡牌 has the action bar under it
+      tab == BackpackTab.cards
           ? 16.r
           : BottomNavigationWidget.contentBottomInset(context),
     );
-    final bool placeholder = controller.isLoading && controller.stocks.isEmpty;
-
-    // centred in the space below the tabs, still pulling down to refresh
+    final bool placeholder =
+        tab != controller.tab ||
+        (controller.isLoading && controller.stocks.isEmpty);
     if (!placeholder && controller.stocks.isEmpty) {
       return CustomScrollView(
         slivers: [

@@ -14,6 +14,10 @@ class PrizeResultController extends ChangeNotifier {
 
   List<DrawHistoryModel> get prizes => result.drawHistories;
 
+  /// A trial draw's result: nothing to pick, ship or exchange; only
+  /// 會員註冊.
+  bool get isTrial => result.isTrial;
+
   /// [prizes] grouped by grade, in [ProductGrade]'s order (尾賞, 一等獎, …);
   /// prizes of a grade it doesn't list come last, in the API's order.
   late final List<List<DrawHistoryModel>> gradeGroups = () {
@@ -68,6 +72,8 @@ class PrizeResultController extends ChangeNotifier {
       );
 
   void onToggle(DrawHistoryModel prize) {
+    if (isTrial) return;
+
     if (!selectedPrizes.remove(prize)) selectedPrizes.add(prize);
     update();
   }
@@ -77,11 +83,18 @@ class PrizeResultController extends ChangeNotifier {
   void onSelectAllNonDeliveryOnly() => _pick(nonDeliveryOnly);
 
   void _pick(List<DrawHistoryModel> group) {
+    if (isTrial) return;
+
     selectedPrizes = _isPicked(group) ? {} : group.toSet();
     update();
   }
 
+  /// 會員註冊: the login page, on its register tab.
+  void onRegister() => AppNavigator.pushNamed(context, RouteName.registerPage);
+
   void onRequestShipment() {
+    if (isTrial) return;
+
     if (selectedPrizes.isEmpty) {
       ToastHelper.showToast(context.tr(AppStrings.pleaseSelectAnItem));
     } else if (!canRequestShipment) {
@@ -92,6 +105,8 @@ class PrizeResultController extends ChangeNotifier {
   }
 
   void onExchange() {
+    if (isTrial) return;
+
     if (selectedPrizes.isEmpty) {
       ToastHelper.showToast(context.tr(AppStrings.pleaseSelectAnItem));
     } else if (!canExchange) {

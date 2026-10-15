@@ -18,7 +18,18 @@ class BackpackController extends ChangeNotifier {
   BuildContext context = NavigationService.context;
   bool _isDisposed = false;
 
-  final RefreshController refreshController = RefreshController();
+  /// The tabs in the app bar and the pages swiped between; the page's
+  /// ticker drives it.
+  late final TabController tabController;
+
+  /// One per tab: each tab's page has its own refresher, and while swiping
+  /// two are on screen at once.
+  final Map<BackpackTab, RefreshController> refreshControllers = {
+    for (final BackpackTab tab in BackpackTab.values) tab: RefreshController(),
+  };
+
+  /// The current tab's.
+  RefreshController get refreshController => refreshControllers[tab]!;
 
   BackpackTab tab = BackpackTab.cards;
 
@@ -33,8 +44,18 @@ class BackpackController extends ChangeNotifier {
 
   static const int _perPage = 30;
 
-  BackpackController() {
+  BackpackController({required TickerProvider vsync}) {
+    tabController = TabController(
+      length: BackpackTab.values.length,
+      vsync: vsync,
+    )..addListener(_onTabChanged);
     setInit();
+  }
+
+  /// A tab tapped or swiped to: once it settles, its stocks.
+  void _onTabChanged() {
+    if (tabController.indexIsChanging) return;
+    onSelectTab(BackpackTab.values[tabController.index]);
   }
 
   bool get canSelect => tab == BackpackTab.cards;
@@ -74,12 +95,14 @@ class BackpackController extends ChangeNotifier {
   }
 
   Future<void> onRefresh() async {
+    // the tab's own, should it change meanwhile
+    final RefreshController refresher = refreshController;
     isLoading = true;
     page = 1;
     stocks = [];
     selectedStocks = {};
     await getStockListing();
-    refreshController.refreshCompleted();
+    refresher.refreshCompleted();
     isLoading = false;
     update();
   }
@@ -91,10 +114,11 @@ class BackpackController extends ChangeNotifier {
 
   Future<void> getStockListing() async {
     final BackpackTab currentTab = tab;
+    final RefreshController refresher = refreshController;
     final int? categoryId = filterCategory?.id;
     final StockStatus? status = tab.status;
     if (status == null) {
-      refreshController.loadNoData();
+      refresher.loadNoData();
       return;
     }
 
@@ -115,14 +139,14 @@ class BackpackController extends ChangeNotifier {
         final int totalPages = parseInt(response.data['total_pages']);
         if (currentPage < totalPages) {
           page = currentPage + 1;
-          refreshController.loadComplete();
+          refresher.loadComplete();
         } else {
-          refreshController.loadNoData();
+          refresher.loadNoData();
         }
 
         update();
       },
-      onError: (_) => refreshController.loadFailed(),
+      onError: (_) => refresher.loadFailed(),
     );
   }
 
@@ -164,11 +188,15 @@ class BackpackController extends ChangeNotifier {
     } else {
       BottomSheetHelper.requestShipment(
         stocks: selectedStocks.toList(),
-        onConfirm: (items) => AppNavigator.pushNamed(
-          context,
-          RouteName.checkoutPage,
-          arguments: items,
-        ),
+        onConfirm: (items) async {
+          // true once the cards are shipped: they've left the backpack
+          final Object? isShipped = await AppNavigator.pushNamed(
+            context,
+            RouteName.checkoutPage,
+            arguments: items,
+          );
+          if (isShipped == true && !_isDisposed) onRefresh();
+        },
       );
     }
   }
@@ -186,7 +214,10 @@ class BackpackController extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
-    refreshController.dispose();
+    tabController.dispose();
+    for (final RefreshController controller in refreshControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 

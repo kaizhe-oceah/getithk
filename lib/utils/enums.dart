@@ -33,7 +33,6 @@ enum TncType {
   final int value;
 }
 
-/// A backpack card's status in the player stock-listing API.
 enum StockStatus {
   active(1),
   inactive(2),
@@ -43,6 +42,19 @@ enum StockStatus {
 
   const StockStatus(this.value);
   final int value;
+}
+
+enum ShippingStatus {
+  toShip(1), // 待發貨
+  toReceive(2), // 待收貨
+  completed(3),
+  cancelled(4);
+
+  const ShippingStatus(this.value);
+  final int value;
+
+  static ShippingStatus? fromValue(int? value) =>
+      values.where((element) => element.value == value).firstOrNull;
 }
 
 enum ProductGrade {
@@ -65,7 +77,6 @@ enum ProductGrade {
     fifth => AppAssets.gradeFifth,
   };
 
-  /// The grade with [value]; nothing for an unknown one.
   static ProductGrade? fromValue(int? value) =>
       values.where((element) => element.value == value).firstOrNull;
 }

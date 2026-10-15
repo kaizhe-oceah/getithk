@@ -12,6 +12,7 @@ class AppRegex {
   static final name = RegExp(r'(\w+)\s(\w+)');
   static final icNumber = RegExp(r'^[0-9]{6}-[0-9]{2}-[0-9]{4}$');
   static final postcode = RegExp(r'^[0-9]{5}$');
+  static final digits = RegExp(r'^[0-9]+$');
   static final link = RegExp(
       r"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])");
   static bool isLink(String input) {

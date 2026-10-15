@@ -1,17 +1,21 @@
 // Package imports:
+import "package:getithk/pages/address_page.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:page_transition/page_transition.dart";
 
 // Project imports:
 import "../imports.dart";
 import "../pages/activity_page.dart";
+import "../pages/add_address_page.dart";
 import "../pages/backpack_page.dart";
 import "../pages/checkout_page.dart";
 import "../pages/home_page.dart";
 import "../pages/invite_friends_page.dart";
 import "../pages/login_page.dart";
 import "../pages/main_page.dart";
+import "../pages/my_orders_page.dart";
 import "../pages/profile_page.dart";
+import "../models/address_model.dart";
 import "../models/draw_result_model.dart";
 import "../models/main_product_model.dart";
 import "../models/shipment_item_model.dart";
@@ -104,6 +108,29 @@ class RouteGenerator {
       case RouteName.tncPage:
         final Object? type = settings.arguments;
         return TncPage(type: type is TncType ? type : TncType.terms);
+
+      // arguments: (isSelect: true, selectedId: …) to pick one for checkout;
+      // it pops with the picked AddressModel
+      case RouteName.addressPage:
+        final Object? arguments = settings.arguments;
+        return arguments is ({bool isSelect, int? selectedId})
+            ? AddressPage(
+                isSelect: arguments.isSelect,
+                selectedId: arguments.selectedId,
+              )
+            : const AddressPage();
+
+      // arguments: the AddressModel to edit, or true to tick 設為預設地址
+      // (the player's first address)
+      case RouteName.myOrdersPage:
+        return const MyOrdersPage();
+
+      case RouteName.addAddressPage:
+        final Object? arguments = settings.arguments;
+        return AddAddressPage(
+          address: arguments is AddressModel ? arguments : null,
+          isDefault: arguments == true,
+        );
 
       default:
         return null;

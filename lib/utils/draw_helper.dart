@@ -58,8 +58,9 @@ class DrawHelper {
   }
 
   /// A free trial draw of [count] (1 or 10) of [product], then the video of
-  /// the best grade drawn, as for a real one; nothing's paid for or kept.
-  /// Null if nothing was drawn.
+  /// the best grade drawn and what was won, as for a real one; nothing's
+  /// paid for or kept, so the result page only offers 會員註冊. Null if
+  /// nothing was drawn.
   static Future<DrawResultModel?> trialDrawProduct(
     MainProductModel product,
     int count,
@@ -76,8 +77,17 @@ class DrawHelper {
     );
     final DrawResultModel? drawn = result;
     if (drawn == null) return null;
+    // whatever the API says: nothing from a trial is kept
+    drawn.isTrial = true;
 
     await _playVideo(product, drawn.highestGrade);
+    if (drawn.drawHistories.isNotEmpty) {
+      await AppNavigator.pushNamed(
+        context,
+        RouteName.prizeResultPage,
+        arguments: drawn,
+      );
+    }
     return drawn;
   }
 

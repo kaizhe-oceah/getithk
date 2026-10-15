@@ -61,9 +61,10 @@ class TabBarWidget extends StatelessWidget {
           labelPadding ??
           const EdgeInsets.symmetric(horizontal: kHorizontalPadding).r,
       isScrollable: isScrollable,
+      // the TabBar blends these as the indicator moves (swipes included)
       labelStyle: activeTextStyle,
-      labelColor: AppColors.blackColor,
-      unselectedLabelColor: AppColors.blackColor.wOpacity(0.6),
+      labelColor: activeTextStyle.color,
+      unselectedLabelColor: inactiveTextStyle.color,
       unselectedLabelStyle: inactiveTextStyle,
       controller: tabController,
       indicatorColor: Colors.transparent,
@@ -89,13 +90,10 @@ class TabBarWidget extends StatelessWidget {
             height: tabHeight != null ? tabHeight!.fh : 35.fh,
             child: Tab(
               iconMargin: EdgeInsets.zero,
-              child: AppText(
-                labels[i],
-                textAlign: textAlign ?? TextAlign.center,
-                textStyle: tabController?.index == i
-                    ? activeTextStyle
-                    : inactiveTextStyle,
-              ),
+              // a plain Text, not AppText: it takes the TabBar's blended
+              // style, so the colour moves with the indicator instead of
+              // switching once the index changes
+              child: Text(labels[i], textAlign: textAlign ?? TextAlign.center),
             ),
           ),
       ],

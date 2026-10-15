@@ -354,6 +354,12 @@ class _ProfilePageState extends State<ProfilePage> {
       context,
       RouteName.inviteFriendsPage,
     ),
+    AppStrings.myOrders => () =>
+        AppNavigator.pushNamed(context, RouteName.myOrdersPage),
+     AppStrings.shippingAddress => () => AppNavigator.pushNamed(
+      context,
+      RouteName.addressPage,
+    ),
     _ => null,
   };
 

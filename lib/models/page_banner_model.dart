@@ -9,6 +9,12 @@ class PageBannerModel {
     image = json['image']?.toString();
   }
 
+  /// Stand-in for the activity page's loading skeleton.
+  PageBannerModel.placeholder();
+
+  bool get isInvitePoint => key == 'invite_point';
+  bool get isVoucher => key == 'voucher';
+
   /// The banners in an API `data` list; anything that isn't one is skipped.
   static List<PageBannerModel> listFromJson(dynamic data) => data is List
       ? [

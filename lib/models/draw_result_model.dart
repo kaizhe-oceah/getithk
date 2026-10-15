@@ -2,6 +2,9 @@
 import '../utils/enums.dart';
 
 class DrawResultModel {
+  /// A trial draw's: nothing won is kept, so it can't be shipped or
+  /// exchanged.
+  bool isTrial = false;
   int drawCount = 0;
   int? highestGrade;
   List<DrawHistoryModel> drawHistories = [];
@@ -12,6 +15,7 @@ class DrawResultModel {
   bool isAvailable = false;
 
   DrawResultModel.fromJson(Map<String, dynamic> json) {
+    isTrial = json['is_trial'] == true;
     drawCount = json['draw_count'] ?? 0;
     highestGrade = json['highest_grade'];
     drawHistories = json['draw_histories'] != null

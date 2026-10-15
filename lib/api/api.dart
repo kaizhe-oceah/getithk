@@ -293,6 +293,249 @@ class Api {
     );
   }
 
+  // shipping address lisiting
+  Future<void> getShippingAddress({
+    required int page,
+    required int perPage,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerShippingAddress,
+      params: {"page": page, "per_page": perPage},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // shipping country listing
+  Future<void> getShippingCountryList({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerShippingCountryList,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // shipping address form, the fields for a country
+  Future<void> getShippingAddressForm({
+    required int shippingCountryId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerShippingAddressForm,
+      params: {"shipping_country_id": shippingCountryId},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // create shipping address; values: the form's fields by key
+  Future<void> createShippingAddress({
+    required int shippingCountryId,
+    required bool isDefault,
+    required Map<String, dynamic> values,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerCreateShippingAddress,
+      params: {
+        "shipping_country_id": shippingCountryId,
+        "is_default": isDefault,
+        "values": values,
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // update shipping address; shipping_country_id and values: the form as
+  // create takes it, so no field is lost
+  Future<void> updateShippingAddress({
+    required int shippingAddressId,
+    required String name,
+    String? phoneCode,
+    String? phoneNo,
+    required String address,
+    required bool isDefault,
+    required int shippingCountryId,
+    required Map<String, dynamic> values,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerUpdateShippingAddress,
+      params: {
+        "shipping_address_id": shippingAddressId,
+        "name": name,
+        "phone_code": ?phoneCode,
+        "phone_no": ?phoneNo,
+        "address": address,
+        "is_default": isDefault,
+        "shipping_country_id": shippingCountryId,
+        "values": values,
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // shipping setting: the fee and the free-shipping threshold
+  Future<void> getShippingSetting({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerShippingSetting,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // create shipping: ship [userStockIds] to the address
+  Future<void> createShipping({
+    required String name,
+    required String phoneCode,
+    required String phoneNo,
+    required String address,
+    required List<int> userStockIds,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerCreateShipping,
+      params: {
+        "name": name,
+        "phone_code": phoneCode,
+        "phone_no": phoneNo,
+        "address": address,
+        // a JSON string, "[50007,50016]", as the API takes it
+        "user_stock_ids": jsonEncode(userStockIds),
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // shipping listing: the player's shipments, a page at a time; [status]
+  // null: all of them
+  Future<void> getShippingListing({
+    required int page,
+    required int perPage,
+    ShippingStatus? status,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerShippingListing,
+      params: {"page": page, "per_page": perPage, "status": ?status?.value},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // delete shipping address
+  Future<void> deleteShippingAddress({
+    required int shippingAddressId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerDeleteShippingAddress,
+      params: {"shipping_address_id": shippingAddressId},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
   Future<void> getAllDrawVideoListing({
     required Function(ApiResponseModel) onSuccess,
     bool showLoader = false,
