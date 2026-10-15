@@ -21,6 +21,11 @@ const kResetPassword = "/player/reset-password";
 const kPlayerStockListing = "/player/stock-listing";
 const kDrawProduct = "/player/draw-product";
 const kProductTrialDraw = "/product/trial-draw";
+const kPlayerSellStock = "/player/sell-stock";
+
+
+// Socket events
+const kSocketSessionExpired = "session_expired";
 
 // API Timezone
 const kApiTimezone = "Asia/Kuala_Lumpur";

@@ -4,6 +4,7 @@
   "backoffice_trial_url": "https://getithk.betasystem.asia",
   "api_base_url": "https://getithk.betasystem.asia/api",
   "api_trial_base_url": "https://blindbox-hk.stghub.asia/api/v1",
+  "socket_url": "",
   "currency": "RM",
   "environment": "staging"
 }

@@ -153,25 +153,28 @@ class MainProductStock extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text.rich(
-          TextSpan(
-            style: TextStyle(
-              fontSize: kFont11.sp,
-              color: AppColors.textLightColor,
-            ),
-            children: [
-              TextSpan(text: '${context.tr(AppStrings.remainingStock)} '),
-              TextSpan(
-                text: '${product.remainingDraws}/${product.totalDraws}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.loginTextColor,
-                ),
+        // `is_show_quantity` hides only the count; the bar always shows
+        if (product.isShowQuantity) ...[
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: kFont11.sp,
+                color: AppColors.textLightColor,
               ),
-            ],
+              children: [
+                TextSpan(text: '${context.tr(AppStrings.remainingStock)} '),
+                TextSpan(
+                  text: '${product.remainingDraws}/${product.totalDraws}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.loginTextColor,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        4.heightSpace,
+          4.heightSpace,
+        ],
         Container(
           height: 8.r,
           clipBehavior: Clip.antiAlias,

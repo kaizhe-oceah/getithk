@@ -344,7 +344,7 @@ class BackpackCheckoutRow extends StatelessWidget {
           fit: BoxFit.scaleDown,
           child: AppText(
             context.tr(text),
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: textColor,
           ),
         ),

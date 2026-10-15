@@ -204,11 +204,7 @@ class SubProductPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // the price, and how many are left unless the product hides it
-          if (product.isShowQuantity)
-            MainProductPriceAndStock(product: product)
-          else
-            MainProductPrice(product: product),
+          MainProductPriceAndStock(product: product),
           10.heightSpace,
           MainProductDrawButtons(
             product: product,

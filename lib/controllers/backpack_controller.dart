@@ -162,7 +162,14 @@ class BackpackController extends ChangeNotifier {
     } else if (!canRequestShipment) {
       ToastHelper.showToast(context.tr(AppStrings.onlyDeliveryOnlyCanShip));
     } else {
-      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+      BottomSheetHelper.requestShipment(
+        stocks: selectedStocks.toList(),
+        onConfirm: (items) => AppNavigator.pushNamed(
+          context,
+          RouteName.checkoutPage,
+          arguments: items,
+        ),
+      );
     }
   }
 

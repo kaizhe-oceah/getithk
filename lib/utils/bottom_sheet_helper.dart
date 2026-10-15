@@ -7,11 +7,14 @@ import '../components/default/bottom_sheet_language.dart';
 import '../components/default/bottom_sheet_logout.dart';
 import '../components/default/bottom_sheet_no_internet_connection.dart';
 import '../components/default/bottom_sheet_phone_country.dart';
+import '../components/default/bottom_sheet_request_shipment.dart';
 import '../components/default/bottom_sheet_tag_filter.dart';
 import '../imports.dart';
+import '../models/backpack_model.dart';
 import '../models/category_model.dart';
 import '../models/phone_code_model.dart';
 import '../models/product_tag_model.dart';
+import '../models/shipment_item_model.dart';
 
 class BottomSheetHelper {
   static BuildContext context = NavigationService.context;
@@ -135,6 +138,23 @@ class BottomSheetHelper {
       topControl: const SizedBox.shrink(),
       builder: (context) =>
           BottomSheetCategoryFilter(selected: selected, onConfirm: onConfirm),
+    );
+  }
+
+  /// The backpack's 申請出貨: the picked [stocks] and how many of each to
+  /// ship; [onConfirm] gets them on 確認出貨.
+  static Future<void> requestShipment({
+    required List<BackpackModel> stocks,
+    required ValueChanged<List<ShipmentItemModel>> onConfirm,
+  }) {
+    return showBarModalBottomSheet<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      shape: roundShapeBorder,
+      backgroundColor: AppColors.whiteColor,
+      topControl: const SizedBox.shrink(),
+      builder: (context) =>
+          BottomSheetRequestShipment(stocks: stocks, onConfirm: onConfirm),
     );
   }
 

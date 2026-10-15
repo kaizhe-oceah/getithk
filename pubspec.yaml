@@ -167,6 +167,7 @@ dependencies:
   syncfusion_flutter_datagrid: ^33.2.15
   liquid_glass_bottom_nav: ^0.0.14
   iconsax_flutter: ^1.0.1
+  socket_io_client: ^3.1.6
 
 dependency_overrides:
   # camera_android: 0.10.6

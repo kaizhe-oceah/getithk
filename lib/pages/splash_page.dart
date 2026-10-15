@@ -5,6 +5,7 @@ import 'package:upgrader/upgrader.dart';
 import '../components/splash_view.dart';
 import '../imports.dart';
 import '../services/notification_service.dart';
+import '../services/socket_service.dart';
 
 // import '../services/network_service.dart';
 
@@ -83,6 +84,7 @@ class _SplashPageState extends State<SplashPage>
 
         // update api path name follow by role
         ApiService.updateApiBaseUrl(role: AppPreferences.getThemeRole());
+        SocketService.connect();
       }
 
       // always open on the home tab, logged in or not

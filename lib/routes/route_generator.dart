@@ -6,6 +6,7 @@ import "package:page_transition/page_transition.dart";
 import "../imports.dart";
 import "../pages/activity_page.dart";
 import "../pages/backpack_page.dart";
+import "../pages/checkout_page.dart";
 import "../pages/home_page.dart";
 import "../pages/invite_friends_page.dart";
 import "../pages/login_page.dart";
@@ -13,6 +14,7 @@ import "../pages/main_page.dart";
 import "../pages/profile_page.dart";
 import "../models/draw_result_model.dart";
 import "../models/main_product_model.dart";
+import "../models/shipment_item_model.dart";
 import "../pages/prize_result_page.dart";
 import "../pages/splash_page.dart";
 import "../pages/sub_product_page.dart";
@@ -90,6 +92,13 @@ class RouteGenerator {
         final Object? result = settings.arguments;
         return result is DrawResultModel
             ? PrizeResultPage(result: result)
+            : null;
+
+      // arguments: the List<ShipmentItemModel> confirmed in the backpack
+      case RouteName.checkoutPage:
+        final Object? items = settings.arguments;
+        return items is List<ShipmentItemModel>
+            ? CheckoutPage(items: items)
             : null;
 
       case RouteName.tncPage:

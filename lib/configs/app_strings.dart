@@ -184,6 +184,13 @@ class AppStrings {
   static const String selectPrizesToShipHint = 'select_prizes_to_ship_hint';
   static const String prizeCount = 'prize_count';
   static const String selectedTotal = 'selected_total';
+  static const String confirmShipment = 'confirm_shipment';
+  static const String confirmShipmentDetails = 'confirm_shipment_details';
+  static const String addShippingAddress = 'add_shipping_address';
+  static const String shippingFee = 'shipping_fee';
+  static const String shippingFeeDescription = 'shipping_fee_description';
+  static const String shippingAgreement = 'shipping_agreement';
+  static const String itemsTotal = 'items_total';
   static const String activity = 'activity';
   static const String memberCenter = 'member_center';
   static const String myOrders = 'my_orders';

@@ -3,6 +3,7 @@ import 'package:getithk/models/level_model.dart';
 import 'package:getithk/models/user_model.dart';
 import '../imports.dart';
 import '../services/http_services/http_service_custom.dart';
+import '../services/socket_service.dart';
 import 'main_controller.dart';
 
 class AppController with ChangeNotifier {
@@ -59,6 +60,7 @@ class AppController with ChangeNotifier {
 
     // a new session: let a later expiry log out again
     HttpServiceCustom.resetSessionFlag();
+    SocketService.connect();
 
     navigateToTab(kBottomNavHome);
     AppNavigator.popUntilFirst(context);
@@ -70,6 +72,7 @@ class AppController with ChangeNotifier {
     _isLoggingOut = true;
 
     Loader.show(status: "${context.tr(AppStrings.loggingOut)}...");
+    SocketService.disconnect();
 
     final String? token = await ApiService.getApiToken();
     if (token != null && token.isNotEmpty) {
