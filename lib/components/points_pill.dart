@@ -39,22 +39,23 @@ class PointsPill extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: AppText(
-                  '${NumberFormat('#,##0.00').format(points)} pts',
+                  NumberFormat('#,##0.00').format(points),
                   fontSize: kFont13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.loginTextColor,
                 ),
               ),
             ),
-            6.widthSpace,
+            5.widthSpace,
             Container(
               width: 20.r,
               height: 20.r,
               decoration: BoxDecoration(color: primary, shape: BoxShape.circle),
               child: Icon(
                 Iconsax.add_copy,
-                size: 14.r,
+                size: 16.r,
                 color: AppColors.whiteColor,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],

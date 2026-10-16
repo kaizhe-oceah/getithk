@@ -2,6 +2,7 @@
 import '../imports.dart';
 import '../models/category_model.dart';
 import '../models/backpack_model.dart';
+import '../models/shipment_item_model.dart';
 
 enum BackpackTab {
   cards(AppStrings.backpackCards, StockStatus.active),
@@ -82,10 +83,9 @@ class BackpackController extends ChangeNotifier {
   bool get isAllDeliveryOnlySelected => _isPicked(_deliveryOnly);
   bool get isAllNonDeliveryOnlySelected => _isPicked(_nonDeliveryOnly);
 
-  /// Only delivery-only cards ship; the others are exchanged ([canExchange]).
-  bool get canRequestShipment =>
-      selectedStocks.isNotEmpty &&
-      selectedStocks.every((element) => element.isDeliveryOnly);
+  /// Any card ships; only one that isn't delivery only (is_delivery_only 2)
+  /// can be exchanged for PTS too.
+  bool get canRequestShipment => selectedStocks.isNotEmpty;
   bool get canExchange =>
       selectedStocks.isNotEmpty &&
       !selectedStocks.any((element) => element.isDeliveryOnly);
@@ -181,10 +181,8 @@ class BackpackController extends ChangeNotifier {
   }
 
   void onRequestShipment() {
-    if (selectedStocks.isEmpty) {
+    if (!canRequestShipment) {
       ToastHelper.showToast(context.tr(AppStrings.pleaseSelectAnItem));
-    } else if (!canRequestShipment) {
-      ToastHelper.showToast(context.tr(AppStrings.onlyDeliveryOnlyCanShip));
     } else {
       BottomSheetHelper.requestShipment(
         stocks: selectedStocks.toList(),
@@ -207,8 +205,25 @@ class BackpackController extends ChangeNotifier {
     } else if (!canExchange) {
       ToastHelper.showToast(context.tr(AppStrings.deliveryOnlyCannotExchange));
     } else {
-      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+      BottomSheetHelper.exchangeStocks(
+        stocks: selectedStocks.toList(),
+        onConfirm: _sellStocks,
+      );
     }
+  }
+
+  /// 確認兌換: exchanges [items] for PTS; once done, the balance and the
+  /// backpack (pulled down to refresh) catch up.
+  Future<void> _sellStocks(List<ShipmentItemModel> items) async {
+    await ApiService.api.sellStock(
+      showLoader: true,
+      stockIds: [for (final ShipmentItemModel item in items) ...item.stockIds],
+      onSuccess: (response) {
+        response.showMessage();
+        context.read<AppController>().getWalletBalance();
+        if (!_isDisposed) refreshController.requestRefresh();
+      },
+    );
   }
 
   @override

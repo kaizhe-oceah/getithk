@@ -1,6 +1,6 @@
 // Project imports:
 import '../components/default/draw_video_dialog.dart';
-import '../components/main_product/main_product_parts.dart';
+import '../components/main_product/draw_confirm_dialog.dart';
 import '../imports.dart';
 import '../models/draw_result_model.dart';
 import '../models/draw_video_model.dart';
@@ -20,6 +20,12 @@ class DrawHelper {
   ) async {
     final int? id = product.id;
     if (id == null) return null;
+
+    // short of points: 點數不夠 and the way to top up, not the draw
+    if (context.read<AppController>().points < product.drawAmount * count) {
+      await _notEnoughPoints();
+      return null;
+    }
 
     final bool? confirmed = await _confirmDraw(product, count);
     if (confirmed != true) return null;
@@ -100,54 +106,26 @@ class DrawHelper {
     if (video != null) await DrawVideoDialog.show(context, video);
   }
 
-  /// 確認抽卡: the product and how many, and the points it costs; true once
-  /// confirmed.
-  static Future<bool?> _confirmDraw(MainProductModel product, int count) {
-    final Color primary = context.color.primary;
-    final double coinSize = 22.r;
-
-    return DialogHelper<bool>().appDialog(
-      title: context.tr(AppStrings.confirmDraw),
-      description: context.tr(
-        AppStrings.confirmDrawMessage,
-        namedArgs: {
-          'name': product.name ?? product.categoryName ?? '',
-          'count': '$count',
-        },
-      ),
-      content: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12).r,
-        decoration: BoxDecoration(
-          color: primary.wOpacity(0.1),
-          borderRadius: BorderRadius.circular(10).r,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AppImage(
-              name: AppAssets.coins,
-              width: coinSize,
-              height: coinSize,
-              fit: BoxFit.contain,
-            ),
-            6.widthSpace,
-            AppText(
-              formatMainProductAmount(product.drawAmount * count),
-              fontSize: kFont18,
-              fontWeight: FontWeight.w700,
-              color: primary,
-            ),
-          ],
-        ),
-      ),
+  static Future<void> _notEnoughPoints() {
+    return DialogHelper<void>().appDialog(
+      title: context.tr(AppStrings.insufficientPoints),
+      description: context.tr(AppStrings.notEnoughPointsMessage),
       leftButtonText: context.tr(AppStrings.cancel),
-      leftButtonColor: AppColors.whiteColor,
-      leftButtonBorderColor: primary,
-      leftTextColor: primary,
-      leftFunction: () => AppNavigator.pop(context, false),
-      rightButtonText: context.tr(AppStrings.confirmDraw),
+      leftButtonColor: AppColors.greyBackgroundColor,
+      leftTextColor: AppColors.loginTextColor,
+      leftFunction: () => AppNavigator.pop(context),
+      rightButtonText: context.tr(AppStrings.buyDrawPoints),
+      rightButtonColor: context.color.primary,
       rightTextColor: AppColors.whiteColor,
-      rightFunction: () => AppNavigator.pop(context, true),
+      rightFunction: () {
+        AppNavigator.pop(context);
+        AppNavigator.pushNamed(context, RouteName.topupPage);
+      },
     );
   }
+
+  /// 確認抽卡: the product's banner, how many, and the balance before ＞
+  /// after; true once confirmed.
+  static Future<bool?> _confirmDraw(MainProductModel product, int count) =>
+      DrawConfirmDialog.show(context, product: product, count: count);
 }

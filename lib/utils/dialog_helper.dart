@@ -185,6 +185,7 @@ class DialogHelper<T> {
                     if (leftButtonText != null)
                       Expanded(
                         child: AppButtonWidget(
+                          radius: 10,
                           text: leftButtonText,
                           buttonColor: leftButtonColor,
                           textColor: leftTextColor,
@@ -197,6 +198,7 @@ class DialogHelper<T> {
                     if (rightButtonText != null)
                       Expanded(
                         child: AppButtonWidget(
+                          radius: 10,
                           text: rightButtonText,
                           buttonColor: rightButtonColor,
                           textColor: rightTextColor,

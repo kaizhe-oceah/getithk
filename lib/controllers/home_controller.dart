@@ -50,9 +50,21 @@ class HomeController extends ChangeNotifier {
 
   static const int _drawAmountType = 1;
 
+  late final Future<void> ready;
+
   HomeController() {
     sort.addListener(onSortChanged);
-    setInit();
+    ready = setInit();
+  }
+
+  static HomeController? _preloaded;
+
+  static Future<void> preload() => (_preloaded = HomeController()).ready;
+
+  static HomeController? takePreloaded() {
+    final HomeController? controller = _preloaded;
+    _preloaded = null;
+    return controller;
   }
 
   int? get selectedCategoryId => _categoryIdAt(categoryIndex);
@@ -63,10 +75,8 @@ class HomeController extends ChangeNotifier {
   List<MainProductModel>? cachedProducts(int index) =>
       _cachedProducts[_categoryIdAt(index)];
 
-  void setInit() async {
+  Future<void> setInit() async {
     await onRefresh();
-
-    // in the background, once the home page has loaded; not awaited
     DrawVideoService.preload();
   }
 

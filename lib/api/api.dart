@@ -513,6 +513,62 @@ class Api {
     );
   }
 
+  // top up by gateway (form data): data.redirect_url is the gateway's page
+  // to pay on; it sends the player back to kTopUpReturnPath
+  Future<void> topUpByGateway({
+    required double topupAmount,
+    required String gateway,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.multipartPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kTopUpByGateway,
+      params: {
+        // 100, not "100.0"
+        "topup_amount": topupAmount % 1 == 0
+            ? topupAmount.toInt()
+            : topupAmount,
+        "fe_redirect_url": kTopUpReturnPath,
+        "gateway": gateway,
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // sell stock: exchange [stockIds] for PTS
+  Future<void> sellStock({
+    required List<int> stockIds,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerSellStock,
+      // a JSON string, "[9244,9257]", as the API takes it
+      params: {"stock_ids": jsonEncode(stockIds)},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.showToast(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
   // delete shipping address
   Future<void> deleteShippingAddress({
     required int shippingAddressId,

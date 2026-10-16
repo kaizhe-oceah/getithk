@@ -84,7 +84,8 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     super.build(context);
     return ChangeNotifierProvider(
-      create: (_) => HomeController(),
+      // the splash page's, already loaded (or loading); else a new one
+      create: (_) => HomeController.takePreloaded() ?? HomeController(),
       child: AppScaffold.basic(
         backgroundColor: AppColors.whiteColor,
         forceOverlayStyle: SystemUiOverlayStyle.dark,

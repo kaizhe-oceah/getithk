@@ -427,10 +427,6 @@ class _SwallowtailClipper extends CustomClipper<Path> {
   bool shouldReclip(_SwallowtailClipper oldClipper) => false;
 }
 
-/// [colors] spread over twice the painted width, slid left by [progress] of
-/// that span: about half the colors show at once, so they drift in from the
-/// right rather than flash, and 0 and 1 look the same. [colors] should start
-/// and end on the same color, or the loop shows a seam.
 LinearGradient _flowingGradient(List<Color> colors, double progress) {
   return LinearGradient(
     end: const Alignment(3, 0),
@@ -440,7 +436,6 @@ LinearGradient _flowingGradient(List<Color> colors, double progress) {
   );
 }
 
-/// Paints [child] in [_flowingGradient], moving as [flow] runs.
 class _FlowingGradient extends StatelessWidget {
   final Animation<double> flow;
   final List<Color> colors;
@@ -468,8 +463,6 @@ class _FlowingGradient extends StatelessWidget {
   }
 }
 
-/// Shifts a gradient left by [progress] of one full tile (twice the width,
-/// matching [_flowingGradient]).
 class _SlideGradient extends GradientTransform {
   final double progress;
 
@@ -480,10 +473,6 @@ class _SlideGradient extends GradientTransform {
       Matrix4.translationValues(-bounds.width * 2 * progress, 0, 0);
 }
 
-/// 抽1次 · 連抽10 · 連抽100, each off while the stock (and, topping up to
-/// draw, the draws unlocked) can't cover it. Instead, one button: 已售罄 or
-/// 暫不可抽 (off), or 購買積分 until topping up has unlocked a draw.
-/// [onDraw] gets how many to draw; [onTopUp] runs back from topping up.
 class MainProductDrawButtons extends StatelessWidget {
   final MainProductModel product;
   final ValueChanged<int>? onDraw;
@@ -500,8 +489,6 @@ class MainProductDrawButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // is_available first: false once sold out, or once every unlock (topping
-    // up to draw) has been drawn
     if (!product.isAvailable || product.isSoldOut) {
       return _button(
         context.tr(
@@ -510,7 +497,6 @@ class MainProductDrawButtons extends StatelessWidget {
       );
     }
 
-    // logged out: 購買積分, or 抽籤 · 試玩抽籤 for a trial product
     if (context.watch<AppController>().user == null) {
       return product.isTrialDraw
           ? _trialButtons(context)
@@ -532,7 +518,6 @@ class MainProductDrawButtons extends StatelessWidget {
     );
   }
 
-  /// Logged out, it opens the login page instead (checkLogin).
   Widget _buyPointsButton(BuildContext context) {
     return _button(
       context.tr(AppStrings.buyPoints),
@@ -544,8 +529,6 @@ class MainProductDrawButtons extends StatelessWidget {
     );
   }
 
-  /// 抽籤 (opens the login page, checkLogin) and 試玩抽籤 with a 免費 badge
-  /// on its top edge.
   Widget _trialButtons(BuildContext context) {
     final Color primary = context.color.primary;
 
@@ -600,7 +583,6 @@ class MainProductDrawButtons extends StatelessWidget {
   }
 
   Widget _draw(BuildContext context, int count, Color color) {
-    // topping up to draw: no more than the draws it has unlocked
     final int limit =
         product.hasTopupUnlock &&
             (product.availableDraws ?? 0) < product.remainingDraws
@@ -623,9 +605,8 @@ class MainProductDrawButtons extends StatelessWidget {
       buttonColor: color,
       disabledColor: _disabled,
       radius: 10,
-      textSize: kFont14,
+      textSize: kFont13,
       textColor: AppColors.whiteColor,
-      // logged out: the login page instead
       checkLogin: true,
       onTap: onTap,
     );

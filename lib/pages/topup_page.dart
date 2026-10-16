@@ -45,7 +45,7 @@ class TopupPage extends StatelessWidget {
           20.r + MediaQuery.paddingOf(context).bottom,
         ),
         children: [
-          _balanceCard(context),
+          _balanceCard(context, controller),
           14.heightSpace,
           AppSkeletonizer(
             enabled: controller.isLoading,
@@ -53,7 +53,7 @@ class TopupPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _paymentMethods(context, controller, skeleton: skeleton),
-                18.heightSpace,
+                kHorizontalPadding.heightSpace,
                 Skeleton.keep(
                   child: AppText(
                     context.tr(AppStrings.selectTopUpAmount),
@@ -76,7 +76,7 @@ class TopupPage extends StatelessWidget {
   }
 
   /// 我的餘額 0.00 PTS on primary, the wallet in a soft circle on the right.
-  Widget _balanceCard(BuildContext context) {
+  Widget _balanceCard(BuildContext context, TopupController controller) {
     final double points = context.watch<AppController>().points;
 
     return Container(
@@ -133,10 +133,40 @@ class TopupPage extends StatelessWidget {
                     color: AppColors.whiteColor,
                   ),
                 ),
+                10.heightSpace,
+                _refreshButton(context, controller),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _refreshButton(BuildContext context, TopupController controller) {
+    return InkWellWrapper(
+      onTap: controller.isLoading
+          ? null
+          : controller.refreshController.requestRefresh,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4).r,
+        decoration: BoxDecoration(
+          color: AppColors.whiteColor.wOpacity(0.18),
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Iconsax.refresh_copy, size: 14.r, color: AppColors.whiteColor),
+            4.widthSpace,
+            AppText(
+              context.tr(AppStrings.refresh),
+              fontSize: kFont12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.whiteColor,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -177,15 +207,6 @@ class TopupPage extends StatelessWidget {
             value: methods[index],
             child: _methodLabel(methods[index]),
           ),
-        ),
-        10.heightSpace,
-        Wrap(
-          spacing: 8.r,
-          runSpacing: 8.r,
-          children: [
-            for (final PaymentMethodModel method in methods)
-              _methodLogo(context, controller, method),
-          ],
         ),
       ],
     );

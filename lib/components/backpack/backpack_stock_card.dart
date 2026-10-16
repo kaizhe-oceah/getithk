@@ -31,7 +31,9 @@ class BackpackStockCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(6).r,
         decoration: BoxDecoration(
-          color: AppColors.whiteColor,
+          color: selected && !isLoading
+              ? primary.wOpacity(0.09)
+              : AppColors.whiteColor,
           borderRadius: BorderRadius.circular(8).r,
           border: Border.all(
             color: selected && !isLoading ? primary : AppColors.greyLight2Color,
@@ -65,7 +67,7 @@ class BackpackStockCard extends StatelessWidget {
               ),
               2.heightSpace,
               AppText(
-                '${formatMainProductAmount(shown.amount)} pts',
+                '${formatMainProductAmount(shown.amount)} pt',
                 fontSize: kFont12,
                 fontWeight: FontWeight.w700,
                 color: primary,
@@ -344,7 +346,7 @@ class BackpackCheckoutRow extends StatelessWidget {
           fit: BoxFit.scaleDown,
           child: AppText(
             context.tr(text),
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             color: textColor,
           ),
         ),

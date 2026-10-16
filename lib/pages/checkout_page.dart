@@ -74,7 +74,14 @@ class CheckoutPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(14).r,
-          border: Border.all(color: AppColors.greyLightColor),
+          border: Border.all(color: AppColors.greyLight2Color),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.blackColor.wOpacity(0.06),
+              blurRadius: 6.r,
+              offset: Offset(0, 2.r),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -158,7 +165,6 @@ class CheckoutPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.greyBackgroundColor,
         borderRadius: BorderRadius.circular(14).r,
-        // unseen, but insets the text as the address card's border does
         border: Border.all(color: AppColors.greyBackgroundColor),
       ),
       child: Column(
@@ -180,7 +186,7 @@ class CheckoutPage extends StatelessWidget {
                       AppText(
                         context.tr(
                           AppStrings.freeShippingOver,
-                          args: [formatMainProductAmount(threshold)],
+                          args: ['${formatMainProductAmount(threshold)} pt'],
                         ),
                         fontSize: kFont12,
                         color: context.color.primary,
@@ -290,19 +296,22 @@ class CheckoutPage extends StatelessWidget {
           spacing: spacing,
           runSpacing: spacing,
           children: [
-            for (final BackpackModel stock in controller.cards)
-              _card(context, stock, width: tileWidth),
+            for (final ShipmentItemModel item in controller.items)
+              _card(context, item, width: tileWidth),
           ],
         );
       },
     );
   }
 
+  /// One per card, its grade at the top right and how many at the bottom
+  /// right, as the backpack shows them.
   Widget _card(
     BuildContext context,
-    BackpackModel stock, {
+    ShipmentItemModel item, {
     required double width,
   }) {
+    final BackpackModel stock = item.stock;
     final String? grade = stock.grade?.image;
     final double gradeHeight = 24.r;
 
@@ -334,6 +343,11 @@ class CheckoutPage extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
               ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: SubProductQuantityBadge(quantity: item.quantity),
+            ),
           ],
         ),
       ),
@@ -362,7 +376,14 @@ class CheckoutPage extends StatelessWidget {
     );
   }
 
+  /// 申請出貨; while the balance can't cover the shipping fee, greyed out
+  /// under a label saying so.
   Widget _submitBar(BuildContext context, CheckoutController controller) {
+    final bool canPay = controller.canPayShipping(
+      context.watch<AppController>().points,
+    );
+    final Color primary = context.color.primary;
+
     return Container(
       padding: EdgeInsets.fromLTRB(
         kHorizontalPadding.r,
@@ -380,14 +401,36 @@ class CheckoutPage extends StatelessWidget {
           ),
         ],
       ),
-      child: AppButtonWidget(
-        text: context.tr(AppStrings.requestShipment),
-        radius: 10,
-        fontWeight: FontWeight.w600,
-        textColor: AppColors.whiteColor,
-
-        padding: const EdgeInsets.symmetric(vertical: 10).r,
-        onTap: controller.onSubmit,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!canPay) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Iconsax.info_circle_copy, size: 14.r, color: primary),
+                4.widthSpace,
+                Flexible(
+                  child: AppText(
+                    context.tr(AppStrings.balanceNotEnoughForShipping),
+                    fontSize: kFont12,
+                    color: primary,
+                  ),
+                ),
+              ],
+            ),
+            8.heightSpace,
+          ],
+          AppButtonWidget(
+            text: context.tr(AppStrings.requestShipment),
+            radius: 10,
+            fontWeight: FontWeight.w600,
+            textColor: AppColors.whiteColor,
+            padding: const EdgeInsets.symmetric(vertical: 10).r,
+            onTap: canPay ? controller.onSubmit : null,
+          ),
+        ],
       ),
     );
   }

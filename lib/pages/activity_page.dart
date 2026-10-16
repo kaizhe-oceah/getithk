@@ -5,13 +5,23 @@ import '../controllers/activity_controller.dart';
 import '../imports.dart';
 import '../models/page_banner_model.dart';
 
-class ActivityPage extends StatelessWidget {
+class ActivityPage extends StatefulWidget {
   const ActivityPage({super.key});
 
   static const double _bannerAspectRatio = 1120 / 496;
 
   @override
+  State<ActivityPage> createState() => _ActivityPageState();
+}
+
+class _ActivityPageState extends State<ActivityPage>
+    with AutomaticKeepAliveClientMixin<ActivityPage> {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final bool isLoggedIn = context.watch<AppController>().user != null;
 
     return ChangeNotifierProvider(
@@ -117,14 +127,14 @@ class ActivityPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AspectRatio(
-              aspectRatio: _bannerAspectRatio,
+              aspectRatio: ActivityPage._bannerAspectRatio,
               child: isLoading
                   ? const Bone()
                   : AppImage(
                       name: banner.image,
                       width: double.infinity,
                       height: double.infinity,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                     ),
             ),
             Padding(

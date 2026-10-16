@@ -13,6 +13,8 @@ class PaymentMethodModel {
     icon = json['icon']?.toString();
   }
 
+  bool get isApplePay => gateway == 'apple_pay';
+
   /// The methods in an API `data` list; anything that isn't one, or has no
   /// gateway, is skipped.
   static List<PaymentMethodModel> listFromJson(dynamic data) => data is List

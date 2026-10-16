@@ -29,7 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
       image: AppAssets.menuVouchers,
       route: RouteName.vouhcerPage,
     ),
-    _MenuItem(AppStrings.backpack, image: AppAssets.menuBackpack),
+    // _MenuItem(AppStrings.backpack, image: AppAssets.menuBackpack),
     _MenuItem(
       AppStrings.myOrders,
       image: AppAssets.menuMyOrders,

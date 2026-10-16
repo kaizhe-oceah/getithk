@@ -108,6 +108,10 @@ class AppStrings {
   static const String passwordLengthShouldMoreThan6 =
       'password_length_should_more_than_6';
   static const String paymentSuccessful = 'payment_successful';
+  static const String payment = 'payment';
+  static const String paymentFailed = 'payment_failed';
+  static const String refresh = 'refresh';
+  static const String paymentProcessing = 'payment_processing';
   static const String permissionDenied = 'permission_denied';
   static const String pleaseSelectAnItem = 'please_select_an_item';
   static const String pressBackAgainToExitApplicaton =
@@ -179,6 +183,10 @@ class AppStrings {
   static const String selectAllNonDeliveryOnly = 'select_all_non_delivery_only';
   static const String requestShipment = 'request_shipment';
   static const String exchangePts = 'exchange_pts';
+  static const String insufficientPoints = 'insufficient_points';
+  static const String notEnoughPointsMessage = 'not_enough_points_message';
+  static const String buyDrawPoints = 'buy_draw_points';
+  static const String confirmExchange = 'confirm_exchange';
   static const String deliveryOnlyCannotExchange =
       'delivery_only_cannot_exchange';
   static const String onlyDeliveryOnlyCanShip = 'only_delivery_only_can_ship';
@@ -194,6 +202,8 @@ class AppStrings {
   static const String addShippingAddress = 'add_shipping_address';
   static const String shippingFee = 'shipping_fee';
   static const String freeShippingOver = 'free_shipping_over';
+  static const String balanceNotEnoughForShipping =
+      'balance_not_enough_for_shipping';
   static const String shipmentReceivedTitle = 'shipment_received_title';
   static const String shipmentReceivedDescription =
       'shipment_received_description';

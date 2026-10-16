@@ -3,6 +3,7 @@ import 'package:upgrader/upgrader.dart';
 
 // Project imports:
 import '../components/splash_view.dart';
+import '../controllers/home_controller.dart';
 import '../imports.dart';
 import '../services/notification_service.dart';
 import '../services/socket_service.dart';
@@ -19,6 +20,9 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
   final Upgrader upgrader = Upgrader(durationUntilAlertAgain: Duration.zero);
+
+  /// The most the splash waits, after its intro, for the home page's data.
+  static const Duration _homeWait = Duration(seconds: 2);
 
   late final AnimationController _introController = AnimationController(
     vsync: this,
@@ -38,6 +42,9 @@ class _SplashPageState extends State<SplashPage>
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // the home page's data, loading while the intro plays
+      final Future<void> homeReady = HomeController.preload();
+
       await SplashView.precache(context);
       if (!mounted) return;
 
@@ -86,6 +93,13 @@ class _SplashPageState extends State<SplashPage>
         ApiService.updateApiBaseUrl(role: AppPreferences.getThemeRole());
         SocketService.connect();
       }
+
+      // so the home page opens filled in: usually loaded by now; on a slow
+      // network not held up long, the home page's skeleton covers the rest
+      await homeReady
+          .timeout(_homeWait, onTimeout: () {})
+          .catchError((Object _) {});
+      if (!mounted) return;
 
       // always open on the home tab, logged in or not
       AppNavigator.pushReplacementNamedWithoutTransition(

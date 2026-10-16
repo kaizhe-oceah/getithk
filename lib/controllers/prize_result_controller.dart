@@ -59,12 +59,9 @@ class PrizeResultController extends ChangeNotifier {
   bool get isAllDeliveryOnlySelected => _isPicked(deliveryOnly);
   bool get isAllNonDeliveryOnlySelected => _isPicked(nonDeliveryOnly);
 
-  /// Only delivery-only prizes ship; the others are exchanged ([canExchange]).
-  bool get canRequestShipment =>
-      selectedPrizes.isNotEmpty &&
-      selectedPrizes.every(
-        (element) => element.subProduct?.isDeliveryOnly ?? false,
-      );
+  /// Any prize ships; only one that isn't delivery only (is_delivery_only
+  /// 2) can be exchanged for PTS too.
+  bool get canRequestShipment => selectedPrizes.isNotEmpty;
   bool get canExchange =>
       selectedPrizes.isNotEmpty &&
       !selectedPrizes.any(
@@ -95,10 +92,8 @@ class PrizeResultController extends ChangeNotifier {
   void onRequestShipment() {
     if (isTrial) return;
 
-    if (selectedPrizes.isEmpty) {
+    if (!canRequestShipment) {
       ToastHelper.showToast(context.tr(AppStrings.pleaseSelectAnItem));
-    } else if (!canRequestShipment) {
-      ToastHelper.showToast(context.tr(AppStrings.onlyDeliveryOnlyCanShip));
     } else {
       ToastHelper.showToast(context.tr(AppStrings.comingSoon));
     }

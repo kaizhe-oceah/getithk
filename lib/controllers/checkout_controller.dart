@@ -2,7 +2,6 @@
 import '../components/default/shipment_received_dialog.dart';
 import '../imports.dart';
 import '../models/address_model.dart';
-import '../models/backpack_model.dart';
 import '../models/shipment_item_model.dart';
 import '../models/shipping_setting_model.dart';
 
@@ -31,7 +30,12 @@ class CheckoutController extends ChangeNotifier {
   CheckoutController({required this.items}) {
     _getShippingSetting();
     _getAddress();
+    // fresh, to tell if it covers the shipping fee
+    context.read<AppController>().getWalletBalance();
   }
+
+  /// Whether [balance] covers [shippingFee]; yes till the fee's known.
+  bool canPayShipping(double balance) => isLoading || balance >= shippingFee;
 
   /// The default address (the first, if none is) to ship to.
   Future<void> _getAddress() async {
@@ -80,12 +84,6 @@ class CheckoutController extends ChangeNotifier {
     (double sum, ShipmentItemModel item) => sum + item.totalAmount,
   );
 
-  /// One card per piece shipped, so 2 of a card shows it twice.
-  List<BackpackModel> get cards => [
-    for (final ShipmentItemModel item in items)
-      for (int i = 0; i < item.quantity; i++) item.stock,
-  ];
-
   /// The address page, to pick where to ship (the current one ticked); the
   /// picked one comes back.
   Future<void> onAddress() async {
@@ -113,8 +111,7 @@ class CheckoutController extends ChangeNotifier {
   /// The stocks to ship: the first [ShipmentItemModel.quantity] ids of each
   /// item's stock.
   List<int> get userStockIds => [
-    for (final ShipmentItemModel item in items)
-      ...item.stock.stockIds.take(item.quantity).map(int.tryParse).nonNulls,
+    for (final ShipmentItemModel item in items) ...item.stockIds,
   ];
 
   /// 申請出貨: ships the cards to [address]; once the dialog saying so
@@ -122,6 +119,7 @@ class CheckoutController extends ChangeNotifier {
   Future<void> onSubmit() async {
     final AddressModel? address = this.address;
     if (isAddressLoading) return;
+    if (!canPayShipping(context.read<AppController>().points)) return;
     if (address == null) {
       ToastHelper.showToast(context.tr(AppStrings.addShippingAddress));
       return;

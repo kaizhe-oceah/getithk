@@ -57,6 +57,21 @@ enum ShippingStatus {
       values.where((element) => element.value == value).firstOrNull;
 }
 
+/// How a gateway payment ended: the `status` the gateway sends the player
+/// back with (kTopUpReturnPath).
+enum PaymentStatus {
+  paid,
+
+  /// The gateway hasn't confirmed it yet; probably paid, not a failure.
+  pending,
+  failed;
+
+  /// The status named [value]; null for anything else (the web view closed
+  /// by its back button, say).
+  static PaymentStatus? fromValue(Object? value) =>
+      values.where((element) => element.name == value).firstOrNull;
+}
+
 enum ProductGrade {
   last(1), // 尾賞
   first(2), // 一等獎

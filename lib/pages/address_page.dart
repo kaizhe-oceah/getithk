@@ -207,13 +207,14 @@ class AddressPage extends StatelessWidget {
         _detail(Iconsax.call_copy, address.phone),
         6.heightSpace,
         _detail(Iconsax.location_copy, address.address ?? ''),
-        10.heightSpace,
-        const Divider(
-          height: 1,
-          thickness: 1,
-          color: AppColors.greyLight2Color,
-        ),
+        // the line and 編輯 / 刪除 under it; none while picking
         if (!controller.isSelect) ...[
+          10.heightSpace,
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColors.greyLight2Color,
+          ),
           10.heightSpace,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -241,12 +242,6 @@ class AddressPage extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         PhoneCountryFlag(countryCode: address.countryCode, width: 18.r),
-        6.widthSpace,
-        AppText(
-          address.countryName ?? '',
-          fontSize: kFont12,
-          color: AppColors.loginHintColor,
-        ),
       ],
     );
   }

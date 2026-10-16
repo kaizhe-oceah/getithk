@@ -23,6 +23,9 @@ class TopupController extends ChangeNotifier {
     _load();
   }
 
+  /// An Android phone (not the web build, where Platform isn't there).
+  static bool get _isAndroid => !kIsWeb && Platform.isAndroid;
+
   /// The balance (into [AppController.points]), the packages and the
   /// payment methods, together.
   Future<void> _load() async {
@@ -36,8 +39,11 @@ class TopupController extends ChangeNotifier {
             bonuses = TopupBonusModel.listFromJson(response.data),
       ),
       ApiService.api.getPaymentMethods(
-        onSuccess: (response) =>
-            paymentMethods = PaymentMethodModel.listFromJson(response.data),
+        onSuccess: (response) => paymentMethods =
+            PaymentMethodModel.listFromJson(response.data)
+                // Apple Pay doesn't work on an Android phone
+                .where((element) => !(_isAndroid && element.isApplePay))
+                .toList(),
       ),
     ]);
 
@@ -61,9 +67,62 @@ class TopupController extends ChangeNotifier {
     update();
   }
 
-  // TODO(getithk): pay with [paymentMethod] once there's a top-up API
-  void onTopUp(TopupBonusModel bonus) =>
-      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+  Future<void> onTopUp(TopupBonusModel bonus) async {
+    final String? gateway = paymentMethod?.gateway;
+    if (gateway == null) {
+      ToastHelper.showToast(context.tr(AppStrings.selectPaymentMethod));
+      return;
+    }
+
+    String? redirectUrl;
+    await ApiService.api.topUpByGateway(
+      showLoader: true,
+      topupAmount: bonus.amount,
+      gateway: gateway,
+      onSuccess: (response) {
+        final dynamic data = response.data;
+        if (data is Map) redirectUrl = data['redirect_url']?.toString();
+      },
+    );
+
+    final String? url = redirectUrl;
+    if (url != null && url.isNotEmpty) await _openPaymentWebview(url);
+  }
+
+  /// The gateway's [paymentUrl]; it closes, back to this page, once the
+  /// gateway sends the player back (kTopUpReturnPath) with how it went:
+  /// - paid: this page reloads (pulled down to refresh): balance, packages;
+  /// - pending (not confirmed yet, probably paid): the balance checked again
+  ///   a little later, for when it's confirmed;
+  /// - anything else, the back button too: not paid.
+  Future<void> _openPaymentWebview(String paymentUrl) async {
+    final Object? result = await AppNavigator.pushNamed(
+      context,
+      RouteName.webviewPage,
+      arguments: {
+        "url": paymentUrl,
+        "title": context.tr(AppStrings.payment),
+        "returnPath": kTopUpReturnPath,
+      },
+    );
+
+    switch (PaymentStatus.fromValue(result)) {
+      case PaymentStatus.paid:
+        ToastHelper.showToast(context.tr(AppStrings.paymentSuccessful));
+        if (!_isDisposed) refreshController.requestRefresh();
+      case PaymentStatus.pending:
+        ToastHelper.showToast(context.tr(AppStrings.paymentProcessing));
+        Future.delayed(
+          _pendingRecheck,
+          context.read<AppController>().getWalletBalance,
+        );
+      case PaymentStatus.failed || null:
+        ToastHelper.showToast(context.tr(AppStrings.paymentFailed));
+    }
+  }
+
+  /// How long after a pending payment to check the balance again.
+  static const Duration _pendingRecheck = Duration(seconds: 5);
 
   @override
   void dispose() {

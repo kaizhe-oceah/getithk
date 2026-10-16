@@ -31,6 +31,13 @@ const kPlayerDeleteShippingAddress = "/player/delete-shipping-address";
 const kPlayerUpdateShippingAddress = "/player/update-shipping-address";
 const kPlayerShippingSetting = "/player/shipping-setting";
 const kPlayerShippingListing = "/player/shipping-listing";
+const kTopUpByGateway = "/player/topupByGateway";
+
+/// Where the payment gateway sends the player back to (fe_redirect_url),
+/// as `…/app-payment-result?reference=TOP-…&status=paid|pending|failed`.
+/// It needn't exist on the web: the payment web view stops there and
+/// closes with the status.
+const kTopUpReturnPath = "/app-payment-result";
 
 
 

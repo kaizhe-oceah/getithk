@@ -7,7 +7,7 @@ import '../components/default/bottom_sheet_language.dart';
 import '../components/default/bottom_sheet_logout.dart';
 import '../components/default/bottom_sheet_no_internet_connection.dart';
 import '../components/default/bottom_sheet_phone_country.dart';
-import '../components/default/bottom_sheet_request_shipment.dart';
+import '../components/default/bottom_sheet_stocks.dart';
 import '../components/default/bottom_sheet_tag_filter.dart';
 import '../imports.dart';
 import '../models/backpack_model.dart';
@@ -147,14 +147,41 @@ class BottomSheetHelper {
     required List<BackpackModel> stocks,
     required ValueChanged<List<ShipmentItemModel>> onConfirm,
   }) {
+    return _stocks(
+      BottomSheetStocks(
+        title: AppStrings.requestShipment,
+        confirmText: AppStrings.confirmShipment,
+        confirmColor: AppColors.blackColor,
+        stocks: stocks,
+        onConfirm: onConfirm,
+      ),
+    );
+  }
+
+  /// The backpack's 兌換PTS: the picked [stocks] and how many of each to
+  /// exchange; [onConfirm] gets them on 確認兌換.
+  static Future<void> exchangeStocks({
+    required List<BackpackModel> stocks,
+    required ValueChanged<List<ShipmentItemModel>> onConfirm,
+  }) {
+    return _stocks(
+      BottomSheetStocks(
+        title: AppStrings.exchangePts,
+        confirmText: AppStrings.confirmExchange,
+        stocks: stocks,
+        onConfirm: onConfirm,
+      ),
+    );
+  }
+
+  static Future<void> _stocks(BottomSheetStocks sheet) {
     return showBarModalBottomSheet<void>(
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
       backgroundColor: AppColors.whiteColor,
       topControl: const SizedBox.shrink(),
-      builder: (context) =>
-          BottomSheetRequestShipment(stocks: stocks, onConfirm: onConfirm),
+      builder: (context) => sheet,
     );
   }
 

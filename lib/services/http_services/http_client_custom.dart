@@ -20,16 +20,17 @@ class HttpClientCustom {
   /// "zh_TW" (the default), "en" or "ms" — not just the language code "zh".
   static String get _language => NavigationService.context.locale.toString();
 
-  /// Headers sent with every request.
-  static Map<String, String> _headers({
-    required bool withBearer,
-    String? token,
-  }) => {
+  /// Headers sent with every request. The player's token goes with every one
+  /// while they're logged in (there's a token), not only the calls that need
+  /// it, so the public ones (products, banners, …) are made as them too.
+  static Map<String, String> _headers(String? token) => {
     "Accept": "application/json",
     "Accept-Language": _language,
     "Accept-Timezone": kApiTimezone,
-    if (withBearer) "Authorization": "Bearer $token",
+    if (_hasToken(token)) "Authorization": "Bearer $token",
   };
+
+  static bool _hasToken(String? token) => token != null && token.isNotEmpty;
 
   /// Get method
   static Future<void> httpGet({
@@ -60,7 +61,7 @@ class HttpClientCustom {
         url,
         queryParameters: queryParams,
         options: Options(
-          headers: _headers(withBearer: withBearer, token: token),
+          headers: _headers(token),
           validateStatus: (status) {
             return true;
           },
@@ -72,7 +73,8 @@ class HttpClientCustom {
         onSuccess: onSuccess,
         onError: onError,
         hideLoader: showLoader,
-        withBearer: withBearer,
+        // sent with the token: a 401 means it's expired, whichever call
+        withBearer: withBearer || _hasToken(token),
       );
     } on DioException catch (e) {
       if (isRethrowRequired) {
@@ -117,7 +119,7 @@ class HttpClientCustom {
         url,
         data: params,
         options: Options(
-          headers: _headers(withBearer: withBearer, token: token),
+          headers: _headers(token),
           validateStatus: (status) {
             return true;
           },
@@ -129,7 +131,8 @@ class HttpClientCustom {
         onSuccess: onSuccess,
         onError: onError,
         hideLoader: showLoader,
-        withBearer: withBearer,
+        // sent with the token: a 401 means it's expired, whichever call
+        withBearer: withBearer || _hasToken(token),
       );
     } on DioException catch (e) {
       if (isRethrowRequired) {
@@ -221,7 +224,7 @@ class HttpClientCustom {
         url,
         data: formData,
         options: Options(
-          headers: _headers(withBearer: withBearer, token: token),
+          headers: _headers(token),
           validateStatus: (status) {
             return true;
           },
@@ -233,7 +236,8 @@ class HttpClientCustom {
         onSuccess: onSuccess,
         onError: onError,
         hideLoader: showLoader,
-        withBearer: withBearer,
+        // sent with the token: a 401 means it's expired, whichever call
+        withBearer: withBearer || _hasToken(token),
       );
     } on DioException catch (e) {
       if (isRethrowRequired) {

@@ -5,23 +5,34 @@ import '../../models/shipment_item_model.dart';
 import '../main_product/main_product_parts.dart';
 import '../sub_product/sub_product_parts.dart';
 
-class BottomSheetRequestShipment extends StatefulWidget {
+/// The backpack stocks picked for 申請出貨 or 兌換PTS: how many of each (all
+/// to start with), a bin for each, the total; [onConfirm] gets them on the
+/// button.
+class BottomSheetStocks extends StatefulWidget {
+  /// Translation keys: the sheet's title and its button.
+  final String title;
+  final String confirmText;
+
+  /// The button's colour; null: primary.
+  final Color? confirmColor;
+
   final List<BackpackModel> stocks;
   final ValueChanged<List<ShipmentItemModel>> onConfirm;
 
-  const BottomSheetRequestShipment({
+  const BottomSheetStocks({
+    required this.title,
+    required this.confirmText,
+    this.confirmColor,
     required this.stocks,
     required this.onConfirm,
     super.key,
   });
 
   @override
-  State<BottomSheetRequestShipment> createState() =>
-      _BottomSheetRequestShipmentState();
+  State<BottomSheetStocks> createState() => _BottomSheetStocksState();
 }
 
-class _BottomSheetRequestShipmentState
-    extends State<BottomSheetRequestShipment> {
+class _BottomSheetStocksState extends State<BottomSheetStocks> {
   // every piece of each stock to start with
   late final List<ShipmentItemModel> _items = [
     for (final BackpackModel stock in widget.stocks)
@@ -36,7 +47,7 @@ class _BottomSheetRequestShipmentState
     (double sum, ShipmentItemModel item) => sum + item.totalAmount,
   );
 
-  /// Nothing left to ship closes the sheet.
+  /// Nothing left closes the sheet.
   void _onRemove(ShipmentItemModel item) {
     setState(() => _items.remove(item));
     if (_items.isEmpty) AppNavigator.pop(context);
@@ -88,10 +99,10 @@ class _BottomSheetRequestShipmentState
             _total(),
             10.heightSpace,
             AppButtonWidget(
-              text: context.tr(AppStrings.confirmShipment),
+              text: context.tr(widget.confirmText),
               radius: 10,
               fontWeight: FontWeight.w600,
-              buttonColor: AppColors.blackColor,
+              buttonColor: widget.confirmColor,
               textColor: AppColors.whiteColor,
               padding: const EdgeInsets.symmetric(vertical: 10).r,
               onTap: _onConfirm,
@@ -109,7 +120,7 @@ class _BottomSheetRequestShipmentState
         children: [
           Expanded(
             child: AppText(
-              context.tr(AppStrings.requestShipment),
+              context.tr(widget.title),
               fontSize: kFont16,
               fontWeight: FontWeight.w700,
             ),
@@ -200,7 +211,7 @@ class _BottomSheetRequestShipmentState
                     ],
                     Expanded(
                       child: AppText(
-                        '${formatMainProductAmount(stock.amount)} pts',
+                        '${formatMainProductAmount(stock.amount)} pt',
                         fontSize: kFont14,
                         fontWeight: FontWeight.w700,
                         color: context.color.primary,
@@ -264,7 +275,10 @@ class _BottomSheetRequestShipmentState
     );
   }
 
+  /// 共 N 件 on the left; the coin and the total on the right.
   Widget _total() {
+    final double coinSize = 20.r;
+
     return Row(
       children: [
         AppText(
@@ -272,14 +286,21 @@ class _BottomSheetRequestShipmentState
           fontSize: kFont14,
         ),
         12.widthSpace,
-        Expanded(
-          child: AppText(
-            '${formatMainProductAmount(_totalAmount)} pts',
-            fontSize: kFont18,
-            fontWeight: FontWeight.w700,
-            color: context.color.primary,
-            textAlign: TextAlign.end,
-          ),
+        const Spacer(),
+        AppImage(
+          name: AppAssets.coins,
+          width: coinSize,
+          height: coinSize,
+          fit: BoxFit.contain,
+          cacheWidth: (coinSize * MediaQuery.devicePixelRatioOf(context))
+              .round(),
+        ),
+        4.widthSpace,
+        AppText(
+          formatMainProductAmount(_totalAmount),
+          fontSize: kFont18,
+          fontWeight: FontWeight.w700,
+          color: context.color.primary,
         ),
       ],
     );

@@ -10,12 +10,6 @@ import '../imports.dart';
 import '../models/draw_video_model.dart';
 import '../models/main_product_model.dart';
 
-/// The draw videos, downloaded ahead in the background so they're on the
-/// device when a draw plays one. Nothing waits on it: a video that isn't
-/// downloaded yet can still play from its URL.
-///
-/// Each file is saved exactly as the server has it, never compressed or
-/// re-encoded.
 class DrawVideoService {
   static List<DrawVideoModel> videos = [];
 
@@ -23,9 +17,6 @@ class DrawVideoService {
   static bool _isPreloading = false;
   static final Dio _dio = Dio();
 
-  /// The listing, then each video not on the device yet, one at a time and
-  /// smallest first, so the most are ready soonest. Safe to call again: it
-  /// skips what's downloaded, and does nothing while it's still running.
   static Future<void> preload() async {
     if (_isPreloading) return;
     _isPreloading = true;

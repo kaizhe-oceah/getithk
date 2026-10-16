@@ -25,6 +25,7 @@ import "../pages/splash_page.dart";
 import "../pages/sub_product_page.dart";
 import "../pages/tnc_page.dart";
 import "../pages/topup_page.dart";
+import "../pages/webview_page.dart";
 
 class RouteGenerator {
   static Route? generateRoute(RouteSettings settings) {
@@ -120,6 +121,17 @@ class RouteGenerator {
 
       case RouteName.myOrdersPage:
         return const MyOrdersPage();
+
+      // arguments: {"url": …, "title": …, "returnPath": …}; it pops with
+      // "close1" / "close0" when the page says so, or returnPath's `status`
+      case RouteName.webviewPage:
+        final Object? arguments = settings.arguments;
+        if (arguments is! Map || arguments['url'] is! String) return null;
+        return WebviewPage(
+          url: arguments['url'],
+          title: arguments['title']?.toString(),
+          returnPath: arguments['returnPath']?.toString(),
+        );
 
       case RouteName.addAddressPage:
         final Object? arguments = settings.arguments;

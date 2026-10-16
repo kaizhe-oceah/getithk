@@ -6,7 +6,6 @@ import '../controllers/prize_result_controller.dart';
 import '../imports.dart';
 import '../models/draw_result_model.dart';
 
-/// 抽獎結果: what a draw won, by grade, to exchange for PTS or ship.
 class PrizeResultPage extends StatelessWidget {
   final DrawResultModel result;
 
@@ -25,7 +24,6 @@ class PrizeResultPage extends StatelessWidget {
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.drawResult),
-            textSize: kFont16,
             backgroundColor: AppColors.whiteColor,
             leading: const AppBarBackButton(),
           ),
@@ -53,13 +51,13 @@ class PrizeResultPage extends StatelessWidget {
       children: [
         AppText(
           context.tr(AppStrings.selectPrizesToShip),
-          fontSize: kFont16,
-          fontWeight: FontWeight.w700,
+          fontSize: kFont15,
+          fontWeight: FontWeight.w600,
         ),
         4.heightSpace,
         AppText(
           context.tr(AppStrings.selectPrizesToShipHint),
-          fontSize: kFont13,
+          fontSize: kFont12,
           color: AppColors.textLightColor,
         ),
         if (controller.isTrial) ...[14.heightSpace, _trialNotice(context)],
@@ -92,14 +90,13 @@ class PrizeResultPage extends StatelessWidget {
     );
   }
 
-  /// 五等獎 共1件 on the left, what they're all worth on the right.
   Widget _gradeHeader(BuildContext context, List<DrawHistoryModel> group) {
     return Row(
       children: [
         AppText(
           group.first.subProduct?.grade ?? '',
-          fontSize: kFont16,
-          fontWeight: FontWeight.w700,
+          fontSize: kFont15,
+          fontWeight: FontWeight.w600,
         ),
         10.widthSpace,
         Expanded(
