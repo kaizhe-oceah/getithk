@@ -1,5 +1,6 @@
 // Package imports:
 import "package:getithk/pages/address_page.dart";
+import "package:getithk/pages/voucher_page.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:page_transition/page_transition.dart";
 
@@ -77,28 +78,27 @@ class RouteGenerator {
       case RouteName.profilePage:
         return const ProfilePage();
 
-      // arguments: the TncType to show (terms of service by default)
       case RouteName.inviteFriendsPage:
         return const InviteFriendsPage();
+
+      case RouteName.vouhcerPage:
+        return const VoucherPage();
 
       case RouteName.topupPage:
         return const TopupPage();
 
-      // arguments: the MainProductModel tapped in the listing
       case RouteName.subProductPage:
         final Object? product = settings.arguments;
         return product is MainProductModel
             ? SubProductPage(product: product)
             : null;
 
-      // arguments: the DrawResultModel of the draw just made
       case RouteName.prizeResultPage:
         final Object? result = settings.arguments;
         return result is DrawResultModel
             ? PrizeResultPage(result: result)
             : null;
 
-      // arguments: the List<ShipmentItemModel> confirmed in the backpack
       case RouteName.checkoutPage:
         final Object? items = settings.arguments;
         return items is List<ShipmentItemModel>
@@ -109,8 +109,6 @@ class RouteGenerator {
         final Object? type = settings.arguments;
         return TncPage(type: type is TncType ? type : TncType.terms);
 
-      // arguments: (isSelect: true, selectedId: …) to pick one for checkout;
-      // it pops with the picked AddressModel
       case RouteName.addressPage:
         final Object? arguments = settings.arguments;
         return arguments is ({bool isSelect, int? selectedId})
@@ -120,8 +118,6 @@ class RouteGenerator {
               )
             : const AddressPage();
 
-      // arguments: the AddressModel to edit, or true to tick 設為預設地址
-      // (the player's first address)
       case RouteName.myOrdersPage:
         return const MyOrdersPage();
 

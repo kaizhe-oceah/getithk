@@ -17,7 +17,6 @@ class TopupPage extends StatelessWidget {
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.topUp),
-            textSize: kFont16,
             backgroundColor: AppColors.whiteColor,
             leading: const AppBarBackButton(),
           ),

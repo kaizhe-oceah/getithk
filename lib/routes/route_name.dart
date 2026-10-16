@@ -16,6 +16,7 @@ class RouteName {
   static const String addressPage = "/address-page";
   static const String addAddressPage = "/add-address-page";
   static const String myOrdersPage = '/my-orders';
+  static const String vouhcerPage = "/voucher-page";
 
   static List<String> allRoutes = [
     splashPage,
@@ -35,6 +36,7 @@ class RouteName {
     addressPage,
     addAddressPage,
     myOrdersPage,
+    vouhcerPage,
   ];
 
   static bool containsRoute(String routeName) {

@@ -19,17 +19,42 @@ class _ProfilePageState extends State<ProfilePage> {
   static const int _cardCount = 0;
 
   static List<_MenuItem> get _menuItems => [
-    _MenuItem(AppStrings.inviteFriends, image: AppAssets.menuInviteFriends),
-    _MenuItem(AppStrings.vouchers, image: AppAssets.menuVouchers),
+    _MenuItem(
+      AppStrings.inviteFriends,
+      image: AppAssets.menuInviteFriends,
+      route: RouteName.inviteFriendsPage,
+    ),
+    _MenuItem(
+      AppStrings.vouchers,
+      image: AppAssets.menuVouchers,
+      route: RouteName.vouhcerPage,
+    ),
     _MenuItem(AppStrings.backpack, image: AppAssets.menuBackpack),
-    _MenuItem(AppStrings.myOrders, image: AppAssets.menuMyOrders),
-    _MenuItem(AppStrings.shippingAddress, image: AppAssets.menuShippingAddress),
+    _MenuItem(
+      AppStrings.myOrders,
+      image: AppAssets.menuMyOrders,
+      route: RouteName.myOrdersPage,
+    ),
+    _MenuItem(
+      AppStrings.shippingAddress,
+      image: AppAssets.menuShippingAddress,
+      route: RouteName.addressPage,
+    ),
     _MenuItem(AppStrings.salesRecord, image: AppAssets.menuSalesRecord),
     _MenuItem(AppStrings.drawRecord, image: AppAssets.menuDrawRecord),
     _MenuItem(AppStrings.helpCenter, image: AppAssets.menuHelpCenter),
-    // no pictures for these two yet
-    const _MenuItem(AppStrings.termsOfService, icon: Iconsax.document_text),
-    const _MenuItem(AppStrings.privacyPolicy, icon: Iconsax.shield_tick),
+    const _MenuItem(
+      AppStrings.termsOfService,
+      icon: Iconsax.document_text,
+      route: RouteName.tncPage,
+      arguments: TncType.terms,
+    ),
+    const _MenuItem(
+      AppStrings.privacyPolicy,
+      icon: Iconsax.shield_tick,
+      route: RouteName.tncPage,
+      arguments: TncType.privacy,
+    ),
     _MenuItem(
       AppStrings.onlineCustomerService,
       image: AppAssets.menuCustomerService,
@@ -104,7 +129,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             10.heightSpace,
             for (final _MenuItem item in _menuItems) ...[
-              _menuTile(item, onTap: _menuAction(item.label)),
+              _menuTile(item, onTap: _menuAction(item)),
               8.heightSpace,
             ],
 
@@ -348,20 +373,14 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// What a menu item opens; null: "coming soon".
-  VoidCallback? _menuAction(String label) => switch (label) {
-    AppStrings.inviteFriends => () => AppNavigator.pushNamed(
-      context,
-      RouteName.inviteFriendsPage,
-    ),
-    AppStrings.myOrders => () =>
-        AppNavigator.pushNamed(context, RouteName.myOrdersPage),
-     AppStrings.shippingAddress => () => AppNavigator.pushNamed(
-      context,
-      RouteName.addressPage,
-    ),
-    _ => null,
-  };
+  /// Opens [item]'s route; null ("coming soon") if it has none yet.
+  VoidCallback? _menuAction(_MenuItem item) {
+    final String? route = item.route;
+    if (route == null) return null;
+
+    return () =>
+        AppNavigator.pushNamed(context, route, arguments: item.arguments);
+  }
 
   Widget _menuTile(_MenuItem item, {VoidCallback? onTap, Color? color}) {
     return InkWellWrapper(
@@ -435,10 +454,24 @@ class _ProfilePageState extends State<ProfilePage> {
   );
 }
 
+/// A row of 常用功能: its label (a translation key), its picture or icon,
+/// and the page it opens.
 class _MenuItem {
   final String label;
   final String? image;
   final IconData? icon;
 
-  const _MenuItem(this.label, {this.image, this.icon});
+  /// The page it opens (a [RouteName]); null: "coming soon".
+  final String? route;
+
+  /// What [route] is pushed with, e.g. the TncType for the terms page.
+  final Object? arguments;
+
+  const _MenuItem(
+    this.label, {
+    this.image,
+    this.icon,
+    this.route,
+    this.arguments,
+  });
 }

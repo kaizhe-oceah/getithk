@@ -8,11 +8,8 @@ class ActivityController extends ChangeNotifier {
 
   final RefreshController refreshController = RefreshController();
 
-  /// True while the banners load (on open and on every refresh); they show
-  /// a skeleton the first time.
   bool isLoading = true;
 
-  /// The page banners, all but the voucher one.
   List<PageBannerModel> banners = [];
 
   ActivityController() {
@@ -40,7 +37,6 @@ class ActivityController extends ChangeNotifier {
     refreshController.refreshCompleted();
   }
 
-  // TODO(getithk): open the other promos once they have pages
   void onTapBanner(PageBannerModel banner) {
     if (banner.isInvitePoint) {
       AppNavigator.pushNamed(context, RouteName.inviteFriendsPage);

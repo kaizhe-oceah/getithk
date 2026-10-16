@@ -62,11 +62,9 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     return SmartRefresherWrapper(
       controller: controller.refreshControllers[tab]!,
       onRefresh: controller.onRefresh,
-      // nothing to load more of: just the no data widget, no footer
       enablePullUp:
           isCurrent && !controller.isLoading && controller.orders.isNotEmpty,
       onLoading: controller.onLoading,
-      showNoDataText: true,
       child: _orders(context, controller, tab),
     );
   }
@@ -86,7 +84,6 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         tab != controller.tab ||
         (controller.isLoading && controller.orders.isEmpty);
 
-    // centred, still pulling down to refresh
     if (!placeholder && controller.orders.isEmpty) {
       return CustomScrollView(
         slivers: [
@@ -102,7 +99,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     }
 
     final List<ShippingOrderModel> orders = placeholder
-        ? List.generate(3, (_) => ShippingOrderModel.placeholder())
+        ? List.generate(2, (_) => ShippingOrderModel.placeholder())
         : controller.orders;
 
     return ListView.separated(
@@ -116,16 +113,12 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     );
   }
 
-  /// When and its status; while it waits to ship, the note on how long
-  /// that takes; its cards; the shipping fee and total; then 取消 (while it
-  /// waits) and 查看.
   Widget _orderCard(
     BuildContext context,
     MyOrdersController controller,
     ShippingOrderModel order,
   ) {
     final bool isToShip = order.status == ShippingStatus.toShip;
-    // done with (completed, cancelled): grey, not primary
     final bool isClosed =
         order.status == ShippingStatus.completed ||
         order.status == ShippingStatus.cancelled;
@@ -224,7 +217,6 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     );
   }
 
-  /// [value] in the phone's time, e.g. "10月16日, 02:08:02".
   String _date(BuildContext context, DateTime? value) {
     if (value == null) return '';
 
@@ -234,7 +226,6 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         '${DateFormat.Hms(locale).format(date)}';
   }
 
-  /// The card's picture on grey, its name and price, then how many.
   Widget _item(BuildContext context, ShippingOrderItemModel item) {
     final double imageSize = 52.r;
 
@@ -287,7 +278,6 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     );
   }
 
-  /// "運費 50 PTS": the label in grey, the amount in primary.
   Widget _amount(BuildContext context, String label, double amount) {
     return Row(
       mainAxisSize: MainAxisSize.min,

@@ -128,7 +128,14 @@ class AddressPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(14).r,
-          border: Border.all(color: AppColors.greyLightColor),
+          border: Border.all(color: AppColors.greyLight2Color),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.blackColor.wOpacity(0.06),
+              blurRadius: 6.r,
+              offset: Offset(0, 2.r),
+            ),
+          ],
         ),
         child: isSelect
             ? Row(

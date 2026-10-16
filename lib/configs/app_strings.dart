@@ -166,6 +166,9 @@ class AppStrings {
   static const String claim = 'claim';
   static const String claimed = 'claimed';
   static const String vouchers = 'vouchers';
+  static const String enterVoucherCode = 'enter_voucher_code';
+  static const String voucherCodeHint = 'voucher_code_hint';
+  static const String redeemNow = 'redeem_now';
   static const String backpack = 'backpack';
   static const String backpackCards = 'backpack_cards';
   static const String backpackSold = 'backpack_sold';
