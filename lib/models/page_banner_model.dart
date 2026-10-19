@@ -13,6 +13,7 @@ class PageBannerModel {
   PageBannerModel.placeholder();
 
   bool get isInvitePoint => key == 'invite_point';
+  bool get isAccumulateBox => key == 'accumulate_box';
   bool get isVoucher => key == 'voucher';
 
   /// The banners in an API `data` list; anything that isn't one is skipped.

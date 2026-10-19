@@ -36,9 +36,10 @@ class ApiResponseModel {
     return data;
   }
 
+  /// The message of a call that succeeded, as a success toast.
   void showMessage() {
     if (message != null) {
-      ToastHelper.showToast(message!);
+      ToastHelper.success(message!);
     }
   }
 }

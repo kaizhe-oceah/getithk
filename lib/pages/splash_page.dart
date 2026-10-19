@@ -21,8 +21,8 @@ class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
   final Upgrader upgrader = Upgrader(durationUntilAlertAgain: Duration.zero);
 
-  /// The most the splash waits, after its intro, for the home page's data.
-  static const Duration _homeWait = Duration(seconds: 2);
+  /// Light icons, on the dark splash.
+  static const SystemUiOverlayStyle _overlayStyle = SystemUiOverlayStyle.light;
 
   late final AnimationController _introController = AnimationController(
     vsync: this,
@@ -42,46 +42,19 @@ class _SplashPageState extends State<SplashPage>
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // the home page's data, loading while the intro plays
-      final Future<void> homeReady = HomeController.preload();
+      HomeController.preload().ignore();
 
       await SplashView.precache(context);
       if (!mounted) return;
 
-      // check app version while the intro animation plays
-      final Future<bool> updateCheck = upgrader.initialize().then(
-        (_) => upgrader.isUpdateAvailable(),
-      );
-      await _introController.forward();
-      bool isAvailable = await updateCheck;
-      if (!mounted) return;
+      _checkForUpdate();
 
-      if (isAvailable) {
-        DialogHelper().showNormalDialog(
-          barrierDismissible: false,
-          title: context.tr(AppStrings.newVersion),
-          description: context.tr(
-            AppStrings.newVersionDescAppNameOldVersionNewVersionChanges,
-            args: [
-              upgrader.appName(),
-              upgrader.appName(),
-              "${upgrader.currentInstalledVersion}",
-              "${upgrader.currentAppStoreVersion}",
-              (upgrader.releaseNotes ?? "Changes:\n- Improved app performance"),
-            ],
-          ),
-          rightButtonText: context.tr(AppStrings.update),
-          rightFunction: () {
-            upgrader.sendUserToAppStore();
-          },
-        );
-        return;
-      }
+      await _introController.forward();
+      if (!mounted) return;
 
       // access some services
       await 0.001.delay();
       NotificationService.shouldListenNotification();
-      // NetworkService.shouldListenNetwork();
 
       // restore the saved user, if any
       if (AppPreferences.getUser() != null) {
@@ -94,19 +67,44 @@ class _SplashPageState extends State<SplashPage>
         SocketService.connect();
       }
 
-      // so the home page opens filled in: usually loaded by now; on a slow
-      // network not held up long, the home page's skeleton covers the rest
-      await homeReady
-          .timeout(_homeWait, onTimeout: () {})
-          .catchError((Object _) {});
-      if (!mounted) return;
-
-      // always open on the home tab, logged in or not
-      AppNavigator.pushReplacementNamedWithoutTransition(
+      // always open on the home tab, logged in or not, fading in
+      AppNavigator.pushReplacementNamedWithFade(
         context,
         RouteName.mainPage,
+        // the splash's light icons, till the home page is mostly in
+        fromStyle: _overlayStyle,
       );
     });
+  }
+
+  /// A newer version in the store: a dialog to update, over whichever page
+  /// is showing by the time the check's done.
+  Future<void> _checkForUpdate() async {
+    final bool isAvailable = await upgrader
+        .initialize()
+        .then((_) => upgrader.isUpdateAvailable())
+        .catchError((Object _) => false);
+    if (!isAvailable) return;
+
+    final BuildContext context = NavigationService.context;
+    DialogHelper().showNormalDialog(
+      barrierDismissible: false,
+      title: context.tr(AppStrings.newVersion),
+      description: context.tr(
+        AppStrings.newVersionDescAppNameOldVersionNewVersionChanges,
+        args: [
+          upgrader.appName(),
+          upgrader.appName(),
+          "${upgrader.currentInstalledVersion}",
+          "${upgrader.currentAppStoreVersion}",
+          (upgrader.releaseNotes ?? "Changes:\n- Improved app performance"),
+        ],
+      ),
+      rightButtonText: context.tr(AppStrings.update),
+      rightFunction: () {
+        upgrader.sendUserToAppStore();
+      },
+    );
   }
 
   @override
@@ -119,7 +117,7 @@ class _SplashPageState extends State<SplashPage>
   Widget build(BuildContext context) {
     return AppScaffold.basic(
       backgroundColor: AppColors.darkBackgroundColor,
-      forceOverlayStyle: SystemUiOverlayStyle.light,
+      forceOverlayStyle: _overlayStyle,
       child: AnimatedBuilder(
         animation: _introController,
         builder: (context, _) => SplashView(progress: _introController.value),

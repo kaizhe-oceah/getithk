@@ -94,7 +94,9 @@ class _LoginPageState extends State<LoginPage>
             // debug builds: a double tap fills in the test account
             title: Builder(
               builder: (context) => GestureDetector(
-                onDoubleTap: kDebugMode ? () => _fillTestAccount(context) : null,
+                onDoubleTap: kDebugMode
+                    ? () => _fillTestAccount(context)
+                    : null,
                 child: AppLogo(height: 32.r),
               ),
             ),
@@ -319,7 +321,7 @@ class _LoginPageState extends State<LoginPage>
         ),
         12.heightSpace,
         _optionButton(
-          icon:Iconsax.call,
+          icon: Iconsax.call,
           text: phoneText,
           color: AppColors.loginFieldColor,
           contentColor: AppColors.loginTextColor,
@@ -476,10 +478,10 @@ class _LoginPageState extends State<LoginPage>
 
           AppButtonWidget(
             text: context.tr(AppStrings.login),
-            radius: 12,
-            textSize: kFont15,
+            radius: 10,
+            textSize: kFont14,
             textColor: AppColors.whiteColor,
-            padding: const EdgeInsets.symmetric(vertical: 15).r,
+            padding: const EdgeInsets.symmetric(vertical: 12).r,
             onTap: controller.onLogin,
           ),
         ],

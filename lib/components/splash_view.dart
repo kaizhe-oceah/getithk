@@ -18,7 +18,8 @@ class SplashView extends StatelessWidget {
 
   const SplashView({this.progress = 1, super.key});
 
-  static const Duration introDuration = Duration(milliseconds: 1600);
+  /// Ends as the name lands, logo and name both in place.
+  static const Duration introDuration = Duration(milliseconds: 1000);
 
   static double get _logoSize => 72.fw;
   static double get _nameHeight => _logoSize * AppLogo.nameHeightRatio;
@@ -30,25 +31,25 @@ class SplashView extends StatelessWidget {
   static const double _startScale = 2.6;
 
   // intro
-  static const Curve _fadeInCurve = Interval(0.0, 0.1, curve: Curves.easeOut);
+  static const Curve _fadeInCurve = Interval(0.0, 0.12, curve: Curves.easeOut);
   static const Curve _spinCurve = Interval(
-    0.0,
-    0.32,
-    curve: Curves.easeOutCubic,
-  );
-  static const Curve _shrinkCurve = Interval(
     0.0,
     0.38,
     curve: Curves.easeOutCubic,
   );
+  static const Curve _shrinkCurve = Interval(
+    0.0,
+    0.45,
+    curve: Curves.easeOutCubic,
+  );
   static const Curve _shiftCurve = Interval(
-    0.4,
-    0.66,
+    0.47,
+    0.78,
     curve: Curves.easeInOutCubic,
   );
   static const Curve _nameInCurve = Interval(
-    0.52,
-    0.85,
+    0.61,
+    1.0,
     curve: Curves.easeOutCubic,
   );
 

@@ -17,18 +17,9 @@ class ThemeController with ChangeNotifier {
 
     _currentRole = savedRole;
 
-    final themeData = roleThemes[_currentRole] ?? roleThemes[UserRole.user]!;
-
-    final isDark = themeData.colorScheme.brightness == Brightness.dark;
-
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      ),
-    );
-
+    // the status bar is each page's to set (AppScaffold), not the theme's:
+    // set here too, its icons flashed the other colour on a page that
+    // wanted its own, as on the splash page for a logged-in user
     notifyListeners();
   }
 

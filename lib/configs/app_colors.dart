@@ -25,9 +25,9 @@ class AppColors {
   static const Color greyLightColor = Color.fromARGB(255, 225, 225, 225);
   static const Color greyLight2Color = Color.fromRGBO(240, 240, 240, 1);
   static const Color toastNormalColor = Color.fromRGBO(57, 57, 57, 1);
-  static const Color toastSuccessColor = Colors.green;
-  static const Color toastErrorColor = Colors.red;
-  static const Color toastWarningColor = Colors.orange;
+  static const Color toastSuccessColor = Color(0xFF16A34A);
+  static const Color toastErrorColor = Color(0xFFE5484D);
+  static const Color toastWarningColor = Color(0xFFF59E0B);
   static const Color primaryLightColor = Color.fromRGBO(45, 45, 45, 0.6);
   static const Color transparentColor = Colors.transparent;
   static const Color darkRedColor = Color.fromRGBO(213, 45, 31, 1);

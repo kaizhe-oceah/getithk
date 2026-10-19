@@ -1,4 +1,5 @@
 // Project imports:
+import '../components/gift_shake.dart';
 import '../controllers/invite_friends_controller.dart';
 import '../imports.dart';
 import '../models/invite_point_model.dart';
@@ -19,7 +20,6 @@ class InviteFriendsPage extends StatelessWidget {
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.inviteFriends),
-            textSize: kFont16,
             backgroundColor: AppColors.whiteColor,
             leading: const AppBarBackButton(),
           ),
@@ -51,18 +51,11 @@ class InviteFriendsPage extends StatelessWidget {
         children: [
           _header(context),
           12.heightSpace,
-          // only the API's numbers and tiers show a skeleton while loading;
-          // the fixed text and images show at once
           _stats(context, invitePoint, loading: controller.isLoading),
           12.heightSpace,
           _inviteCode(context, controller),
           12.heightSpace,
-          _rewards(
-            context,
-            controller,
-            invitePoint,
-            loading: controller.isLoading,
-          ),
+          _rewards(context, controller),
         ],
       ),
     );
@@ -122,7 +115,13 @@ class InviteFriendsPage extends StatelessWidget {
                   ],
                 ),
               ),
-              Image.asset(AppAssets.prize, width: 104.r, fit: BoxFit.contain),
+              GiftShake(
+                child: Image.asset(
+                  AppAssets.prize,
+                  width: 98.r,
+                  fit: BoxFit.contain,
+                ),
+              ),
             ],
           ),
           12.heightSpace,
@@ -358,12 +357,7 @@ class InviteFriendsPage extends StatelessWidget {
   static const int _pointsFlex = 7;
   static const int _buttonFlex = 6;
 
-  Widget _rewards(
-    BuildContext context,
-    InviteFriendsController controller,
-    InvitePointModel invitePoint, {
-    required bool loading,
-  }) {
+  Widget _rewards(BuildContext context, InviteFriendsController controller) {
     final Color primary = context.color.primary;
     final EdgeInsets tableInset = const EdgeInsets.symmetric(horizontal: 12).r;
 
@@ -412,51 +406,117 @@ class InviteFriendsPage extends StatelessWidget {
             ],
           ),
           14.heightSpace,
+          if (controller.totalRounds > 1) ...[
+            _swipeHint(context, controller),
+            10.heightSpace,
+            _RoundSwipeArea(
+              onNext: controller.onNextRound,
+              onPrevious: controller.onPreviousRound,
+              child: _round(context, controller, inset: tableInset),
+            ),
+          ] else
+            _round(context, controller, inset: tableInset),
+        ],
+      ),
+    );
+  }
 
-          // this round and its tiers: a skeleton while loading
-          AppSkeletonizer(
-            enabled: loading,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+  /// ◀ 左右滑動查看獎勵 ▶, then a dot per round, the one on show in primary.
+  Widget _swipeHint(BuildContext context, InviteFriendsController controller) {
+    final Color primary = context.color.primary;
+    final double dotSize = 6.r;
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 2).r,
+          decoration: BoxDecoration(
+            color: primary.wOpacity(0.1),
+            borderRadius: BorderRadius.circular(4).r,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.arrow_left_rounded, size: 18.r, color: primary),
+              AppText(
+                context.tr(AppStrings.swipeToViewRewards),
+                fontSize: kFont11,
+                fontWeight: FontWeight.w500,
+                color: primary,
+              ),
+              Icon(Icons.arrow_right_rounded, size: 18.r, color: primary),
+            ],
+          ),
+        ),
+        8.widthSpace,
+        for (int i = 1; i <= controller.totalRounds; i++) ...[
+          if (i > 1) 4.widthSpace,
+          Container(
+            width: dotSize,
+            height: dotSize,
+            decoration: BoxDecoration(
+              color: i == controller.round ? primary : AppColors.greyLightColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// The round on show and its tiers: a skeleton till it first loads.
+  Widget _round(
+    BuildContext context,
+    InviteFriendsController controller, {
+    required EdgeInsets inset,
+  }) {
+    final bool loading = controller.isRoundLoading;
+    final InvitePointModel roundPoint =
+        controller.roundPoint ??
+        (loading
+            ? InvitePointModel.placeholder()
+            : InvitePointModel.fromJson({}));
+
+    return AppSkeletonizer(
+      enabled: loading,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: inset.right),
+            child: Row(
               children: [
-                Padding(
-                  padding: EdgeInsets.only(right: tableInset.right),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: AppText(
-                          context.tr(
-                            AppStrings.roundRewards,
-                            args: [_roundNumber(context, invitePoint.round)],
-                          ),
-                          fontSize: kFont14,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.loginTextColor,
-                        ),
-                      ),
-                      _smallButton(
-                        text: context.tr(AppStrings.claimAll),
-                        icon: Iconsax.gift,
-                        onTap: invitePoint.canClaimAll
-                            ? controller.onClaimAll
-                            : null,
-                      ),
-                    ],
+                Expanded(
+                  child: AppText(
+                    context.tr(
+                      AppStrings.roundRewards,
+                      args: [_roundNumber(context, controller.round)],
+                    ),
+                    fontSize: kFont14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.loginTextColor,
                   ),
                 ),
-                6.heightSpace,
-                for (int i = 0; i < invitePoint.tiers.length; i++)
-                  _tier(
-                    context,
-                    controller,
-                    invitePoint.tiers[i],
-                    inset: tableInset,
-                    // no line under the last one
-                    divider: i < invitePoint.tiers.length - 1,
-                  ),
+                _smallButton(
+                  text: context.tr(AppStrings.claimAll),
+                  icon: Iconsax.gift,
+                  onTap: roundPoint.hasAvailableTier
+                      ? controller.onClaimRound
+                      : null,
+                ),
               ],
             ),
           ),
+          6.heightSpace,
+          for (int i = 0; i < roundPoint.tiers.length; i++)
+            _tier(
+              context,
+              controller,
+              roundPoint.tiers[i],
+              inset: inset,
+              // no line under the last one
+              divider: i < roundPoint.tiers.length - 1,
+            ),
         ],
       ),
     );
@@ -619,4 +679,49 @@ class InviteFriendsPage extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// [child], swiped left for [onNext] or right for [onPrevious]: far enough
+/// or fast enough, so a slow swipe counts too. Its buttons still tap.
+class _RoundSwipeArea extends StatefulWidget {
+  final VoidCallback onNext;
+  final VoidCallback onPrevious;
+  final Widget child;
+
+  const _RoundSwipeArea({
+    required this.onNext,
+    required this.onPrevious,
+    required this.child,
+  });
+
+  @override
+  State<_RoundSwipeArea> createState() => _RoundSwipeAreaState();
+}
+
+class _RoundSwipeAreaState extends State<_RoundSwipeArea> {
+  static const double _minDistance = 40;
+  static const double _minVelocity = 300;
+
+  double _dragged = 0;
+
+  void _onEnd(DragEndDetails details) {
+    final double velocity = details.primaryVelocity ?? 0;
+
+    if (_dragged < -_minDistance || velocity < -_minVelocity) {
+      widget.onNext();
+    } else if (_dragged > _minDistance || velocity > _minVelocity) {
+      widget.onPrevious();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onHorizontalDragStart: (_) => _dragged = 0,
+      onHorizontalDragUpdate: (details) => _dragged += details.delta.dx,
+      onHorizontalDragEnd: _onEnd,
+      child: widget.child,
+    );
+  }
 }

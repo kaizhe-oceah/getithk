@@ -109,12 +109,45 @@ class MyOrdersController extends ChangeNotifier {
     );
   }
 
-  // TODO(getithk): cancel and the order's details once there are APIs
-  void onCancel(ShippingOrderModel order) =>
-      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+  Future<void> onCancel(ShippingOrderModel order) async {
+    final int? shippingId = order.shippingId;
+    if (shippingId == null) return;
 
-  void onView(ShippingOrderModel order) =>
-      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+    final bool? isCancelled = await BottomSheetHelper.confirm(
+      title: AppStrings.cancelOrder,
+      description: AppStrings.cancelOrderDescription,
+      cancelText: AppStrings.thinkAgain,
+      confirmText: AppStrings.confirmCancel,
+      onConfirm: () => _cancelShipping(shippingId),
+    );
+    if (isCancelled == true && !_isDisposed) {
+      refreshController.requestRefresh();
+    }
+  }
+
+  Future<bool> _cancelShipping(int shippingId) async {
+    bool isCancelled = false;
+    await ApiService.api.cancelShipping(
+      shippingId: shippingId,
+      showLoader: true,
+      onSuccess: (response) {
+        isCancelled = true;
+        response.showMessage();
+      },
+    );
+    return isCancelled;
+  }
+
+  void onView(ShippingOrderModel order) {
+    final int? shippingId = order.shippingId;
+    if (shippingId == null) return;
+
+    AppNavigator.pushNamed(
+      context,
+      RouteName.orderDetailsPage,
+      arguments: shippingId,
+    );
+  }
 
   @override
   void dispose() {

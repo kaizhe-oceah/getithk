@@ -220,10 +220,9 @@ class _MyOrdersPageState extends State<MyOrdersPage>
   String _date(BuildContext context, DateTime? value) {
     if (value == null) return '';
 
-    final DateTime date = value.toLocal();
     final String locale = context.locale.toString();
-    return '${DateFormat.MMMd(locale).format(date)}, '
-        '${DateFormat.Hms(locale).format(date)}';
+    return '${DateFormat.MMMd(locale).format(value)}, '
+        '${getTimeAmPm(time: DateFormat('HH:mm:ss').format(value))}';
   }
 
   Widget _item(BuildContext context, ShippingOrderItemModel item) {

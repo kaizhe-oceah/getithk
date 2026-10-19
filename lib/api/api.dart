@@ -30,7 +30,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -99,7 +99,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -121,7 +121,7 @@ class Api {
       params: {"current_password": currentPassword, "password": password},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -150,7 +150,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -171,7 +171,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -191,7 +191,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -211,7 +211,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -231,7 +231,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -252,7 +252,7 @@ class Api {
       params: {"type": type.value},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -285,7 +285,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -309,7 +309,7 @@ class Api {
       params: {"page": page, "per_page": perPage},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -331,7 +331,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -354,7 +354,7 @@ class Api {
       params: {"shipping_country_id": shippingCountryId},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -383,7 +383,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -423,7 +423,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -445,7 +445,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -479,7 +479,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -505,7 +505,53 @@ class Api {
       params: {"page": page, "per_page": perPage, "status": ?status?.value},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // shipping detail: the order, its cards and where it's going
+  Future<void> getShippingDetail({
+    required int shippingId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerShippingDetail,
+      params: {"shipping_id": shippingId},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // cancel shipping: the order's cards go back to the backpack
+  Future<void> cancelShipping({
+    required int shippingId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerCancelShipping,
+      params: {"shipping_id": shippingId},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -537,7 +583,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -561,7 +607,7 @@ class Api {
       params: {"stock_ids": jsonEncode(stockIds)},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -584,7 +630,7 @@ class Api {
       params: {"shipping_address_id": shippingAddressId},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -620,7 +666,7 @@ class Api {
       params: {"main_product_id": mainProductId},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -640,7 +686,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -661,7 +707,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -671,8 +717,10 @@ class Api {
 
   // invite-friends rewards (needs the token): data.successful_invites,
   // data.claimable_point, data.tiers ...
+  // no [round]: the player's current one
   Future<void> getInvitePointListing({
     required Function(ApiResponseModel) onSuccess,
+    int? round,
     bool showLoader = false,
     Function(String)? onError,
   }) async {
@@ -681,10 +729,57 @@ class Api {
       apiUrl: apiUrl,
       endPoint: kPlayerInvitePointListing,
       withBearer: true,
+      params: {'round': ?round},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // the top-up reward levels: how much to top up for each, and its prizes
+  Future<void> getAccumulateBoxListing({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kPlayerAccumulateBoxListing,
+      withBearer: true,
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // [round] and [position]: that one reward; [round] alone: all of that
+  // round's; neither: every round's
+  Future<void> claimInvitePoint({
+    required Function(ApiResponseModel) onSuccess,
+    int? round,
+    int? position,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kPlayerClaimInvitePoint,
+      withBearer: true,
+      params: {'round': ?round, 'position': ?position},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -716,7 +811,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -745,7 +840,7 @@ class Api {
       },
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -770,7 +865,7 @@ class Api {
       params: {"main_product_id": mainProductId, "draw_count": drawCount},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -792,7 +887,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }
@@ -814,7 +909,7 @@ class Api {
       params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
-        ToastHelper.showToast(error);
+        ToastHelper.error(error);
         if (onError != null) {
           onError(error);
         }

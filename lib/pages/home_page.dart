@@ -20,6 +20,7 @@ import '../imports.dart';
 import '../models/banner_model.dart';
 import '../models/category_model.dart';
 import '../models/main_product_model.dart';
+import '../models/page_banner_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -223,7 +224,6 @@ class _HomePageState extends State<HomePage>
           kHorizontalPadding.r,
           kHorizontalPadding.r,
           kHorizontalPadding.r,
-          // the refresher's footer clears the nav bar
           16.r,
         ),
         sliver: _productList(context, controller),
@@ -232,7 +232,6 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _productList(BuildContext context, HomeController controller) {
-    // a category seen already shows its cards while they reload
     if (controller.isLoading ||
         (controller.isLoadingProducts && controller.products.isEmpty)) {
       return SliverList.list(
@@ -665,8 +664,7 @@ class _HomePageState extends State<HomePage>
             child: InkWellWrapper(
               // logged out: the login page instead
               checkLogin: true,
-              onTap: () =>
-                  ToastHelper.showToast(context.tr(AppStrings.comingSoon)),
+              onTap: () => _onTapPageBanner(context, items[i]),
               child: AspectRatio(
                 aspectRatio: HomePage._pageBannerAspectRatio,
                 child: AppImage(
@@ -683,6 +681,18 @@ class _HomePageState extends State<HomePage>
         ],
       ],
     );
+  }
+
+  /// invite_point: 邀請好友; accumulate_box: 充值獎勵; the others aren't
+  /// ready yet.
+  void _onTapPageBanner(BuildContext context, PageBannerModel banner) {
+    if (banner.isInvitePoint) {
+      AppNavigator.pushNamed(context, RouteName.inviteFriendsPage);
+    } else if (banner.isAccumulateBox) {
+      AppNavigator.pushNamed(context, RouteName.topupRewardPage);
+    } else {
+      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+    }
   }
 
   Widget _categoryTabs(BuildContext context, HomeController controller) {

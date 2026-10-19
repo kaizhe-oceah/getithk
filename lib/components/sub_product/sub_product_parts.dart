@@ -1,5 +1,6 @@
 // Project imports:
 import '../../imports.dart';
+import '../backpack/backpack_stock_card.dart';
 import '../default/prize_dialog.dart';
 import '../../models/sub_product_model.dart';
 
@@ -108,7 +109,18 @@ class SubProductTile extends StatefulWidget {
   final SubProductModel product;
   final double width;
 
-  const SubProductTile({required this.product, required this.width, super.key});
+  /// What its dialog shows, on a tap: the grade's artwork, and the chance
+  /// of drawing it.
+  final bool showGradeInDialog;
+  final bool showChanceInDialog;
+
+  const SubProductTile({
+    required this.product,
+    required this.width,
+    this.showGradeInDialog = true,
+    this.showChanceInDialog = false,
+    super.key,
+  });
   static const double imageAspectRatio = 63 / 88;
 
   @override
@@ -159,10 +171,13 @@ class _SubProductTileState extends State<SubProductTile> {
                     context,
                     image: product.image,
                     amount: product.amount,
-                    levelImage: SubProductGradeTitle.artworkFor(
-                      product.gradeId,
-                    ),
+                    levelImage: widget.showGradeInDialog
+                        ? SubProductGradeTitle.artworkFor(product.gradeId)
+                        : null,
                     name: product.name,
+                    chance: widget.showChanceInDialog
+                        ? product.displayPercentage
+                        : null,
                     isPsa10: product.isPsa10,
                   ),
                   cacheWidth: (width * MediaQuery.devicePixelRatioOf(context))
@@ -175,17 +190,29 @@ class _SubProductTileState extends State<SubProductTile> {
                     bottom: box.height - picture.bottom + 4.r,
                     child: SubProductQuantityBadge(quantity: product.quantity!),
                   ),
-                if (product.isPsa10)
+                // top right: 僅限運送, then the PSA badge after it
+                if (product.isDeliveryOnly || product.isPsa10)
                   Positioned(
                     top: 4.r,
                     right: 4.r,
-                    child: AppImage(
-                      name: AppAssets.psa,
-                      width: badgeWidth,
-                      fit: BoxFit.contain,
-                      cacheWidth:
-                          (badgeWidth * MediaQuery.devicePixelRatioOf(context))
-                              .round(),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (product.isDeliveryOnly)
+                          const DeliveryOnlyBadge(size: 24),
+                        if (product.isDeliveryOnly && product.isPsa10)
+                          4.widthSpace,
+                        if (product.isPsa10)
+                          AppImage(
+                            name: AppAssets.psa,
+                            width: badgeWidth,
+                            fit: BoxFit.contain,
+                            cacheWidth:
+                                (badgeWidth *
+                                        MediaQuery.devicePixelRatioOf(context))
+                                    .round(),
+                          ),
+                      ],
                     ),
                   ),
               ],

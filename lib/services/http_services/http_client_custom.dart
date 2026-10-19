@@ -81,14 +81,14 @@ class HttpClientCustom {
         rethrow;
       } else {
         Loader.hide();
-        ToastHelper.showToast(
+        ToastHelper.error(
           e.message ??
               NavigationService.context.tr(AppStrings.somethingWentWrong),
         );
       }
     } catch (e) {
       Loader.hide();
-      ToastHelper.showToast("$e");
+      ToastHelper.error("$e");
     }
   }
 
@@ -139,14 +139,14 @@ class HttpClientCustom {
         rethrow;
       } else {
         Loader.hide();
-        ToastHelper.showToast(
+        ToastHelper.error(
           e.message ??
               NavigationService.context.tr(AppStrings.somethingWentWrong),
         );
       }
     } catch (e) {
       Loader.hide();
-      ToastHelper.showToast("$e");
+      ToastHelper.error("$e");
     }
   }
 
@@ -244,13 +244,13 @@ class HttpClientCustom {
         rethrow;
       } else {
         Loader.hide();
-        ToastHelper.showToast(
+        ToastHelper.error(
           e.message ?? NavigationService.context.tr(AppStrings.uploadFailed),
         );
       }
     } catch (e) {
       Loader.hide();
-      ToastHelper.showToast("$e");
+      ToastHelper.error("$e");
     }
   }
 }

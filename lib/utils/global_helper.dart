@@ -13,10 +13,8 @@ import '../imports.dart';
 /// Copy
 void copyToClipboard({String? message, required String contentToCopy}) {
   HapticFeedback.lightImpact();
-  ToastHelper.showToast(
+  ToastHelper.success(
     message ?? NavigationService.context.tr(AppStrings.copied),
-    icon: Iconsax.tick_circle,
-    align: const Alignment(0, 0.85),
   );
   Clipboard.setData(ClipboardData(text: contentToCopy));
 }

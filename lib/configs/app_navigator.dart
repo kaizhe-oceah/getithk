@@ -1,5 +1,6 @@
 // Flutter imports:
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // Package imports:
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -147,17 +148,20 @@ class AppNavigator extends NavigatorObserver {
     ).pushReplacementNamed(routeName, arguments: arguments);
   }
 
-  /// [pushReplacementNamed] without a page transition.
-  static Future<dynamic> pushReplacementNamedWithoutTransition(
+  /// [pushReplacementNamed], the new page fading in; [fromStyle], the page
+  /// before's status bar, stays till it's mostly in.
+  static Future<dynamic> pushReplacementNamedWithFade(
     BuildContext context,
     String routeName, {
     dynamic arguments,
+    SystemUiOverlayStyle? fromStyle,
   }) {
-    final route = RouteGenerator.generateRouteWithoutTransition(
+    final route = RouteGenerator.generateFadeRoute(
       RouteSettings(name: routeName, arguments: arguments),
+      fromStyle: fromStyle,
     );
     if (route == null) {
-      printLog("pushReplacementNamedWithoutTransition route error: $routeName");
+      printLog("pushReplacementNamedWithFade route error: $routeName");
       return Future.value();
     }
 

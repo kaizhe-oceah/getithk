@@ -40,6 +40,8 @@ class ActivityController extends ChangeNotifier {
   void onTapBanner(PageBannerModel banner) {
     if (banner.isInvitePoint) {
       AppNavigator.pushNamed(context, RouteName.inviteFriendsPage);
+    } else if (banner.isAccumulateBox) {
+      AppNavigator.pushNamed(context, RouteName.topupRewardPage);
     } else {
       ToastHelper.showToast(context.tr(AppStrings.comingSoon));
     }

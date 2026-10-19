@@ -5,14 +5,18 @@ import 'dart:math' as math;
 import '../../imports.dart';
 
 /// A prize up close: its grade's artwork at the top left, a ✕ at the top
-/// right, then the picture, its name and what it's worth in pts. A tap
-/// outside closes it too.
+/// right, then the picture, its name, its chance and what it's worth in pts.
+/// A tap outside closes it too.
 class PrizeDialog extends StatelessWidget {
   final String? image;
 
   /// The grade's artwork (一等獎, …): an asset or a URL; none if null.
   final String? levelImage;
   final String? name;
+
+  /// The chance of drawing it, in percent: 機率 5.00% under the name; none
+  /// if null.
+  final double? chance;
   final double amount;
 
   /// A PSA 10 graded card: the PSA 10 badge on the picture's corner.
@@ -23,6 +27,7 @@ class PrizeDialog extends StatelessWidget {
     required this.amount,
     this.levelImage,
     this.name,
+    this.chance,
     this.isPsa10 = false,
     super.key,
   });
@@ -33,6 +38,7 @@ class PrizeDialog extends StatelessWidget {
     required double amount,
     String? levelImage,
     String? name,
+    double? chance,
     bool isPsa10 = false,
   }) {
     return DialogHelper<void>().showDefaultDialog(
@@ -42,6 +48,7 @@ class PrizeDialog extends StatelessWidget {
         amount: amount,
         levelImage: levelImage,
         name: name,
+        chance: chance,
         isPsa10: isPsa10,
       ),
     );
@@ -93,6 +100,18 @@ class PrizeDialog extends StatelessWidget {
                 fontSize: kFont16,
                 fontWeight: FontWeight.w700,
                 color: AppColors.loginTextColor,
+                textAlign: TextAlign.center,
+              ),
+            ],
+            if (chance != null) ...[
+              4.heightSpace,
+              AppText(
+                context.tr(
+                  AppStrings.drawChance,
+                  args: [NumberFormat('0.00').format(chance)],
+                ),
+                fontSize: kFont12,
+                color: AppColors.textLightColor,
                 textAlign: TextAlign.center,
               ),
             ],

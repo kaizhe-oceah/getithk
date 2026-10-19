@@ -75,7 +75,6 @@ class TopupPage extends StatelessWidget {
     );
   }
 
-  /// 我的餘額 0.00 PTS on primary, the wallet in a soft circle on the right.
   Widget _balanceCard(BuildContext context, TopupController controller) {
     final double points = context.watch<AppController>().points;
 
@@ -127,7 +126,7 @@ class TopupPage extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: AppText(
-                    '${NumberFormat('#,##0.00').format(points)} PTS',
+                    '${NumberFormat('#,##0.00').format(points)} PT',
                     fontSize: kFont26,
                     fontWeight: FontWeight.w800,
                     color: AppColors.whiteColor,
@@ -253,7 +252,7 @@ class TopupPage extends StatelessWidget {
     TopupBonusModel bonus,
   ) {
     final Color primary = context.color.primary;
-    final double coinSize = 48.r;
+    final double coinSize = 55.r;
     final String currency =
         context.read<AppController>().user?.currencyCode ?? 'HKD';
 
@@ -267,22 +266,21 @@ class TopupPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset(
-            AppAssets.coins,
+          AppImage(
+            name: bonus.image ?? AppAssets.coins,
             width: coinSize,
             height: coinSize,
-            cacheWidth: (coinSize * MediaQuery.devicePixelRatioOf(context))
-                .round(),
+            fit: BoxFit.contain,
           ),
-          14.widthSpace,
+          kHorizontalPadding.widthSpace,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppText(
-                  '${_pts(bonus.creditedAmount)} pts',
-                  fontSize: kFont17,
-                  fontWeight: FontWeight.w800,
+                  '${_pts(bonus.creditedAmount)} pt',
+                  fontSize: kFont16,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.loginTextColor,
                 ),
                 4.heightSpace,

@@ -15,6 +15,7 @@ import "../pages/invite_friends_page.dart";
 import "../pages/login_page.dart";
 import "../pages/main_page.dart";
 import "../pages/my_orders_page.dart";
+import "../pages/order_details_page.dart";
 import "../pages/profile_page.dart";
 import "../models/address_model.dart";
 import "../models/draw_result_model.dart";
@@ -25,6 +26,7 @@ import "../pages/splash_page.dart";
 import "../pages/sub_product_page.dart";
 import "../pages/tnc_page.dart";
 import "../pages/topup_page.dart";
+import "../pages/topup_reward_page.dart";
 import "../pages/webview_page.dart";
 
 class RouteGenerator {
@@ -38,16 +40,53 @@ class RouteGenerator {
     );
   }
 
-  /// Same pages as [generateRoute], shown instantly with no transition.
-  static Route? generateRouteWithoutTransition(RouteSettings settings) {
+  static const Duration _fadeDuration = Duration(milliseconds: 750);
+
+  static Route? generateFadeRoute(
+    RouteSettings settings, {
+    SystemUiOverlayStyle? fromStyle,
+  }) {
     final Widget? page = _page(settings);
     if (page == null) return null;
 
     return PageRouteBuilder(
       settings: settings,
-      transitionDuration: Duration.zero,
-      reverseTransitionDuration: Duration.zero,
+      transitionDuration: _fadeDuration,
+      reverseTransitionDuration: _fadeDuration,
       pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final Animation<double> curved = CurvedAnimation(
+          parent: animation,
+          curve: const Interval(0.15, 1, curve: Curves.easeInOutCubic),
+        );
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            FadeTransition(
+              opacity: curved,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 1.03, end: 1).animate(curved),
+                child: child,
+              ),
+            ),
+            if (fromStyle != null)
+              IgnorePointer(
+                child: AnimatedBuilder(
+                  animation: curved,
+                  builder: (context, _) =>
+                      animation.status == AnimationStatus.forward &&
+                          curved.value < 0.5
+                      ? AnnotatedRegion<SystemUiOverlayStyle>(
+                          value: fromStyle,
+                          child: const SizedBox.expand(),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -81,6 +120,9 @@ class RouteGenerator {
 
       case RouteName.inviteFriendsPage:
         return const InviteFriendsPage();
+
+      case RouteName.topupRewardPage:
+        return const TopupRewardPage();
 
       case RouteName.vouhcerPage:
         return const VoucherPage();
@@ -121,6 +163,12 @@ class RouteGenerator {
 
       case RouteName.myOrdersPage:
         return const MyOrdersPage();
+
+      case RouteName.orderDetailsPage:
+        final Object? shippingId = settings.arguments;
+        return shippingId is int
+            ? OrderDetailsPage(shippingId: shippingId)
+            : null;
 
       // arguments: {"url": …, "title": …, "returnPath": …}; it pops with
       // "close1" / "close0" when the page says so, or returnPath's `status`

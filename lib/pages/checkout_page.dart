@@ -1,9 +1,9 @@
 // Project imports:
 import '../components/main_product/main_product_parts.dart';
+import '../components/shipping_address_card.dart';
 import '../components/sub_product/sub_product_parts.dart';
 import '../controllers/checkout_controller.dart';
 import '../imports.dart';
-import '../models/address_model.dart';
 import '../models/backpack_model.dart';
 import '../models/shipment_item_model.dart';
 
@@ -49,7 +49,11 @@ class CheckoutPage extends StatelessWidget {
               20,
             ).r,
             children: [
-              _address(context, controller),
+              ShippingAddressCard(
+                address: controller.address,
+                isLoading: controller.isAddressLoading,
+                onTap: controller.onAddress,
+              ),
               14.heightSpace,
               _shippingFee(context, controller),
               kHorizontalPadding.heightSpace,
@@ -61,91 +65,6 @@ class CheckoutPage extends StatelessWidget {
         ),
         _submitBar(context, controller),
       ],
-    );
-  }
-
-  Widget _address(BuildContext context, CheckoutController controller) {
-    final Color primary = context.color.primary;
-
-    return InkWellWrapper(
-      onTap: controller.onAddress,
-      child: Container(
-        padding: const EdgeInsets.all(_cardPadding).r,
-        decoration: BoxDecoration(
-          color: AppColors.whiteColor,
-          borderRadius: BorderRadius.circular(14).r,
-          border: Border.all(color: AppColors.greyLight2Color),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.blackColor.wOpacity(0.06),
-              blurRadius: 6.r,
-              offset: Offset(0, 2.r),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Iconsax.truck_fast, size: 20.r, color: primary),
-                      8.widthSpace,
-                      AppText(
-                        context.tr(AppStrings.shippingAddress),
-                        fontSize: kFont14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ],
-                  ),
-                  8.heightSpace,
-                  _addressDetails(context, controller),
-                ],
-              ),
-            ),
-            8.widthSpace,
-            Icon(Iconsax.arrow_right_3_copy, size: 16.r, color: primary),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// The name and phone, the address under it; a prompt to add one when
-  /// there's none. A skeleton while it loads.
-  Widget _addressDetails(BuildContext context, CheckoutController controller) {
-    final AddressModel? address = controller.isAddressLoading
-        ? AddressModel.placeholder()
-        : controller.address;
-
-    if (address == null) {
-      return AppText(
-        context.tr(AppStrings.addShippingAddress),
-        fontSize: kFont12,
-        color: AppColors.loginHintColor,
-      );
-    }
-
-    return AppSkeletonizer(
-      enabled: controller.isAddressLoading,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppText(
-            '${address.name ?? ''} (${address.phone})',
-            fontSize: kFont13,
-            fontWeight: FontWeight.w700,
-          ),
-          4.heightSpace,
-          AppText(
-            address.address ?? '',
-            fontSize: kFont12,
-            color: AppColors.textLightColor,
-          ),
-        ],
-      ),
     );
   }
 

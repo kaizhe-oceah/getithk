@@ -3,6 +3,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 // Project imports:
 import '../components/default/bottom_sheet_category_filter.dart';
+import '../components/default/bottom_sheet_confirm.dart';
 import '../components/default/bottom_sheet_language.dart';
 import '../components/default/bottom_sheet_logout.dart';
 import '../components/default/bottom_sheet_no_internet_connection.dart';
@@ -201,6 +202,29 @@ class BottomSheetHelper {
         codes: codes,
         selected: selected,
         onSelected: onSelected,
+      ),
+    );
+  }
+
+  static Future<bool?> confirm({
+    required String title,
+    required String description,
+    required String cancelText,
+    required String confirmText,
+    required Future<bool> Function() onConfirm,
+  }) {
+    return showBarModalBottomSheet<bool>(
+      context: context,
+      barrierColor: Colors.black54,
+      shape: roundShapeBorder,
+      backgroundColor: AppColors.whiteColor,
+      topControl: const SizedBox.shrink(),
+      builder: (context) => BottomSheetConfirm(
+        title: title,
+        description: description,
+        cancelText: cancelText,
+        confirmText: confirmText,
+        onConfirm: onConfirm,
       ),
     );
   }

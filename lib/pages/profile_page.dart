@@ -346,7 +346,7 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppText(
-                  '${NumberFormat('#,##0.00').format(context.watch<AppController>().points)} pts',
+                  '${NumberFormat('#,##0.00').format(context.watch<AppController>().points)} pt',
                   fontSize: kFont16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.loginTextColor,

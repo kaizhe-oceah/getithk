@@ -15,6 +15,8 @@ const kAllDrawVideoListing = "/product/all-draw-video-listing";
 const kProfile = "/player/profile";
 const kWalletBalance = "/player/wallet-balance";
 const kPlayerInvitePointListing = "/player/invite-point-listing";
+const kPlayerClaimInvitePoint = "/player/claim-invite-point";
+const kPlayerAccumulateBoxListing = "/player/accumulate-box-listing";
 const kTopupBonusListing = "/topup-bonus-listing";
 const kPaymentMethod = "/payment-methods";
 const kResetPassword = "/player/reset-password";
@@ -32,6 +34,10 @@ const kPlayerUpdateShippingAddress = "/player/update-shipping-address";
 const kPlayerShippingSetting = "/player/shipping-setting";
 const kPlayerShippingListing = "/player/shipping-listing";
 const kTopUpByGateway = "/player/topupByGateway";
+const kPlayerCancelShipping = "/player/cancel-shipping";
+const kPlayerShippingDetail = "/player/shipping-detail";
+
+
 
 /// Where the payment gateway sends the player back to (fe_redirect_url),
 /// as `…/app-payment-result?reference=TOP-…&status=paid|pending|failed`.

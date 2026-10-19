@@ -12,6 +12,7 @@ class TopupBonusModel {
   double rate = 0;
   double bonusAmount = 0;
   double creditedAmount = 0;
+  String? image;
 
   TopupBonusModel.fromJson(Map<String, dynamic> json) {
     id = int.tryParse('${json['id']}');
@@ -19,6 +20,7 @@ class TopupBonusModel {
     rate = parseDouble(json['rate']);
     bonusAmount = parseDouble(json['bonus_amount']);
     creditedAmount = parseDouble(json['credited_amount']);
+    image = json['image']?.toString();
   }
 
   /// Stand-in values for the page's loading skeleton.

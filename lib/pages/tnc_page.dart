@@ -51,7 +51,6 @@ class _TncPageState extends State<TncPage> {
                 ? AppStrings.termsOfService
                 : AppStrings.privacyPolicy,
           ),
-          textSize: kFont16,
           backgroundColor: AppColors.whiteColor,
           leading: const AppBarBackButton(),
         ),

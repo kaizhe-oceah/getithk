@@ -38,6 +38,9 @@ class InvitePointModel {
     tiers = InvitePointTierModel.listFromJson(json['tiers']);
   }
 
+  /// Any of [tiers] reached and still to claim.
+  bool get hasAvailableTier => tiers.any((tier) => tier.isAvailable);
+
   /// Stand-in values for the page's loading skeleton.
   InvitePointModel.placeholder() {
     tiers = [

@@ -39,6 +39,9 @@ class AppImage extends StatefulWidget {
   /// that frame; for laying things out against the picture itself.
   final ValueChanged<Size>? onImageSize;
 
+  /// Shown while it loads, in place of the skeleton box.
+  final Widget? placeholder;
+
   const AppImage({
     super.key,
     this.name,
@@ -57,6 +60,7 @@ class AppImage extends StatefulWidget {
     this.isThumbnail = true,
     this.cacheWidth,
     this.onImageSize,
+    this.placeholder,
   });
 
   @override
@@ -446,6 +450,9 @@ class _AppImageState extends State<AppImage> {
   }
 
   Widget _skeletonPlaceholder() {
+    final Widget? placeholder = widget.placeholder;
+    if (placeholder != null) return placeholder;
+
     return AppSkeletonizer(
       child: Bone(
         width: widget.width,

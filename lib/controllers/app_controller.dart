@@ -67,7 +67,9 @@ class AppController with ChangeNotifier {
     AppNavigator.pushReplacementNamed(context, RouteName.mainPage);
   }
 
-  Future<void> logout() async {
+  /// Clears the session, then on to the login page; with [toHome] (an
+  /// expired session) the home tab fades in instead, logged out.
+  Future<void> logout({bool toHome = false}) async {
     if (_isLoggingOut) return;
     _isLoggingOut = true;
 
@@ -92,7 +94,11 @@ class AppController with ChangeNotifier {
     context.read<ThemeController>().resetTheme();
     navigateToTab(kBottomNavHome);
     AppNavigator.popUntilFirst(context);
-    AppNavigator.pushReplacementNamed(context, RouteName.loginPage);
+    if (toHome) {
+      AppNavigator.pushReplacementNamedWithFade(context, RouteName.mainPage);
+    } else {
+      AppNavigator.pushReplacementNamed(context, RouteName.loginPage);
+    }
     Loader.hide();
     _isLoggingOut = false;
   }
