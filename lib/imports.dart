@@ -53,6 +53,7 @@ export '../utils/string_validator.dart';
 export "../utils/api_constants.dart";
 export "package:global_configs/global_configs.dart";
 export 'components/default/custom_dropdown_button.dart';
+export 'components/default/app_dropdown.dart';
 export 'package:dropdown_button2/dropdown_button2.dart';
 export '../extensions/color_extensions.dart';
 export '../components/default/primary_check_box.dart';

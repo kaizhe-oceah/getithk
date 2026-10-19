@@ -1,6 +1,8 @@
 // Project imports:
 import '../imports.dart';
+import '../models/backpack_model.dart';
 import '../models/draw_result_model.dart';
+import '../models/shipment_item_model.dart';
 
 class PrizeResultController extends ChangeNotifier {
   BuildContext context = NavigationService.context;
@@ -10,17 +12,21 @@ class PrizeResultController extends ChangeNotifier {
 
   Set<DrawHistoryModel> selectedPrizes = {};
 
-  PrizeResultController({required this.result});
+  /// What was won, less what's since been shipped or exchanged.
+  late List<DrawHistoryModel> prizes = List.of(result.drawHistories);
 
-  List<DrawHistoryModel> get prizes => result.drawHistories;
+  PrizeResultController({required this.result});
 
   /// A trial draw's result: nothing to pick, ship or exchange; only
   /// 會員註冊.
   bool get isTrial => result.isTrial;
 
+  /// [prizes] grouped by grade.
+  late List<List<DrawHistoryModel>> gradeGroups = _byGrade(prizes);
+
   /// [prizes] grouped by grade, in [ProductGrade]'s order (尾賞, 一等獎, …);
   /// prizes of a grade it doesn't list come last, in the API's order.
-  late final List<List<DrawHistoryModel>> gradeGroups = () {
+  static List<List<DrawHistoryModel>> _byGrade(List<DrawHistoryModel> prizes) {
     final Map<int?, List<DrawHistoryModel>> byGrade = {};
     for (final DrawHistoryModel prize in prizes) {
       byGrade.putIfAbsent(prize.subProduct?.gradeId, () => []).add(prize);
@@ -32,9 +38,25 @@ class PrizeResultController extends ChangeNotifier {
       if (items != null) groups.add(items);
     }
     return [...groups, ...byGrade.values];
-  }();
+  }
 
   bool isSelected(DrawHistoryModel prize) => selectedPrizes.contains(prize);
+
+  /// [selectedPrizes] as the backpack holds them, for its 申請出貨 and 兌換PTS
+  /// sheets: one stock per card, in the page's order.
+  List<BackpackModel> get _selectedStocks {
+    final Map<Object, List<DrawHistoryModel>> byCard = {};
+    for (final List<DrawHistoryModel> group in gradeGroups) {
+      for (final DrawHistoryModel prize in group) {
+        if (!isSelected(prize)) continue;
+        byCard.putIfAbsent(prize.subProduct?.id ?? prize, () => []).add(prize);
+      }
+    }
+    return [
+      for (final List<DrawHistoryModel> card in byCard.values)
+        BackpackModel.fromPrizes(card),
+    ];
+  }
 
   /// What [prizes] are worth, all together.
   static double amountOf(Iterable<DrawHistoryModel> prizes) =>
@@ -95,7 +117,18 @@ class PrizeResultController extends ChangeNotifier {
     if (!canRequestShipment) {
       ToastHelper.showToast(context.tr(AppStrings.pleaseSelectAnItem));
     } else {
-      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+      BottomSheetHelper.requestShipment(
+        stocks: _selectedStocks,
+        onConfirm: (items) async {
+          // true once the prizes are shipped: they've left the backpack
+          final Object? isShipped = await AppNavigator.pushNamed(
+            context,
+            RouteName.checkoutPage,
+            arguments: items,
+          );
+          if (isShipped == true && !_isDisposed) _remove(items);
+        },
+      );
     }
   }
 
@@ -107,8 +140,39 @@ class PrizeResultController extends ChangeNotifier {
     } else if (!canExchange) {
       ToastHelper.showToast(context.tr(AppStrings.deliveryOnlyCannotExchange));
     } else {
-      ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+      BottomSheetHelper.exchangeStocks(
+        stocks: _selectedStocks,
+        onConfirm: _sellStocks,
+      );
     }
+  }
+
+  /// 確認兌換: exchanges [items] for PTS; once done, the balance catches up
+  /// and they're off the page.
+  Future<void> _sellStocks(List<ShipmentItemModel> items) async {
+    await ApiService.api.sellStock(
+      showLoader: true,
+      stockIds: [for (final ShipmentItemModel item in items) ...item.stockIds],
+      onSuccess: (response) {
+        response.showMessage();
+        context.read<AppController>().getWalletBalance();
+        if (!_isDisposed) _remove(items);
+      },
+    );
+  }
+
+  /// The prizes [items] shipped or exchanged have left the backpack: off the
+  /// page too, and nothing's picked.
+  void _remove(List<ShipmentItemModel> items) {
+    final Set<int> stockIds = {
+      for (final ShipmentItemModel item in items) ...item.stockIds,
+    };
+    prizes = prizes
+        .where((prize) => !stockIds.contains(prize.userStockId))
+        .toList();
+    gradeGroups = _byGrade(prizes);
+    selectedPrizes = {};
+    update();
   }
 
   @override

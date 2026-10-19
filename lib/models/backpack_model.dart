@@ -1,5 +1,6 @@
 // Project imports:
 import '../utils/enums.dart';
+import 'draw_result_model.dart';
 
 class BackpackModel {
   int? subProductId;
@@ -32,6 +33,25 @@ class BackpackModel {
     // 1: yes, 2: no
     isDeliveryOnly = json['is_delivery_only'] == 1;
     backgroundImage = json['background_image'];
+  }
+
+  /// One card's [prizes] from a draw, as the backpack holds them: a stock of
+  /// as many, each prize's user stock among its ids.
+  BackpackModel.fromPrizes(List<DrawHistoryModel> prizes) {
+    final DrawSubProductModel? subProduct = prizes.first.subProduct;
+    subProductId = subProduct?.id;
+    quantity = prizes.length;
+    name = subProduct?.name;
+    image = subProduct?.image;
+    gradeId = subProduct?.gradeId;
+    gradeName = subProduct?.grade;
+    stockIds = [
+      for (final DrawHistoryModel prize in prizes)
+        if (prize.userStockId != null) '${prize.userStockId}',
+    ];
+    amount = prizes.first.amount;
+    isDeliveryOnly = subProduct?.isDeliveryOnly ?? false;
+    backgroundImage = subProduct?.backgroundImage;
   }
 
   /// Stand-in values for the page's loading skeleton.

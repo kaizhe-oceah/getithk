@@ -26,6 +26,11 @@ class TopupController extends ChangeNotifier {
   /// An Android phone (not the web build, where Platform isn't there).
   static bool get _isAndroid => !kIsWeb && Platform.isAndroid;
 
+  /// Whether [method] is offered on this phone: every one the API sends,
+  /// but Apple Pay on Android.
+  static bool _isOffered(PaymentMethodModel method) =>
+      !(_isAndroid && method.isApplePay);
+
   /// The balance (into [AppController.points]), the packages and the
   /// payment methods, together.
   Future<void> _load() async {
@@ -39,11 +44,10 @@ class TopupController extends ChangeNotifier {
             bonuses = TopupBonusModel.listFromJson(response.data),
       ),
       ApiService.api.getPaymentMethods(
-        onSuccess: (response) => paymentMethods =
-            PaymentMethodModel.listFromJson(response.data)
-                // Apple Pay doesn't work on an Android phone
-                .where((element) => !(_isAndroid && element.isApplePay))
-                .toList(),
+        onSuccess: (response) =>
+            paymentMethods = PaymentMethodModel.listFromJson(
+              response.data,
+            ).where(_isOffered).toList(),
       ),
     ]);
 

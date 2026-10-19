@@ -61,6 +61,11 @@ class PrizeResultPage extends StatelessWidget {
           color: AppColors.textLightColor,
         ),
         if (controller.isTrial) ...[14.heightSpace, _trialNotice(context)],
+        // all of it shipped or exchanged
+        if (controller.prizes.isEmpty) ...[
+          40.heightSpace,
+          const NoDataWidget(),
+        ],
         for (final List<DrawHistoryModel> group in controller.gradeGroups) ...[
           18.heightSpace,
           _gradeHeader(context, group),
@@ -120,6 +125,7 @@ class PrizeResultPage extends StatelessWidget {
     final DrawSubProductModel? subProduct = prize.subProduct;
     final ProductGrade? grade = subProduct?.productGrade;
     final bool isDeliveryOnly = subProduct?.isDeliveryOnly ?? false;
+    final Color primary = context.color.primary;
     final bool selected = controller.isSelected(prize);
     final double imageWidth = _imageWidth.r;
 
@@ -127,13 +133,14 @@ class PrizeResultPage extends StatelessWidget {
       onTap: controller.isTrial ? null : () => controller.onToggle(prize),
       child: Container(
         padding: const EdgeInsets.all(12).r,
+        // picked: tinted and outlined, as in the backpack
         decoration: BoxDecoration(
-          color: AppColors.greyBackgroundColor,
+          color: selected
+              ? primary.wOpacity(0.09)
+              : AppColors.greyBackgroundColor,
           borderRadius: BorderRadius.circular(14).r,
           border: Border.all(
-            color: selected
-                ? context.color.primary
-                : AppColors.transparentColor,
+            color: selected ? primary : AppColors.transparentColor,
           ),
         ),
         child: Row(

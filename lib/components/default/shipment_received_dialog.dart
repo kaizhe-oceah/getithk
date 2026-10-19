@@ -2,7 +2,7 @@
 import '../../imports.dart';
 
 /// 您的出貨申請已成功收到: when the shipment should arrive, with a ✕ at the
-/// top right and 確定 at the bottom; either closes it.
+/// top right and 返回首頁 at the bottom; either closes it.
 class ShipmentReceivedDialog extends StatelessWidget {
   const ShipmentReceivedDialog({super.key});
 
@@ -81,7 +81,7 @@ class ShipmentReceivedDialog extends StatelessWidget {
               child: SizedBox(
                 width: 180.r,
                 child: AppButtonWidget(
-                  text: context.tr(AppStrings.okay),
+                  text: context.tr(AppStrings.backToHome),
                   radius: 12,
                   fontWeight: FontWeight.w600,
                   textColor: AppColors.whiteColor,

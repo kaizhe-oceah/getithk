@@ -553,94 +553,34 @@ class _HomePageState extends State<HomePage>
 
     return Size(
       // the label, the gap and the ▾
-      padding.horizontal + textWidth + 4.r + 12.r + border * 2,
+      padding.horizontal +
+          textWidth +
+          AppDropdown.iconGap +
+          AppDropdown.defaultIconSize +
+          border * 2,
       padding.vertical + textHeight + border * 2,
     );
   }
 
   Widget _sortDropdown(BuildContext context, HomeController controller) {
-    final Color primary = context.color.primary;
-    final BorderRadius radius = BorderRadius.circular(8).r;
     // the menu is exactly as wide as the button, each option as tall
     final Size size = _sortButtonSize(context);
 
-    return DropdownButtonHideUnderline(
-      child: DropdownButton2<ProductSort>(
-        valueListenable: controller.sort,
-        onChanged: (value) {
-          if (value != null) controller.sort.value = value;
-        },
-        items: [
-          for (final ProductSort sort in ProductSort.values)
-            DropdownItem(
-              value: sort,
-              height: size.height,
-              child: ValueListenableBuilder<ProductSort>(
-                valueListenable: controller.sort,
-                builder: (context, current, _) => AppText(
-                  _sortLabel(context, sort),
-                  fontSize: kFont12,
-                  fontWeight: HomePage._filterBarWeight,
-                  color: current == sort ? primary : AppColors.loginTextColor,
-                ),
-              ),
-            ),
-        ],
-        customButton: ValueListenableBuilder<ProductSort>(
-          valueListenable: controller.sort,
-          builder: (context, sort, _) => Container(
-            width: size.width,
-            padding: HomePage._filterBarPadding,
-            decoration: BoxDecoration(
-              color: AppColors.whiteColor,
-              border: Border.all(color: primary),
-              borderRadius: radius,
-            ),
-            // the label where the menu's options start, the ▾ at the end
-            child: Row(
-              children: [
-                Expanded(
-                  child: AppText(
-                    _sortLabel(context, sort),
-                    fontSize: kFont12,
-                    fontWeight: HomePage._filterBarWeight,
-                    color: primary,
-                    isOverflow: true,
-                  ),
-                ),
-                4.widthSpace,
-                Icon(Iconsax.arrow_down, size: 12.r, color: primary),
-              ],
-            ),
-          ),
-        ),
-        buttonStyleData: const ButtonStyleData(
-          overlayColor: WidgetStateColor.transparent,
-        ),
-        dropdownStyleData: DropdownStyleData(
-          width: size.width,
-          offset: Offset(0, -4.r),
-          elevation: 0,
-          decoration: BoxDecoration(
-            color: AppColors.whiteColor,
-            borderRadius: radius,
-            border: Border.all(color: AppColors.greyLight2Color),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.blackColor.wOpacity(0.08),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-        ),
-        menuItemStyleData: MenuItemStyleData(
-          // inset like the button's label, so the text lines up
-          padding: EdgeInsets.symmetric(
-            horizontal: HomePage._filterBarPadding.left,
-          ),
-          selectedMenuItemBuilder: (context, child) =>
-              ColoredBox(color: primary.wOpacity(0.06), child: child),
+    return ValueListenableBuilder<ProductSort>(
+      valueListenable: controller.sort,
+      builder: (context, sort, _) => AppDropdown<ProductSort>(
+        items: ProductSort.values,
+        value: sort,
+        onChanged: (value) => controller.sort.value = value,
+        width: size.width,
+        itemHeight: size.height,
+        padding: HomePage._filterBarPadding,
+        itemBuilder: (context, sort, color) => AppText(
+          _sortLabel(context, sort),
+          fontSize: kFont12,
+          fontWeight: HomePage._filterBarWeight,
+          color: color,
+          isOverflow: true,
         ),
       ),
     );

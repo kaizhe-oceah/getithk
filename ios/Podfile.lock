@@ -152,6 +152,8 @@ PODS:
   - GoogleUtilities/UserDefaults (8.1.4):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
+  - haptic_feedback (0.5.1):
+    - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
   - just_audio (0.0.1):
@@ -254,6 +256,7 @@ DEPENDENCIES:
   - geocoding_darwin (from `.symlinks/plugins/geocoding_darwin/darwin`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
+  - haptic_feedback (from `.symlinks/plugins/haptic_feedback/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
   - location (from `.symlinks/plugins/location/darwin`)
@@ -343,6 +346,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/geolocator_apple/darwin"
   google_maps_flutter_ios:
     :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
+  haptic_feedback:
+    :path: ".symlinks/plugins/haptic_feedback/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   just_audio:
@@ -427,6 +432,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
   GoogleMaps: 0608099d4870cac8754bdba9b6953db543432438
   GoogleUtilities: db34c1c11c6f2eccb6fab2340cb8ceb1451299dc
+  haptic_feedback: 1f22d7ad3abb43bb814aa42fdf548dc6d9e8245a
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   libwebp: af5937a13536ef73f3784d69cc342b98961acf33

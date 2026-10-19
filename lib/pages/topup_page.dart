@@ -180,46 +180,34 @@ class TopupPage extends StatelessWidget {
 
     if (methods.isEmpty) {
       return skeleton
-          ? Bone(height: 52.r, borderRadius: BorderRadius.circular(12).r)
+          ? Bone(height: 56.r, borderRadius: BorderRadius.circular(12).r)
           : const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        CustomDropdownButton<PaymentMethodModel>(
-          // re-reads the pick when a logo changes it
-          key: ValueKey(controller.paymentMethod?.gateway),
-          dataList: methods,
-          initItem: controller.paymentMethod,
-          width: double.infinity,
-          radius: 12,
-          border: Border.all(color: AppColors.greyLight2Color),
-          boxShadow: _cardShadow,
-          hint: context.tr(AppStrings.selectPaymentMethod),
-          onChanged: controller.onSelectPaymentMethod,
-          dropdownItemBuilder: (context, index) => DropdownItem(
-            value: methods[index],
-            height: 48.r,
-            child: _methodLabel(methods[index]),
-          ),
-          selectedItemBuilder: (context, index) => DropdownMenuItem(
-            value: methods[index],
-            child: _methodLabel(methods[index]),
-          ),
-        ),
-      ],
+    return AppDropdown<PaymentMethodModel>(
+      items: methods,
+      value: controller.paymentMethod,
+      onChanged: controller.onSelectPaymentMethod,
+      hint: context.tr(AppStrings.selectPaymentMethod),
+      height: 56.r,
+      radius: 12,
+      iconSize: 16.r,
+      padding: const EdgeInsets.symmetric(horizontal: kHorizontalPadding).r,
+      borderColor: AppColors.greyLight2Color,
+      foregroundColor: AppColors.loginTextColor,
+      boxShadow: _cardShadow,
+      tintSelected: false,
+      itemBuilder: (context, method, color) => _methodLabel(method, color),
     );
   }
 
-  /// A method's logo and name, in the dropdown.
-  Widget _methodLabel(PaymentMethodModel method) {
+  Widget _methodLabel(PaymentMethodModel method, Color color) {
     return Row(
       children: [
         AppImage(
           name: method.icon,
-          width: 30.r,
-          height: 20.r,
+          width: 44.r,
+          height: 28.r,
           fit: BoxFit.contain,
         ),
         12.widthSpace,
@@ -228,7 +216,7 @@ class TopupPage extends StatelessWidget {
             method.name ?? '',
             fontSize: kFont14,
             fontWeight: FontWeight.w500,
-            color: AppColors.loginTextColor,
+            color: color,
             isOverflow: true,
           ),
         ),

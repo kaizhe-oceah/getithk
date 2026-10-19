@@ -115,7 +115,8 @@ class CheckoutController extends ChangeNotifier {
   ];
 
   /// 申請出貨: ships the cards to [address]; once the dialog saying so
-  /// closes, back to the backpack with true so it refreshes.
+  /// closes (by 返回首頁 or the ✕), back with true so the page before
+  /// refreshes, then on to the home tab.
   Future<void> onSubmit() async {
     final AddressModel? address = this.address;
     if (isAddressLoading) return;
@@ -136,6 +137,8 @@ class CheckoutController extends ChangeNotifier {
       onSuccess: (_) async {
         await ShipmentReceivedDialog.show(context);
         AppNavigator.pop(context, true);
+        context.read<AppController>().navigateToTab(kBottomNavHome);
+        AppNavigator.popUntilFirst(context);
       },
     );
   }

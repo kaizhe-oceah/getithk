@@ -192,6 +192,7 @@
   "shipment_received_title": "您的出貨申請已成功收到",
   "shipment_received_description": "您申請的商品預計將於 1 至 7 個工作天內完成出貨。請耐心等候商品送達。",
   "shipment_received_note": "請注意，中獎商品可能因商品類型或物流公司的配送政策不同，實際出貨時間可能與其他商品有所差異。",
+  "back_to_home": "返回首頁",
   "shipping_fee_description": "運送到指定地址將收取運費。付款後 24 小時內，您可以多次要求送貨到同一地址。",
   "shipping_agreement": "確認出貨即表示您已同意{}",
   "items_total": "商品合計 ({}件)",

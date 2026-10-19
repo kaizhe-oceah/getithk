@@ -1,3 +1,6 @@
+// Package imports:
+import 'package:haptic_feedback/haptic_feedback.dart';
+
 // Project imports:
 import '../../imports.dart';
 import '../../models/main_product_model.dart';
@@ -22,19 +25,28 @@ class MainProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final VoidCallback? onTap = this.onTap;
+    // a soft tap felt as the card opens
+    final VoidCallback? onTapWithHaptic = onTap == null
+        ? null
+        : () {
+            Haptics.vibrate(HapticsType.soft);
+            onTap();
+          };
+
     return switch (product.categoryId) {
       getItCategoryId => MainProductGetItCard(
         product: product,
         onDraw: onDraw,
         onTopUp: onTopUp,
-        onTap: onTap,
+        onTap: onTapWithHaptic,
       ),
 
       _ => MainProductGetItCard(
         product: product,
         onDraw: onDraw,
         onTopUp: onTopUp,
-        onTap: onTap,
+        onTap: onTapWithHaptic,
       ),
     };
   }

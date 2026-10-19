@@ -168,6 +168,7 @@ dependencies:
   liquid_glass_bottom_nav: ^0.0.14
   iconsax_flutter: ^1.0.1
   socket_io_client: ^3.1.6
+  haptic_feedback: ^0.6.5
 
 dependency_overrides:
   # camera_android: 0.10.6

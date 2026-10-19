@@ -39,6 +39,12 @@ class _WebviewPageState extends State<WebviewPage> {
 
   /// Whether [url] is [WebviewPage.returnPath]; if so, closes with its
   /// `status`.
+  /// A payment gateway's page (it has a return path): Apple Pay on. That
+  /// blocks any script the app puts in the page (no long-press script, no
+  /// close0 / close1 console messages); the return path is caught natively,
+  /// so it still works.
+  bool get _isPayment => widget.returnPath != null;
+
   bool _checkReturn(Uri? url) {
     final String? path = widget.returnPath;
     if (path == null || url == null || !url.path.endsWith(path)) return false;
@@ -91,11 +97,17 @@ class _WebviewPageState extends State<WebviewPage> {
                   pullToRefreshController: pullToRefreshController,
                   initialSettings: InAppWebViewSettings(
                     cacheEnabled: false, // Disables caching
-                    userAgent: "is_mobile_webview",
+                    // a payment page gets the browser's own user agent
+                    // (""), not one naming no browser, and a normal (not
+                    // private) store: the gateway's wallet check (Apple
+                    // Pay) then sees Safari, as it would outside the app
+                    userAgent: _isPayment ? "" : "is_mobile_webview",
                     allowsBackForwardNavigationGestures: false,
-                    incognito: true,
+                    incognito: !_isPayment,
                     // else shouldOverrideUrlLoading is never called
                     useShouldOverrideUrlLoading: true,
+                    // off by default in a web view; iOS only
+                    applePayAPIEnabled: _isPayment,
                   ),
                   initialUrlRequest: URLRequest(
                     url: WebUri(ensureHttps(widget.url)),
@@ -121,7 +133,8 @@ class _WebviewPageState extends State<WebviewPage> {
                     if (!mounted) return;
 
                     // disable long press
-                    _disableLongPressScript();
+                    // not with Apple Pay on, which blocks injected scripts
+                    if (!_isPayment) _disableLongPressScript();
                   },
                   onProgressChanged: (controller, progress) {
                     if (!mounted) return;

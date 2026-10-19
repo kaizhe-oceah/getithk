@@ -259,7 +259,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
               ),
               4.heightSpace,
               AppText(
-                '${formatMainProductAmount(item.amount)} PTS',
+                '${formatMainProductAmount(item.amount)} PT',
                 fontSize: kFont14,
                 fontWeight: FontWeight.w700,
                 color: context.color.primary,
@@ -289,7 +289,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         ),
         4.widthSpace,
         AppText(
-          '${formatMainProductAmount(amount)} PTS',
+          '${formatMainProductAmount(amount)} PT',
           fontSize: kFont12,
           fontWeight: FontWeight.w600,
           color: context.color.primary,
