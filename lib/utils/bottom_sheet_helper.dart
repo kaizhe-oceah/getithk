@@ -176,12 +176,12 @@ class BottomSheetHelper {
   }
 
   static Future<void> _stocks(BottomSheetStocks sheet) {
-    return showBarModalBottomSheet<void>(
+    return showModalBottomSheet<void>(
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
       backgroundColor: AppColors.whiteColor,
-      topControl: const SizedBox.shrink(),
+      isScrollControlled: true,
       builder: (context) => sheet,
     );
   }
