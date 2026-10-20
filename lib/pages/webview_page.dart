@@ -45,6 +45,28 @@ class _WebviewPageState extends State<WebviewPage> {
   /// so it still works.
   bool get _isPayment => widget.returnPath != null;
 
+  /// A payment page on Android: Google Pay is turned on natively (see
+  /// MainActivity) before the page loads, so it's loaded once created.
+  bool get _isAndroidPayment => _isPayment && !kIsWeb && Platform.isAndroid;
+
+  static const MethodChannel _channel = MethodChannel(
+    'com.asia.getithk/webview',
+  );
+
+  URLRequest get _request => URLRequest(url: WebUri(ensureHttps(widget.url)));
+
+  Future<void> _loadAndroidPayment(InAppWebViewController controller) async {
+    try {
+      await _channel.invokeMethod('enablePaymentRequest', {
+        'viewId': controller.getViewId(),
+      });
+    } catch (e) {
+      // the page still loads, just without Google Pay
+      printLog("enablePaymentRequest $e");
+    }
+    await controller.loadUrl(urlRequest: _request);
+  }
+
   bool _checkReturn(Uri? url) {
     final String? path = widget.returnPath;
     if (path == null || url == null || !url.path.endsWith(path)) return false;
@@ -109,12 +131,11 @@ class _WebviewPageState extends State<WebviewPage> {
                     // off by default in a web view; iOS only
                     applePayAPIEnabled: _isPayment,
                   ),
-                  initialUrlRequest: URLRequest(
-                    url: WebUri(ensureHttps(widget.url)),
-                  ),
+                  initialUrlRequest: _isAndroidPayment ? null : _request,
                   onWebViewCreated: (controller) {
                     webViewController = controller;
                     printLog("onWebViewCreated $url");
+                    if (_isAndroidPayment) _loadAndroidPayment(controller);
                   },
                   onLoadStart: (controller, url) {
                     if (!mounted) return;

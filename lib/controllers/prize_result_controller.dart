@@ -148,7 +148,8 @@ class PrizeResultController extends ChangeNotifier {
   }
 
   /// 確認兌換: exchanges [items] for PTS; once done, the balance catches up
-  /// and they're off the page.
+  /// and it's back to the page the draw was on (home, or the sub product
+  /// page).
   Future<void> _sellStocks(List<ShipmentItemModel> items) async {
     await ApiService.api.sellStock(
       showLoader: true,
@@ -156,7 +157,7 @@ class PrizeResultController extends ChangeNotifier {
       onSuccess: (response) {
         response.showMessage();
         context.read<AppController>().getWalletBalance();
-        if (!_isDisposed) _remove(items);
+        if (!_isDisposed) AppNavigator.pop(context);
       },
     );
   }

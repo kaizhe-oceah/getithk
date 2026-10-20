@@ -219,6 +219,7 @@
   "shipment_received_description": "Your items are expected to ship within 1 to 7 working days. Please wait patiently for them to arrive.",
   "shipment_received_note": "Please note: depending on the item type or the courier's delivery policy, prizes may ship at different times from other items.",
   "back_to_home": "Back to Home",
+  "back": "Back",
   "shipping_fee_description": "A shipping fee is charged for delivery to the chosen address. Within 24 hours of paying, you can request more deliveries to the same address.",
   "shipping_agreement": "By confirming the shipment, you agree to the {}",
   "items_total": "Items Total ({})",

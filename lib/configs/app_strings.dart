@@ -235,6 +235,7 @@ class AppStrings {
       'shipment_received_description';
   static const String shipmentReceivedNote = 'shipment_received_note';
   static const String backToHome = 'back_to_home';
+  static const String back = 'back';
   static const String shippingFeeDescription = 'shipping_fee_description';
   static const String shippingAgreement = 'shipping_agreement';
   static const String itemsTotal = 'items_total';

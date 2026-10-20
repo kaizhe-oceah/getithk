@@ -9,7 +9,6 @@ class SubProductGradeTitle extends StatelessWidget {
 
   const SubProductGradeTitle({this.gradeId, this.name, super.key});
 
-  /// The grade artwork's width over its height.
   static const double artworkAspectRatio = 548 / 272;
 
   static String? artworkFor(int? gradeId) =>
@@ -107,9 +106,6 @@ class SubProductQuantityBadge extends StatelessWidget {
 class SubProductTile extends StatefulWidget {
   final SubProductModel product;
   final double width;
-
-  /// What its dialog shows, on a tap: the grade's artwork, and the chance
-  /// of drawing it.
   final bool showGradeInDialog;
   final bool showChanceInDialog;
 
@@ -143,7 +139,6 @@ class _SubProductTileState extends State<SubProductTile> {
   Widget build(BuildContext context) {
     final SubProductModel product = widget.product;
     final double width = widget.width;
-    // 僅限運送 and PSA 10, side by side at the same size
     final double badgeSize = width * 0.34 * 402 / 544;
     final double dpr = MediaQuery.devicePixelRatioOf(context);
     final Size box = Size(width, width / SubProductTile.imageAspectRatio);
@@ -181,8 +176,6 @@ class _SubProductTileState extends State<SubProductTile> {
                         : null,
                     isPsa10: product.isPsa10,
                   ),
-                  cacheWidth: (width * MediaQuery.devicePixelRatioOf(context))
-                      .round(),
                   onImageSize: _onImageSize,
                 ),
                 if (product.quantity != null && picture != null)
@@ -191,7 +184,6 @@ class _SubProductTileState extends State<SubProductTile> {
                     bottom: box.height - picture.bottom + 4.r,
                     child: SubProductQuantityBadge(quantity: product.quantity!),
                   ),
-                // top right: 僅限運送, then the PSA badge after it
                 if (product.isDeliveryOnly || product.isPsa10)
                   Positioned(
                     top: 4.r,

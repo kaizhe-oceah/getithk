@@ -2,16 +2,19 @@
 import '../../imports.dart';
 
 /// 您的出貨申請已成功收到: when the shipment should arrive, with a ✕ at the
-/// top right and 返回首頁 at the bottom; either closes it.
+/// top right and 返回首頁 (or, when it's not home it goes back to, 返回) at
+/// the bottom; either closes it.
 class ShipmentReceivedDialog extends StatelessWidget {
-  const ShipmentReceivedDialog({super.key});
+  final bool toHome;
+
+  const ShipmentReceivedDialog({this.toHome = true, super.key});
 
   /// Shows it; done once it's closed.
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context, {bool toHome = true}) {
     return DialogHelper<void>().showDefaultDialog(
       context2: context,
       barrierDismissible: false,
-      child: const ShipmentReceivedDialog(),
+      child: ShipmentReceivedDialog(toHome: toHome),
     );
   }
 
@@ -81,7 +84,9 @@ class ShipmentReceivedDialog extends StatelessWidget {
               child: SizedBox(
                 width: 180.r,
                 child: AppButtonWidget(
-                  text: context.tr(AppStrings.backToHome),
+                  text: context.tr(
+                    toHome ? AppStrings.backToHome : AppStrings.back,
+                  ),
                   radius: 12,
                   fontWeight: FontWeight.w600,
                   textColor: AppColors.whiteColor,

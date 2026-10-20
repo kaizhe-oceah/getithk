@@ -115,8 +115,8 @@ class CheckoutController extends ChangeNotifier {
   ];
 
   /// 申請出貨: ships the cards to [address]; once the dialog saying so
-  /// closes (by 返回首頁 or the ✕), back with true so the page before
-  /// refreshes, then on to the home tab.
+  /// closes, back with true so the page before refreshes, then back to where
+  /// it started: the sub product page its draw was on, else the home tab.
   Future<void> onSubmit() async {
     final AddressModel? address = this.address;
     if (isAddressLoading) return;
@@ -135,10 +135,17 @@ class CheckoutController extends ChangeNotifier {
       address: address.address ?? '',
       userStockIds: userStockIds,
       onSuccess: (_) async {
-        await ShipmentReceivedDialog.show(context);
+        final bool toSubProduct = AppNavigator.hasRoute(
+          RouteName.subProductPage,
+        );
+        await ShipmentReceivedDialog.show(context, toHome: !toSubProduct);
         AppNavigator.pop(context, true);
-        context.read<AppController>().navigateToTab(kBottomNavHome);
-        AppNavigator.popUntilFirst(context);
+        if (toSubProduct) {
+          AppNavigator.popUntil(context, RouteName.subProductPage);
+        } else {
+          context.read<AppController>().navigateToTab(kBottomNavHome);
+          AppNavigator.popUntilFirst(context);
+        }
       },
     );
   }

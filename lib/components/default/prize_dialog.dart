@@ -17,14 +17,16 @@ class PrizeDialog extends StatelessWidget {
   /// The chance of drawing it, in percent: 機率 5.00% under the name; none
   /// if null.
   final double? chance;
-  final double amount;
+
+  /// What it's worth in pts; none if null or 0.
+  final double? amount;
 
   /// A PSA 10 graded card: the PSA 10 badge on the picture's corner.
   final bool isPsa10;
 
   const PrizeDialog({
     required this.image,
-    required this.amount,
+    this.amount,
     this.levelImage,
     this.name,
     this.chance,
@@ -35,7 +37,7 @@ class PrizeDialog extends StatelessWidget {
   static Future<void> show(
     BuildContext context, {
     required String? image,
-    required double amount,
+    double? amount,
     String? levelImage,
     String? name,
     double? chance,
@@ -59,6 +61,7 @@ class PrizeDialog extends StatelessWidget {
     final double screenHeight = MediaQuery.sizeOf(context).height;
     final double dpr = MediaQuery.devicePixelRatioOf(context);
     final double coinSize = 22.r;
+    final double worth = amount ?? 0;
     final double levelHeight = 36.r;
 
     return Dialog(
@@ -115,26 +118,28 @@ class PrizeDialog extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ],
-            10.heightSpace,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AppImage(
-                  name: AppAssets.coins,
-                  width: coinSize,
-                  height: coinSize,
-                  fit: BoxFit.contain,
-                  cacheWidth: (coinSize * dpr).round(),
-                ),
-                6.widthSpace,
-                AppText(
-                  NumberFormat('#,##0.##').format(amount),
-                  fontSize: kFont20,
-                  fontWeight: FontWeight.w800,
-                  color: context.color.primary,
-                ),
-              ],
-            ),
+            if (worth > 0) ...[
+              10.heightSpace,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppImage(
+                    name: AppAssets.coins,
+                    width: coinSize,
+                    height: coinSize,
+                    fit: BoxFit.contain,
+                    cacheWidth: (coinSize * dpr).round(),
+                  ),
+                  6.widthSpace,
+                  AppText(
+                    NumberFormat('#,##0.##').format(worth),
+                    fontSize: kFont20,
+                    fontWeight: FontWeight.w800,
+                    color: context.color.primary,
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

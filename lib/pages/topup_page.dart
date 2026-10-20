@@ -223,29 +223,6 @@ class TopupPage extends StatelessWidget {
     );
   }
 
-  Widget _methodLogo(
-    BuildContext context,
-    TopupController controller,
-    PaymentMethodModel method,
-  ) {
-    final bool selected = method == controller.paymentMethod;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6).r,
-      decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(6).r,
-        border: Border.all(color: AppColors.greyLight2Color),
-      ),
-      child: AppImage(
-        name: method.icon,
-        width: 30.r,
-        height: 18.r,
-        fit: BoxFit.contain,
-      ),
-    );
-  }
-
   Widget _bonusCard(
     BuildContext context,
     TopupController controller,
