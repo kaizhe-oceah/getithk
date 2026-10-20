@@ -1,6 +1,5 @@
 // Project imports:
 import '../components/main_product/main_product_parts.dart';
-import '../components/points_pill.dart';
 import '../components/sub_product/sub_product_parts.dart';
 import '../controllers/sub_product_controller.dart';
 import '../imports.dart';
@@ -30,8 +29,6 @@ class SubProductPage extends StatelessWidget {
   }
 
   Widget _appBar(BuildContext context) {
-    final bool isLoggedIn = context.watch<AppController>().user != null;
-
     return AppBarWidget(
       backgroundColor: AppColors.whiteColor,
       leading: const AppBarBackButton(),

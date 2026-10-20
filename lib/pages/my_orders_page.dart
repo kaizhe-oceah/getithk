@@ -144,7 +144,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
             children: [
               Expanded(
                 child: AppText(
-                  _date(context, order.createdAt),
+                  formatOrderDate(context, order.createdAt),
                   fontSize: kFont12,
                   color: AppColors.loginHintColor,
                 ),
@@ -215,14 +215,6 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         ],
       ),
     );
-  }
-
-  String _date(BuildContext context, DateTime? value) {
-    if (value == null) return '';
-
-    final String locale = context.locale.toString();
-    return '${DateFormat.MMMd(locale).format(value)}, '
-        '${getTimeAmPm(time: DateFormat('HH:mm:ss').format(value))}';
   }
 
   Widget _item(BuildContext context, ShippingOrderItemModel item) {

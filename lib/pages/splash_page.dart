@@ -56,29 +56,23 @@ class _SplashPageState extends State<SplashPage>
       await 0.001.delay();
       NotificationService.shouldListenNotification();
 
-      // restore the saved user, if any
       if (AppPreferences.getUser() != null) {
         await context.read<ThemeController>().loadTheme();
         if (!mounted) return;
         context.read<AppController>().setUser = AppPreferences.getUser()!;
 
-        // update api path name follow by role
         ApiService.updateApiBaseUrl(role: AppPreferences.getThemeRole());
         SocketService.connect();
       }
 
-      // always open on the home tab, logged in or not, fading in
       AppNavigator.pushReplacementNamedWithFade(
         context,
         RouteName.mainPage,
-        // the splash's light icons, till the home page is mostly in
         fromStyle: _overlayStyle,
       );
     });
   }
 
-  /// A newer version in the store: a dialog to update, over whichever page
-  /// is showing by the time the check's done.
   Future<void> _checkForUpdate() async {
     final bool isAvailable = await upgrader
         .initialize()

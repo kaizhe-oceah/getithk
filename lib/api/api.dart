@@ -513,6 +513,31 @@ class Api {
     );
   }
 
+  // cards exchanged for pts; [monthTime] "2026-10", none: every month
+  Future<void> getSellHistory({
+    required int page,
+    required int perPage,
+    String? monthTime,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerSellHistory,
+      params: {"page": page, "per_page": perPage, "month_time": ?monthTime},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
   // shipping detail: the order, its cards and where it's going
   Future<void> getShippingDetail({
     required int shippingId,
@@ -549,6 +574,50 @@ class Api {
       withBearer: true,
       endPoint: kPlayerCancelShipping,
       params: {"shipping_id": shippingId},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> redeemVoucher({
+    required String code,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerRedeemVoucher,
+      params: {"code": code},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> redeemAccumulateBox({
+    required int mainProductId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerRedeemAccumulateBox,
+      params: {"main_product_id": mainProductId},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
         ToastHelper.error(error);

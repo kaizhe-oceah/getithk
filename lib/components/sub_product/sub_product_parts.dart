@@ -1,6 +1,5 @@
 // Project imports:
 import '../../imports.dart';
-import '../backpack/backpack_stock_card.dart';
 import '../default/prize_dialog.dart';
 import '../../models/sub_product_model.dart';
 
@@ -144,7 +143,9 @@ class _SubProductTileState extends State<SubProductTile> {
   Widget build(BuildContext context) {
     final SubProductModel product = widget.product;
     final double width = widget.width;
-    final double badgeWidth = width * 0.34;
+    // 僅限運送 and PSA 10, side by side at the same size
+    final double badgeSize = width * 0.34 * 402 / 544;
+    final double dpr = MediaQuery.devicePixelRatioOf(context);
     final Size box = Size(width, width / SubProductTile.imageAspectRatio);
     final Size? imageSize = _imageSize;
     final Rect? picture = imageSize == null
@@ -199,18 +200,22 @@ class _SubProductTileState extends State<SubProductTile> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (product.isDeliveryOnly)
-                          const DeliveryOnlyBadge(size: 24),
+                          AppImage(
+                            name: AppAssets.deliveryOnly,
+                            width: badgeSize,
+                            height: badgeSize,
+                            fit: BoxFit.contain,
+                            cacheWidth: (badgeSize * dpr).round(),
+                          ),
                         if (product.isDeliveryOnly && product.isPsa10)
                           4.widthSpace,
                         if (product.isPsa10)
                           AppImage(
                             name: AppAssets.psa,
-                            width: badgeWidth,
+                            width: badgeSize,
+                            height: badgeSize,
                             fit: BoxFit.contain,
-                            cacheWidth:
-                                (badgeWidth *
-                                        MediaQuery.devicePixelRatioOf(context))
-                                    .round(),
+                            cacheWidth: (badgeSize * dpr).round(),
                           ),
                       ],
                     ),

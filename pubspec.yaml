@@ -226,6 +226,7 @@ flutter:
     - assets/translations/
     - assets/images/
     - assets/lotties/
+    - assets/video/
 
   fonts:
     - family: Poppins

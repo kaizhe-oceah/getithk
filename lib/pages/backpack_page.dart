@@ -91,7 +91,7 @@ class _BackpackPageState extends State<BackpackPage>
 
     return SmartRefresherWrapper(
       controller: controller.refreshControllers[tab]!,
-      onRefresh: controller.onRefresh,
+      onRefresh: controller.onPullRefresh,
       // nothing to load more of: just the no data widget, no footer
       enablePullUp:
           isCurrent && !controller.isLoading && controller.stocks.isNotEmpty,
@@ -217,12 +217,14 @@ class _BackpackPageState extends State<BackpackPage>
   }
 
   Widget _actionBar(BuildContext context, BackpackController controller) {
+    final EdgeInsets sides = EdgeInsets.symmetric(
+      horizontal: kHorizontalPadding.r,
+    );
+
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        kHorizontalPadding.r,
-        12.r,
-        kHorizontalPadding.r,
-        BottomNavigationWidget.contentBottomInset(context),
+      padding: EdgeInsets.only(
+        top: 12.r,
+        bottom: BottomNavigationWidget.contentBottomInset(context),
       ),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
@@ -238,35 +240,46 @@ class _BackpackPageState extends State<BackpackPage>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Wrap(
-            spacing: 14.r,
-            runSpacing: 8.r,
-            children: [
-              BackpackSelectAll(
-                label: AppStrings.selectAll,
-                value: controller.isAllSelected,
-                onTap: controller.onSelectAll,
-              ),
-              BackpackSelectAll(
-                label: AppStrings.selectAllDeliveryOnly,
-                value: controller.isAllDeliveryOnlySelected,
-                onTap: controller.onSelectAllDeliveryOnly,
-              ),
-              BackpackSelectAll(
-                label: AppStrings.selectAllNonDeliveryOnly,
-                value: controller.isAllNonDeliveryOnlySelected,
-                onTap: controller.onSelectAllNonDeliveryOnly,
-              ),
-            ],
+          // one line that scrolls, rather than wrap onto a second
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: sides,
+            child: Row(
+              children: [
+                BackpackSelectAll(
+                  label: AppStrings.selectAll,
+                  value: controller.isAllSelected,
+                  enabled: controller.stocks.isNotEmpty,
+                  onTap: controller.onSelectAll,
+                ),
+                16.widthSpace,
+                BackpackSelectAll(
+                  label: AppStrings.selectAllDeliveryOnly,
+                  value: controller.isAllDeliveryOnlySelected,
+                  enabled: controller.deliveryOnly.isNotEmpty,
+                  onTap: controller.onSelectAllDeliveryOnly,
+                ),
+                16.widthSpace,
+                BackpackSelectAll(
+                  label: AppStrings.selectAllNonDeliveryOnly,
+                  value: controller.isAllNonDeliveryOnlySelected,
+                  enabled: controller.nonDeliveryOnly.isNotEmpty,
+                  onTap: controller.onSelectAllNonDeliveryOnly,
+                ),
+              ],
+            ),
           ),
-          12.heightSpace,
-          BackpackCheckoutRow(
-            amount: controller.selectedAmount,
-            hasSelection: controller.selectedStocks.isNotEmpty,
-            canRequestShipment: controller.canRequestShipment,
-            canExchange: controller.canExchange,
-            onRequestShipment: controller.onRequestShipment,
-            onExchange: controller.onExchange,
+          8.heightSpace,
+          Padding(
+            padding: sides,
+            child: BackpackCheckoutRow(
+              amount: controller.selectedAmount,
+              selectedCount: controller.selectedStocks.length,
+              canRequestShipment: controller.canRequestShipment,
+              canExchange: controller.canExchange,
+              onRequestShipment: controller.onRequestShipment,
+              onExchange: controller.onExchange,
+            ),
           ),
         ],
       ),

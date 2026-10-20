@@ -10,30 +10,19 @@ class SubProductController extends ChangeNotifier {
 
   final RefreshController refreshController = RefreshController();
 
-  /// The product tapped in the listing, until the sub-product-listing API
-  /// sends a fresh one (stock, top-up progress).
   MainProductModel product;
 
-  /// True while the prizes load (on open and on every refresh); they show
-  /// a skeleton the first time.
   bool isLoading = true;
 
   List<SubProductModel> subProducts = [];
 
-  /// The product's grades (`main_product_grades`), in their sort_order.
   List<MainProductGradeModel> grades = [];
-
-  /// A Combo product's one prize (`comb_product`); when set, the page shows
-  /// only it.
   SubProductModel? combProduct;
 
   SubProductController({required this.product}) {
     _load();
   }
 
-  /// [subProducts] grouped by grade, in [grades]' order (一等獎, 二等獎, …);
-  /// a grade with no prizes is left out, prizes of a grade [grades] doesn't
-  /// list come next, in the API's order, and 尾賞 always comes last.
   List<List<SubProductModel>> get gradeGroups {
     final Map<int?, List<SubProductModel>> byGrade = {};
     for (final SubProductModel item in subProducts) {
@@ -50,7 +39,6 @@ class SubProductController extends ChangeNotifier {
     return [...groups, ...byGrade.values, ?last];
   }
 
-  /// The prizes and the product, with the balance for the app bar.
   Future<void> _load() async {
     final int? id = product.id;
     if (id == null) {

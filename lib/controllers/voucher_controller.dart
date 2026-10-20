@@ -43,12 +43,19 @@ class VoucherController extends ChangeNotifier {
     refreshController.refreshCompleted();
   }
 
-  // TODO(getithk): redeem the code once there's a voucher API
-  void onRedeem() {
+  Future<void> onRedeem() async {
     if (!canRedeem) return;
 
     FocusManager.instance.primaryFocus?.unfocus();
-    ToastHelper.showToast(context.tr(AppStrings.comingSoon));
+    await ApiService.api.redeemVoucher(
+      code: codeController.text.trim(),
+      showLoader: true,
+      onSuccess: (response) {
+        response.showMessage();
+        context.read<AppController>().getWalletBalance();
+        if (!_isDisposed) codeController.clear();
+      },
+    );
   }
 
   @override

@@ -172,6 +172,8 @@ class AppStrings {
   static const String accumulatedTopup = 'accumulated_topup';
   static const String levelPassed = 'level_passed';
   static const String claimReward = 'claim_reward';
+  static const String congratulations = 'congratulations';
+  static const String upgradeRewardClaimed = 'upgrade_reward_claimed';
   static const String prizesThisLevel = 'prizes_this_level';
   static const String prizePoolByLevel = 'prize_pool_by_level';
   static const String drawChance = 'draw_chance';
@@ -220,6 +222,7 @@ class AppStrings {
   static const String selectPrizesToShipHint = 'select_prizes_to_ship_hint';
   static const String prizeCount = 'prize_count';
   static const String selectedTotal = 'selected_total';
+  static const String selectedCount = 'selected_count';
   static const String confirmShipment = 'confirm_shipment';
   static const String confirmShipmentDetails = 'confirm_shipment_details';
   static const String addShippingAddress = 'add_shipping_address';

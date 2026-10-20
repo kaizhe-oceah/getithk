@@ -40,10 +40,17 @@ class AppAssets {
   static String get menuLogout => "assets/images/menu_logout.png";
   static String get homeBackground => "assets/images/bg.jpg";
 
+  // congratulations dialog
+  static String get congratulationsHeader => "assets/images/cong.png";
+  static String get congratulationsBackground => "assets/images/bg_cong.png";
+
   // no data
   static String get noImage => "assets/images/no_image.png";
 
   // lotties
   static String get lottiesNoData => "assets/lotties/no_data.json";
   static String get lottiesLoading => "assets/lotties/loading.json";
+
+  // videos
+  static String get accumulateBoxVideo => "assets/video/accumulatebox.mp4";
 }

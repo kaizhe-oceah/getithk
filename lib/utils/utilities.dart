@@ -227,6 +227,15 @@ String getTimeAmPm({required String? time}) {
   return DateFormat('hh:mm a').format(dateTime);
 }
 
+/// An order's time as the order pages show it, e.g. "Oct 16, 12:22 PM".
+String formatOrderDate(BuildContext context, DateTime? value) {
+  if (value == null) return '';
+
+  final String locale = context.locale.toString();
+  return '${DateFormat.MMMd(locale).format(value)}, '
+      '${getTimeAmPm(time: DateFormat('HH:mm:ss').format(value))}';
+}
+
 String ordinal(int number) {
   if (!(number >= 1 && number <= 100)) {
     //here you change the range

@@ -308,7 +308,7 @@ class PrizeResultPage extends StatelessWidget {
           ],
           BackpackCheckoutRow(
             amount: controller.selectedAmount,
-            hasSelection: controller.selectedPrizes.isNotEmpty,
+            selectedCount: controller.selectedPrizes.length,
             canRequestShipment: controller.canRequestShipment,
             canExchange: controller.canExchange,
             onRequestShipment: controller.onRequestShipment,

@@ -68,10 +68,10 @@ class BackpackController extends ChangeNotifier {
     (double sum, BackpackModel stock) => sum + stock.totalAmount,
   );
 
-  List<BackpackModel> get _deliveryOnly =>
+  List<BackpackModel> get deliveryOnly =>
       stocks.where((element) => element.isDeliveryOnly).toList();
 
-  List<BackpackModel> get _nonDeliveryOnly =>
+  List<BackpackModel> get nonDeliveryOnly =>
       stocks.where((element) => !element.isDeliveryOnly).toList();
 
   bool _isPicked(List<BackpackModel> group) =>
@@ -80,8 +80,8 @@ class BackpackController extends ChangeNotifier {
       selectedStocks.containsAll(group);
 
   bool get isAllSelected => _isPicked(stocks);
-  bool get isAllDeliveryOnlySelected => _isPicked(_deliveryOnly);
-  bool get isAllNonDeliveryOnlySelected => _isPicked(_nonDeliveryOnly);
+  bool get isAllDeliveryOnlySelected => _isPicked(deliveryOnly);
+  bool get isAllNonDeliveryOnlySelected => _isPicked(nonDeliveryOnly);
 
   /// Any card ships; only one that isn't delivery only (is_delivery_only 2)
   /// can be exchanged for PTS too.
@@ -92,6 +92,14 @@ class BackpackController extends ChangeNotifier {
 
   void setInit() async {
     await onRefresh();
+  }
+
+  /// Pulled down: the balance catches up too.
+  Future<void> onPullRefresh() async {
+    await Future.wait([
+      onRefresh(),
+      context.read<AppController>().getWalletBalance(),
+    ]);
   }
 
   Future<void> onRefresh() async {
@@ -172,8 +180,8 @@ class BackpackController extends ChangeNotifier {
   }
 
   void onSelectAll() => _pick(stocks);
-  void onSelectAllDeliveryOnly() => _pick(_deliveryOnly);
-  void onSelectAllNonDeliveryOnly() => _pick(_nonDeliveryOnly);
+  void onSelectAllDeliveryOnly() => _pick(deliveryOnly);
+  void onSelectAllNonDeliveryOnly() => _pick(nonDeliveryOnly);
 
   void _pick(List<BackpackModel> group) {
     selectedStocks = _isPicked(group) ? {} : group.toSet();
@@ -220,7 +228,6 @@ class BackpackController extends ChangeNotifier {
       stockIds: [for (final ShipmentItemModel item in items) ...item.stockIds],
       onSuccess: (response) {
         response.showMessage();
-        context.read<AppController>().getWalletBalance();
         if (!_isDisposed) refreshController.requestRefresh();
       },
     );

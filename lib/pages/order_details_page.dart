@@ -175,7 +175,7 @@ class OrderDetailsPage extends StatelessWidget {
           _infoRow(
             context,
             AppStrings.orderTime,
-            _date(context, order.createdAt),
+            formatOrderDate(context, order.createdAt),
           ),
           if ((order.cancelReason ?? '').isNotEmpty)
             _infoRow(context, AppStrings.cancelReason, order.cancelReason!),
@@ -214,14 +214,6 @@ class OrderDetailsPage extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _date(BuildContext context, DateTime? value) {
-    if (value == null) return '';
-
-    final String locale = context.locale.toString();
-    return '${DateFormat.MMMd(locale).format(value)}, '
-        '${getTimeAmPm(time: DateFormat('HH:mm:ss').format(value))}';
   }
 
   String _pts(double amount) => '${formatMainProductAmount(amount)} PT';

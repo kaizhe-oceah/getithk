@@ -18,6 +18,7 @@ class RouteName {
   static const String addAddressPage = "/add-address-page";
   static const String myOrdersPage = '/my-orders';
   static const String orderDetailsPage = '/order-details';
+  static const String sellHistoryPage = '/sell-history';
   static const String vouhcerPage = "/voucher-page";
   static const String webviewPage = '/webview';
 
@@ -41,6 +42,7 @@ class RouteName {
     addAddressPage,
     myOrdersPage,
     orderDetailsPage,
+    sellHistoryPage,
     vouhcerPage,
     webviewPage,
   ];

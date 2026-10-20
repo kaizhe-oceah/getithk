@@ -7,17 +7,27 @@ import '../../models/draw_video_model.dart';
 import '../../services/draw_video_service.dart';
 
 class DrawVideoDialog extends StatefulWidget {
-  final DrawVideoModel video;
+  final DrawVideoModel? video;
+  final String? asset;
 
-  const DrawVideoDialog({required this.video, super.key});
+  const DrawVideoDialog({required DrawVideoModel this.video, super.key})
+    : asset = null;
 
-  static Future<void> show(BuildContext context, DrawVideoModel video) {
+  const DrawVideoDialog.asset(String this.asset, {super.key}) : video = null;
+
+  static Future<void> show(BuildContext context, DrawVideoModel video) =>
+      _show(context, DrawVideoDialog(video: video));
+
+  static Future<void> showAsset(BuildContext context, String asset) =>
+      _show(context, DrawVideoDialog.asset(asset));
+
+  static Future<void> _show(BuildContext context, DrawVideoDialog dialog) {
     return DialogHelper<void>().showDefaultDialog(
       context2: context,
       barrierDismissible: false,
       barrierColor: AppColors.blackColor,
       useSafeArea: false,
-      child: DrawVideoDialog(video: video),
+      child: dialog,
     );
   }
 
@@ -42,18 +52,14 @@ class _DrawVideoDialogState extends State<DrawVideoDialog> {
   }
 
   Future<void> _play() async {
-    final File? file = await DrawVideoService.cachedFile(widget.video);
-    if (!mounted) return;
-
-    final VideoPlayerController controller = file != null
-        ? VideoPlayerController.file(file)
-        : VideoPlayerController.networkUrl(Uri.parse(widget.video.file ?? ''));
+    final VideoPlayerController? controller = await _newController();
+    if (controller == null) return;
     _controller = controller;
 
     try {
       await controller.initialize();
     } catch (e) {
-      printLog('Draw video ${widget.video.id} not played: $e');
+      printLog('Video ${widget.asset ?? widget.video?.id} not played: $e');
       _close();
       return;
     }
@@ -62,6 +68,19 @@ class _DrawVideoDialogState extends State<DrawVideoDialog> {
     controller.addListener(_onVideoChanged);
     await controller.play();
     setState(() {});
+  }
+
+  Future<VideoPlayerController?> _newController() async {
+    final String? asset = widget.asset;
+    if (asset != null) return VideoPlayerController.asset(asset);
+
+    final DrawVideoModel video = widget.video!;
+    final File? file = await DrawVideoService.cachedFile(video);
+    if (!mounted) return null;
+
+    return file != null
+        ? VideoPlayerController.file(file)
+        : VideoPlayerController.networkUrl(Uri.parse(video.file ?? ''));
   }
 
   void _onVideoChanged() {
@@ -81,31 +100,24 @@ class _DrawVideoDialogState extends State<DrawVideoDialog> {
     final VideoPlayerController? controller = _controller;
     final bool isReady = controller != null && controller.value.isInitialized;
 
-    // white status bar icons on the black
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Material(
         color: AppColors.blackColor,
-        // inside the safe area, so the video and its 跳過 stay clear of the
-        // notch and the home indicator
         child: SafeArea(
           child: isReady
-              // the whole video at its own aspect ratio (contain)
               ? Center(
                   child: AspectRatio(
                     aspectRatio: controller.value.aspectRatio,
                     child: _withSkip(VideoPlayer(controller)),
                   ),
                 )
-              : _withSkip(
-                  const Center(child: CircularProgressIndicatorWidget()),
-                ),
+              : _withSkip(const SizedBox.shrink()),
         ),
       ),
     );
   }
 
-  /// [child] with 跳過 in its bottom right corner.
   Widget _withSkip(Widget child) {
     return Stack(
       fit: StackFit.expand,

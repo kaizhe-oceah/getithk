@@ -223,9 +223,10 @@ class BackpackSelectAll extends StatelessWidget {
   }
 }
 
+/// 已選 N 件 and 合計 on one line, the two buttons side by side under it.
 class BackpackCheckoutRow extends StatelessWidget {
   final double amount;
-  final bool hasSelection;
+  final int selectedCount;
   final bool canRequestShipment;
   final bool canExchange;
   final VoidCallback onRequestShipment;
@@ -233,7 +234,7 @@ class BackpackCheckoutRow extends StatelessWidget {
 
   const BackpackCheckoutRow({
     required this.amount,
-    required this.hasSelection,
+    required this.selectedCount,
     required this.canRequestShipment,
     required this.canExchange,
     required this.onRequestShipment,
@@ -241,89 +242,94 @@ class BackpackCheckoutRow extends StatelessWidget {
     super.key,
   });
 
+  bool get hasSelection => selectedCount > 0;
+
   @override
   Widget build(BuildContext context) {
     final Color primary = context.color.primary;
 
-    return Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(flex: 3, child: _total(context)),
-        10.widthSpace,
-        Expanded(
-          flex: 2,
-          child: _button(
-            context,
-            AppStrings.requestShipment,
-            color: canRequestShipment
-                ? AppColors.blackColor
-                : AppColors.greyBackgroundColor,
-            textColor: canRequestShipment
-                ? AppColors.whiteColor
-                : AppColors.loginHintColor,
-            onTap: onRequestShipment,
-          ),
-        ),
-        10.widthSpace,
-        Expanded(
-          flex: 2,
-          child: _button(
-            context,
-            AppStrings.exchangePts,
-            color: canExchange ? primary : primary.wOpacity(0.15),
-            textColor: canExchange ? AppColors.whiteColor : primary,
-            onTap: onExchange,
-          ),
+        _total(context),
+        8.heightSpace,
+        Row(
+          children: [
+            Expanded(
+              child: _button(
+                context,
+                AppStrings.requestShipment,
+                color: canRequestShipment
+                    ? AppColors.blackColor
+                    : AppColors.greyBackgroundColor,
+                textColor: canRequestShipment
+                    ? AppColors.whiteColor
+                    : AppColors.loginHintColor,
+                onTap: onRequestShipment,
+              ),
+            ),
+            10.widthSpace,
+            Expanded(
+              child: _button(
+                context,
+                AppStrings.exchangePts,
+                color: canExchange ? primary : primary.wOpacity(0.15),
+                textColor: canExchange ? AppColors.whiteColor : primary,
+                onTap: onExchange,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  /// 合計 over the amount, which counts its way to a new one; grey until
-  /// something is selected.
   Widget _total(BuildContext context) {
     final double coinSize = 20.r;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
         AppText(
-          context.tr(AppStrings.selectedTotal),
+          context.tr(AppStrings.selectedCount, args: ['$selectedCount']),
           fontSize: kFont12,
           color: AppColors.textLightColor,
         ),
-        2.heightSpace,
-        Row(
-          children: [
-            AppImage(
-              name: AppAssets.coins,
-              width: coinSize,
-              height: coinSize,
-              fit: BoxFit.contain,
-              cacheWidth: (coinSize * MediaQuery.devicePixelRatioOf(context))
-                  .round(),
-            ),
-            4.widthSpace,
-            Flexible(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween(end: amount),
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                  builder: (context, value, _) => AppText(
-                    formatMainProductAmount(value),
-                    fontSize: kFont18,
-                    fontWeight: FontWeight.w700,
-                    color: hasSelection
-                        ? context.color.primary
-                        : AppColors.loginHintColor,
+        12.widthSpace,
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(end: amount),
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                    builder: (context, value, _) => AppText(
+                      formatMainProductAmount(value),
+                      fontSize: kFont18,
+                      fontWeight: FontWeight.w700,
+                      color: hasSelection
+                          ? context.color.primary
+                          : AppColors.loginHintColor,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+              4.widthSpace,
+              AppImage(
+                name: AppAssets.coins,
+                width: coinSize,
+                height: coinSize,
+                fit: BoxFit.contain,
+                cacheWidth: (coinSize * MediaQuery.devicePixelRatioOf(context))
+                    .round(),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -339,7 +345,7 @@ class BackpackCheckoutRow extends StatelessWidget {
     return AppButtonWidget(
       radius: 10,
       buttonColor: color,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12).r,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8).r,
       onTap: onTap,
       builder: Center(
         child: FittedBox(

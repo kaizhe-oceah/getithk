@@ -279,17 +279,17 @@ class CheckoutPage extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        AppText(
+          formatMainProductAmount(amount),
+          fontSize: kFont16,
+          fontWeight: FontWeight.w600,
+        ),
+        4.widthSpace,
         AppImage(
           name: AppAssets.coins,
           width: coinSize,
           height: coinSize,
           fit: BoxFit.contain,
-        ),
-        4.widthSpace,
-        AppText(
-          formatMainProductAmount(amount),
-          fontSize: kFont16,
-          fontWeight: FontWeight.w600,
         ),
       ],
     );

@@ -40,7 +40,11 @@ class _ProfilePageState extends State<ProfilePage> {
       image: AppAssets.menuShippingAddress,
       route: RouteName.addressPage,
     ),
-    _MenuItem(AppStrings.salesRecord, image: AppAssets.menuSalesRecord),
+    _MenuItem(
+      AppStrings.salesRecord,
+      image: AppAssets.menuSalesRecord,
+      route: RouteName.sellHistoryPage,
+    ),
     _MenuItem(AppStrings.drawRecord, image: AppAssets.menuDrawRecord),
     _MenuItem(AppStrings.helpCenter, image: AppAssets.menuHelpCenter),
     const _MenuItem(

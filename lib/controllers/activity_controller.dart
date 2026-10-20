@@ -33,7 +33,10 @@ class ActivityController extends ChangeNotifier {
   }
 
   Future<void> onRefresh() async {
-    await _load();
+    await Future.wait([
+      _load(),
+      context.read<AppController>().getWalletBalance(),
+    ]);
     refreshController.refreshCompleted();
   }
 

@@ -275,7 +275,7 @@ class _BottomSheetStocksState extends State<BottomSheetStocks> {
     );
   }
 
-  /// 共 N 件 on the left; the coin and the total on the right.
+  /// 共 N 件 on the left; the total and its coin on the right.
   Widget _total() {
     final double coinSize = 20.r;
 
@@ -287,6 +287,13 @@ class _BottomSheetStocksState extends State<BottomSheetStocks> {
         ),
         12.widthSpace,
         const Spacer(),
+        AppText(
+          formatMainProductAmount(_totalAmount),
+          fontSize: kFont18,
+          fontWeight: FontWeight.w700,
+          color: context.color.primary,
+        ),
+        4.widthSpace,
         AppImage(
           name: AppAssets.coins,
           width: coinSize,
@@ -294,13 +301,6 @@ class _BottomSheetStocksState extends State<BottomSheetStocks> {
           fit: BoxFit.contain,
           cacheWidth: (coinSize * MediaQuery.devicePixelRatioOf(context))
               .round(),
-        ),
-        4.widthSpace,
-        AppText(
-          formatMainProductAmount(_totalAmount),
-          fontSize: kFont18,
-          fontWeight: FontWeight.w700,
-          color: context.color.primary,
         ),
       ],
     );

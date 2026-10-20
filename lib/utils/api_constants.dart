@@ -36,6 +36,9 @@ const kPlayerShippingListing = "/player/shipping-listing";
 const kTopUpByGateway = "/player/topupByGateway";
 const kPlayerCancelShipping = "/player/cancel-shipping";
 const kPlayerShippingDetail = "/player/shipping-detail";
+const kPlayerRedeemVoucher = "/player/redeem-voucher";
+const kPlayerRedeemAccumulateBox = "/player/redeem-accumulate-box";
+const kPlayerSellHistory = "/player/sell-history";
 
 
 

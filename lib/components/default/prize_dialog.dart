@@ -87,7 +87,7 @@ class PrizeDialog extends StatelessWidget {
             ),
             12.heightSpace,
 
-            _PrizePicture(
+            PrizePicture(
               image: image,
               isPsa10: isPsa10,
               maxHeight: screenHeight * 0.45,
@@ -166,22 +166,23 @@ class PrizeDialog extends StatelessWidget {
 
 /// The whole prize picture, as tall as it needs (160 while it loads) up to
 /// [maxHeight], with the PSA 10 badge on the picture's own corner.
-class _PrizePicture extends StatefulWidget {
+class PrizePicture extends StatefulWidget {
   final String? image;
   final bool isPsa10;
   final double maxHeight;
 
-  const _PrizePicture({
+  const PrizePicture({
     required this.image,
     required this.isPsa10,
     required this.maxHeight,
+    super.key,
   });
 
   @override
-  State<_PrizePicture> createState() => _PrizePictureState();
+  State<PrizePicture> createState() => _PrizePictureState();
 }
 
-class _PrizePictureState extends State<_PrizePicture> {
+class _PrizePictureState extends State<PrizePicture> {
   /// The picture's own size once it has loaded.
   Size? _imageSize;
 

@@ -1,6 +1,9 @@
 // Project imports:
+import '../components/default/accumulate_box_reward_dialog.dart';
+import '../components/default/draw_video_dialog.dart';
 import '../imports.dart';
 import '../models/accumulate_box_model.dart';
+import '../models/draw_result_model.dart';
 
 class TopupRewardController extends ChangeNotifier {
   BuildContext context = NavigationService.context;
@@ -64,8 +67,31 @@ class TopupRewardController extends ChangeNotifier {
     update();
   }
 
-  /// 領取獎勵: not in the API yet.
-  void onClaim() => ToastHelper.showComingSoon(context);
+  /// 領取獎勵: redeems the level's box, plays it opening, then shows what
+  /// came out; the levels catch up after.
+  Future<void> onClaim() async {
+    final int? mainProductId = selected?.mainProductId;
+    if (mainProductId == null) return;
+
+    bool isRedeemed = false;
+    DrawHistoryModel? prize;
+    await ApiService.api.redeemAccumulateBox(
+      mainProductId: mainProductId,
+      showLoader: true,
+      onSuccess: (response) {
+        isRedeemed = true;
+        prize = DrawResultModel.fromJson(
+          response.data,
+        ).drawHistories.firstOrNull;
+      },
+    );
+    if (!isRedeemed) return;
+
+    await DrawVideoDialog.showAsset(context, AppAssets.accumulateBoxVideo);
+    final DrawHistoryModel? won = prize;
+    if (won != null) await AccumulateBoxRewardDialog.show(context, won);
+    if (!_isDisposed) await _load();
+  }
 
   @override
   void dispose() {
