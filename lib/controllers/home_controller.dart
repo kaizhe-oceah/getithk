@@ -42,6 +42,10 @@ class HomeController extends ChangeNotifier {
 
   bool isLoadingProducts = false;
 
+  /// Bumped by each products load that starts over (another category, sort,
+  /// filter, a refresh), so an older one's late response is dropped.
+  int _productsLoad = 0;
+
   int page = 1;
 
   final Map<int, List<MainProductModel>> _cachedProducts = {};
@@ -85,17 +89,19 @@ class HomeController extends ChangeNotifier {
     page = 1;
     products = [];
     _cachedProducts.clear();
+    final int load = ++_productsLoad;
 
     await Future.wait([
       getBanners(),
       getPageBanners(),
-      getCategories(),
+      // the products need only the categories, not the rest
+      getCategories().then((_) => getProductListing()),
       NavigationService.context.read<AppController>().getWalletBalance(),
     ]);
-    await getProductListing();
 
     refreshController.refreshCompleted();
     isLoading = false;
+    if (load == _productsLoad) isLoadingProducts = false;
     update();
   }
 
@@ -147,6 +153,7 @@ class HomeController extends ChangeNotifier {
       refreshController.loadNoData();
       return;
     }
+    final int load = _productsLoad;
 
     await ApiService.api.getProductMainProductListing(
       page: page,
@@ -156,7 +163,7 @@ class HomeController extends ChangeNotifier {
       sort: sort.value,
       tags: tagIds,
       onSuccess: (response) {
-        if (categoryId != selectedCategoryId) return;
+        if (load != _productsLoad) return;
 
         final List<MainProductModel> listing = List.from(
           response.data['data'],
@@ -176,20 +183,22 @@ class HomeController extends ChangeNotifier {
         } else {
           refreshController.loadNoData();
         }
-
-        update();
       },
       onError: (_) => refreshController.loadFailed(),
     );
   }
 
   Future<void> onRefreshProducts() async {
+    final int load = ++_productsLoad;
     isLoadingProducts = true;
     page = 1;
     products = [...?_cachedProducts[selectedCategoryId]];
     update();
 
     await getProductListing();
+    // a newer load (swiped on again) took over: it ends the loading, else
+    // this one would show the empty text before that one's products are in
+    if (load != _productsLoad) return;
 
     isLoadingProducts = false;
     update();

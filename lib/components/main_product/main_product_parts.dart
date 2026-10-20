@@ -15,7 +15,16 @@ class MainProductImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppImage(name: image, width: double.infinity, fit: BoxFit.cover);
+    return AppImage(
+      name: image,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      // no height till it's in, so the skeleton takes the banner's shape
+      placeholder: const AspectRatio(
+        aspectRatio: bannerAspectRatio,
+        child: AppSkeletonizer(child: Bone()),
+      ),
+    );
   }
 }
 
