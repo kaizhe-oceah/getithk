@@ -745,10 +745,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  /// Where the tabs' line sits, in tabs from the first, and how far along
-  /// its trip it is (0 leaving a tab, 1 there): under the selected tab; part
-  /// of the way to the next while a swipe heads there, as far as the cards
-  /// have moved; or sliding over to a tapped tab.
   ({double position, double progress}) _tabLineState(
     HomeController controller,
   ) {

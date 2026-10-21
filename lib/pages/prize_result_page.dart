@@ -298,10 +298,9 @@ class PrizeResultPage extends StatelessWidget {
             AppButtonWidget(
               text: context.tr(AppStrings.memberRegister),
               radius: 10,
-              textSize: kFont14,
               fontWeight: FontWeight.w600,
               textColor: AppColors.whiteColor,
-              padding: const EdgeInsets.symmetric(vertical: 12).r,
+              padding: const EdgeInsets.symmetric(vertical: 8).r,
               onTap: controller.onRegister,
             ),
             10.heightSpace,

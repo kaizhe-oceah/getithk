@@ -5,9 +5,8 @@ import '../../models/shipment_item_model.dart';
 import '../main_product/main_product_parts.dart';
 import '../sub_product/sub_product_parts.dart';
 
-/// The backpack stocks picked for 申請出貨 or 兌換PTS: how many of each (all
-/// to start with), a bin for each, the total; [onConfirm] gets them on the
-/// button.
+/// The backpack stocks picked for 申請出貨: how many of each (all to start
+/// with), a bin for each, the total; [onConfirm] gets them on the button.
 class BottomSheetStocks extends StatefulWidget {
   /// Translation keys: the sheet's title and its button.
   final String title;
@@ -36,7 +35,7 @@ class _BottomSheetStocksState extends State<BottomSheetStocks> {
   // every piece of each stock to start with
   late final List<ShipmentItemModel> _items = [
     for (final BackpackModel stock in widget.stocks)
-      ShipmentItemModel(stock: stock, quantity: stock.quantity),
+      ShipmentItemModel.all(stock),
   ];
 
   int get _totalQuantity =>

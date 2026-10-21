@@ -39,6 +39,7 @@ const kPlayerShippingDetail = "/player/shipping-detail";
 const kPlayerRedeemVoucher = "/player/redeem-voucher";
 const kPlayerRedeemAccumulateBox = "/player/redeem-accumulate-box";
 const kPlayerSellHistory = "/player/sell-history";
+const kStockSummary = "/player/stock-summary";
 
 
 

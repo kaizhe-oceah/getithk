@@ -1,4 +1,5 @@
 // Project imports:
+import '../components/default/exchange_pts_dialog.dart';
 import '../imports.dart';
 import '../models/category_model.dart';
 import '../models/backpack_model.dart';
@@ -213,16 +214,18 @@ class BackpackController extends ChangeNotifier {
     } else if (!canExchange) {
       ToastHelper.showToast(context.tr(AppStrings.deliveryOnlyCannotExchange));
     } else {
-      BottomSheetHelper.exchangeStocks(
-        stocks: selectedStocks.toList(),
-        onConfirm: _sellStocks,
-      );
+      _sellStocks([
+        for (final BackpackModel stock in selectedStocks)
+          ShipmentItemModel.all(stock),
+      ]);
     }
   }
 
-  /// 確認兌換: exchanges [items] for PTS; once done, the balance and the
-  /// backpack (pulled down to refresh) catch up.
+  /// 決定 in the 兌換 pt dialog: exchanges [items] for PTS; once done, the
+  /// balance and the backpack (pulled down to refresh) catch up.
   Future<void> _sellStocks(List<ShipmentItemModel> items) async {
+    if (!await ExchangePtsDialog.show(context, items: items)) return;
+
     await ApiService.api.sellStock(
       showLoader: true,
       stockIds: [for (final ShipmentItemModel item in items) ...item.stockIds],

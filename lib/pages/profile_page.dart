@@ -16,8 +16,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final RefreshController _refreshController = RefreshController();
 
-  static const int _cardCount = 0;
-
   static List<_MenuItem> get _menuItems => [
     _MenuItem(
       AppStrings.inviteFriends,
@@ -74,6 +72,12 @@ class _ProfilePageState extends State<ProfilePage> {
   ]);
 
   @override
+  void initState() {
+    super.initState();
+    context.read<AppController>().getStockSummary();
+  }
+
+  @override
   void dispose() {
     _refreshController.dispose();
     super.dispose();
@@ -81,7 +85,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _onRefresh() async {
     final AppController app = context.read<AppController>();
-    await Future.wait([app.getUser(), app.getWalletBalance()]);
+    await Future.wait([
+      app.getUser(),
+      app.getWalletBalance(),
+      app.getStockSummary(),
+    ]);
     _refreshController.refreshCompleted();
   }
 
@@ -122,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
             BottomNavigationWidget.contentBottomInset(context),
           ),
           children: [
-            _header(user, app.level),
+            _header(user, app.level, app.cardCount),
             kHorizontalPadding.heightSpace,
 
             AppText(
@@ -148,7 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _header(UserModel user, LevelModel? level) {
+  Widget _header(UserModel user, LevelModel? level, int cardCount) {
     const Color white = AppColors.whiteColor;
 
     return Container(
@@ -179,8 +187,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               child: Column(
                 children: [
-                  const AppText(
-                    '$_cardCount',
+                  AppText(
+                    '$cardCount',
                     fontSize: kFont18,
                     fontWeight: FontWeight.w700,
                     color: white,

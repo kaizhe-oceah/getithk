@@ -80,8 +80,6 @@ class _BackpackPageState extends State<BackpackPage>
     );
   }
 
-  /// A tab's page: its stocks once it's the current tab, a skeleton till
-  /// then (while swiping over to it).
   Widget _page(
     BuildContext context,
     BackpackController controller,
@@ -92,7 +90,6 @@ class _BackpackPageState extends State<BackpackPage>
     return SmartRefresherWrapper(
       controller: controller.refreshControllers[tab]!,
       onRefresh: controller.onPullRefresh,
-      // nothing to load more of: just the no data widget, no footer
       enablePullUp:
           isCurrent && !controller.isLoading && controller.stocks.isNotEmpty,
       onLoading: controller.onLoading,
@@ -151,7 +148,6 @@ class _BackpackPageState extends State<BackpackPage>
       kHorizontalPadding.r,
       12.r,
       kHorizontalPadding.r,
-      // 卡牌 has the action bar under it
       tab == BackpackTab.cards
           ? 16.r
           : BottomNavigationWidget.contentBottomInset(context),
@@ -240,7 +236,6 @@ class _BackpackPageState extends State<BackpackPage>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // one line that scrolls, rather than wrap onto a second
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: sides,

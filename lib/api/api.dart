@@ -784,9 +784,6 @@ class Api {
     );
   }
 
-  // invite-friends rewards (needs the token): data.successful_invites,
-  // data.claimable_point, data.tiers ...
-  // no [round]: the player's current one
   Future<void> getInvitePointListing({
     required Function(ApiResponseModel) onSuccess,
     int? round,
@@ -809,7 +806,6 @@ class Api {
     );
   }
 
-  // the top-up reward levels: how much to top up for each, and its prizes
   Future<void> getAccumulateBoxListing({
     required Function(ApiResponseModel) onSuccess,
     bool showLoader = false,
@@ -831,8 +827,6 @@ class Api {
     );
   }
 
-  // [round] and [position]: that one reward; [round] alone: all of that
-  // round's; neither: every round's
   Future<void> claimInvitePoint({
     required Function(ApiResponseModel) onSuccess,
     int? round,
@@ -856,8 +850,6 @@ class Api {
     );
   }
 
-  // the player's backpack cards (needs the token), [status] 1, 4 or 5;
-  // no [productCategoryId]: every category
   Future<void> getPlayerStockListing({
     required int page,
     required int perPage,
@@ -878,6 +870,27 @@ class Api {
         "status": status.value,
         "product_category_id": ?productCategoryId,
       },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> getStockSummary({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kStockSummary,
+      withBearer: true,
+      params: {},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {
         ToastHelper.error(error);
@@ -917,9 +930,6 @@ class Api {
     );
   }
 
-  // a free trial draw of a trial product, [drawCount] 1 or 10: data as
-  // drawProduct's. No token: it's for players not logged in (and a 401
-  // would otherwise log a player out)
   Future<void> trialDrawProduct({
     required int mainProductId,
     required int drawCount,
@@ -942,7 +952,6 @@ class Api {
     );
   }
 
-  // top-up packages: data = [{id, amount, rate, bonus_amount, credited_amount}]
   Future<void> getTopupBonusListing({
     required Function(ApiResponseModel) onSuccess,
     bool showLoader = false,
@@ -964,7 +973,6 @@ class Api {
     );
   }
 
-  // payment methods (GET): data = [{gateway, name, icon}]
   Future<void> getPaymentMethods({
     required Function(ApiResponseModel) onSuccess,
     bool showLoader = false,

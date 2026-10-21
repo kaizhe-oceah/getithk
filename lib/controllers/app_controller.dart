@@ -16,6 +16,9 @@ class AppController with ChangeNotifier {
 
   double points = 0;
 
+  /// What the backpack holds (stock-summary's total_quantity): 我的卡牌.
+  int cardCount = 0;
+
   bool _isLoggingOut = false;
 
   @override
@@ -89,6 +92,7 @@ class AppController with ChangeNotifier {
     user = null;
     level = null;
     points = 0;
+    cardCount = 0;
     ApiService.updateApiBaseUrl();
 
     context.read<ThemeController>().resetTheme();
@@ -111,6 +115,19 @@ class AppController with ChangeNotifier {
       onSuccess: (response) {
         final data = response.data;
         points = parseDouble(data is Map ? data['amount'] : null);
+        update();
+      },
+    );
+  }
+
+  Future<void> getStockSummary() async {
+    final token = await ApiService.getApiToken();
+    if (token == null || token.isEmpty) return;
+
+    await ApiService.api.getStockSummary(
+      onSuccess: (response) {
+        final data = response.data;
+        cardCount = parseInt(data is Map ? data['total_quantity'] : null);
         update();
       },
     );

@@ -200,6 +200,8 @@
   "buy_draw_points": "Beli Mata Cabutan",
   "confirm_exchange": "Sahkan Penukaran",
   "delivery_only_cannot_exchange": "Kad hantar sahaja tidak boleh ditukar kepada pt",
+  "exchange_pts_description": "Tukar item yang dipilih kepada mata.\npt ialah jumlah belian semula yang dibayar oleh perkhidmatan ini dalam pt. Ia tidak dijamin sama dengan harga pasaran.\nJika semuanya betul, sila tekan Sahkan.",
+  "decide": "Sahkan",
   "only_delivery_only_can_ship": "Hanya kad hantar sahaja boleh dihantar",
   "draw_result": "Keputusan Cabutan",
   "trial_result_notice": "Keputusan cabutan percubaan. Ini versi percubaan: hadiah yang dimenangi tidak boleh dihantar atau ditukar dengan mata.",

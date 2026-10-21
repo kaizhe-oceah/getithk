@@ -1,4 +1,5 @@
 // Project imports:
+import '../components/default/exchange_pts_dialog.dart';
 import '../imports.dart';
 import '../models/backpack_model.dart';
 import '../models/draw_result_model.dart';
@@ -42,8 +43,8 @@ class PrizeResultController extends ChangeNotifier {
 
   bool isSelected(DrawHistoryModel prize) => selectedPrizes.contains(prize);
 
-  /// [selectedPrizes] as the backpack holds them, for its 申請出貨 and 兌換PTS
-  /// sheets: one stock per card, in the page's order.
+  /// [selectedPrizes] as the backpack holds them, for its 申請出貨 sheet and
+  /// 兌換 pt: one stock per card, in the page's order.
   List<BackpackModel> get _selectedStocks {
     final Map<Object, List<DrawHistoryModel>> byCard = {};
     for (final List<DrawHistoryModel> group in gradeGroups) {
@@ -140,17 +141,19 @@ class PrizeResultController extends ChangeNotifier {
     } else if (!canExchange) {
       ToastHelper.showToast(context.tr(AppStrings.deliveryOnlyCannotExchange));
     } else {
-      BottomSheetHelper.exchangeStocks(
-        stocks: _selectedStocks,
-        onConfirm: _sellStocks,
-      );
+      _sellStocks([
+        for (final BackpackModel stock in _selectedStocks)
+          ShipmentItemModel.all(stock),
+      ]);
     }
   }
 
-  /// 確認兌換: exchanges [items] for PTS; once done, the balance catches up
-  /// and it's back to the page the draw was on (home, or the sub product
-  /// page).
+  /// 決定 in the 兌換 pt dialog: exchanges [items] for PTS; once done, the
+  /// balance catches up and it's back to the page the draw was on (home, or
+  /// the sub product page).
   Future<void> _sellStocks(List<ShipmentItemModel> items) async {
+    if (!await ExchangePtsDialog.show(context, items: items)) return;
+
     await ApiService.api.sellStock(
       showLoader: true,
       stockIds: [for (final ShipmentItemModel item in items) ...item.stockIds],

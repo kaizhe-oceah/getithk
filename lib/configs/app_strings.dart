@@ -214,6 +214,8 @@ class AppStrings {
   static const String confirmExchange = 'confirm_exchange';
   static const String deliveryOnlyCannotExchange =
       'delivery_only_cannot_exchange';
+  static const String exchangePtsDescription = 'exchange_pts_description';
+  static const String decide = 'decide';
   static const String onlyDeliveryOnlyCanShip = 'only_delivery_only_can_ship';
   static const String drawResult = 'draw_result';
   static const String trialResultNotice = 'trial_result_notice';

@@ -200,6 +200,8 @@
   "buy_draw_points": "購買抽卡點數",
   "confirm_exchange": "確認兌換",
   "delivery_only_cannot_exchange": "只限運送的卡牌不能兌換 pt",
+  "exchange_pts_description": "將所選商品兌換為點數。\npt是本服務以pt支付的收購金額。不保證與市場交易行情一致。\n確認無誤後請按下決定。",
+  "decide": "決定",
   "only_delivery_only_can_ship": "只有只限運送的卡牌可以申請出貨",
   "draw_result": "抽獎結果",
   "trial_result_notice": "試玩版抽獎結果。此為試玩版本，獲得商品無法出貨或兌換積分。",

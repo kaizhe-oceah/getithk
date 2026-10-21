@@ -4,24 +4,12 @@ import 'dart:math' as math;
 // Project imports:
 import '../../imports.dart';
 
-/// A prize up close: its grade's artwork at the top left, a ✕ at the top
-/// right, then the picture, its name, its chance and what it's worth in pts.
-/// A tap outside closes it too.
 class PrizeDialog extends StatelessWidget {
   final String? image;
-
-  /// The grade's artwork (一等獎, …): an asset or a URL; none if null.
   final String? levelImage;
   final String? name;
-
-  /// The chance of drawing it, in percent: 機率 5.00% under the name; none
-  /// if null.
   final double? chance;
-
-  /// What it's worth in pts; none if null or 0.
   final double? amount;
-
-  /// A PSA 10 graded card: the PSA 10 badge on the picture's corner.
   final bool isPsa10;
 
   const PrizeDialog({
@@ -169,8 +157,6 @@ class PrizeDialog extends StatelessWidget {
   }
 }
 
-/// The whole prize picture, as tall as it needs (160 while it loads) up to
-/// [maxHeight], with the PSA 10 badge on the picture's own corner.
 class PrizePicture extends StatefulWidget {
   final String? image;
   final bool isPsa10;
@@ -188,7 +174,6 @@ class PrizePicture extends StatefulWidget {
 }
 
 class _PrizePictureState extends State<PrizePicture> {
-  /// The picture's own size once it has loaded.
   Size? _imageSize;
 
   void _onImageSize(Size size) {
@@ -212,7 +197,6 @@ class _PrizePictureState extends State<PrizePicture> {
                   math.max(minHeight, widget.maxHeight),
                 ),
         );
-        // where the picture is drawn: whole, centred in the box
         final Rect? picture = imageSize == null
             ? null
             : Alignment.center.inscribe(

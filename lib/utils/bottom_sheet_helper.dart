@@ -49,7 +49,6 @@ class BottomSheetHelper {
         Widget content = SafeArea(
           top: false,
           child: Padding(
-            // ✅ pushes content above keyboard
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
@@ -64,7 +63,6 @@ class BottomSheetHelper {
                     ).r,
                     child: header,
                   ),
-                // ✅ wrap content to allow scrolling if keyboard overlaps
                 Flexible(
                   child: isScrollable
                       ? SingleChildScrollView(
@@ -159,22 +157,6 @@ class BottomSheetHelper {
     );
   }
 
-  /// The backpack's 兌換PTS: the picked [stocks] and how many of each to
-  /// exchange; [onConfirm] gets them on 確認兌換.
-  static Future<void> exchangeStocks({
-    required List<BackpackModel> stocks,
-    required ValueChanged<List<ShipmentItemModel>> onConfirm,
-  }) {
-    return _stocks(
-      BottomSheetStocks(
-        title: AppStrings.exchangePts,
-        confirmText: AppStrings.confirmExchange,
-        stocks: stocks,
-        onConfirm: onConfirm,
-      ),
-    );
-  }
-
   static Future<void> _stocks(BottomSheetStocks sheet) {
     return showModalBottomSheet<void>(
       context: context,
@@ -182,11 +164,15 @@ class BottomSheetHelper {
       shape: roundShapeBorder,
       backgroundColor: AppColors.whiteColor,
       isScrollControlled: true,
+      useSafeArea: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.8,
+      ),
       builder: (context) => sheet,
     );
   }
 
-  /// The phone field's country picker; [onSelected] gets the picked one.
+
   static Future<void> phoneCountry({
     required List<PhoneCodeModel> codes,
     String? selected,

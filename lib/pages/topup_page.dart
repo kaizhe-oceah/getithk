@@ -128,7 +128,7 @@ class TopupPage extends StatelessWidget {
                   child: AppText(
                     '${NumberFormat('#,##0.00').format(points)} PT',
                     fontSize: kFont26,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.whiteColor,
                   ),
                 ),
@@ -257,7 +257,7 @@ class TopupPage extends StatelessWidget {
                 AppText(
                   '${_pts(bonus.creditedAmount)} pt',
                   fontSize: kFont16,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.loginTextColor,
                 ),
                 4.heightSpace,

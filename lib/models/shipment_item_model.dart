@@ -8,6 +8,9 @@ class ShipmentItemModel {
 
   ShipmentItemModel({required this.stock, required this.quantity});
 
+  /// Every piece of [stock].
+  ShipmentItemModel.all(this.stock) : quantity = stock.quantity;
+
   double get totalAmount => stock.amount * quantity;
 
   /// The stock ids it stands for: the first [quantity] of the stock's.

@@ -200,6 +200,8 @@
   "buy_draw_points": "Buy Draw Points",
   "confirm_exchange": "Confirm Exchange",
   "delivery_only_cannot_exchange": "Delivery-only cards can't be exchanged for pt",
+  "exchange_pts_description": "Exchange the selected items for points.\npt is the buyback amount this service pays in pt. It is not guaranteed to match market prices.\nIf everything is correct, tap Confirm.",
+  "decide": "Confirm",
   "only_delivery_only_can_ship": "Only delivery-only cards can be shipped",
   "draw_result": "Draw Result",
   "trial_result_notice": "Trial draw results. This is a trial version: prizes won can't be shipped or exchanged for points.",
