@@ -561,7 +561,6 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _sortDropdown(BuildContext context, HomeController controller) {
-    // the menu is exactly as wide as the button, each option as tall
     final Size size = _sortButtonSize(context);
 
     return ValueListenableBuilder<ProductSort>(

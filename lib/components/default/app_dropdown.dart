@@ -1,12 +1,6 @@
 // Project imports:
 import '../../imports.dart';
 
-/// A bordered button whose menu opens just below it, as wide as it, with the
-/// picked option tinted in primary.
-///
-/// The button's colours are the caller's: [foregroundColor] for its label and
-/// ▾ (primary by default), [borderColor] for its outline (the foreground by
-/// default) and [backgroundColor] for its fill.
 class AppDropdown<T> extends StatefulWidget {
   const AppDropdown({
     super.key,
