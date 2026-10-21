@@ -192,12 +192,13 @@ class BottomSheetHelper {
     String? selected,
     required ValueChanged<PhoneCodeModel> onSelected,
   }) {
-    return showBarModalBottomSheet<void>(
+    return showModalBottomSheet<void>(
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
       backgroundColor: AppColors.whiteColor,
-      topControl: const SizedBox.shrink(),
+      clipBehavior: Clip.antiAlias,
+      isScrollControlled: true,
       builder: (context) => BottomSheetPhoneCountry(
         codes: codes,
         selected: selected,

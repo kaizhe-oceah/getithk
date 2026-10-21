@@ -8,7 +8,9 @@ class AppDropdown<T> extends StatefulWidget {
     required this.value,
     required this.onChanged,
     required this.itemBuilder,
+    this.buttonItemBuilder,
     this.hint,
+    this.hintColor,
     this.width,
     this.height,
     this.itemHeight,
@@ -30,8 +32,13 @@ class AppDropdown<T> extends StatefulWidget {
   /// for the picked option in the menu, the text colour for the rest.
   final Widget Function(BuildContext context, T item, Color color) itemBuilder;
 
+  /// Overrides how the picked item appears on the closed button.
+  final Widget Function(BuildContext context, T item, Color color)?
+  buttonItemBuilder;
+
   /// Shown on the button while nothing is picked.
   final String? hint;
+  final Color? hintColor;
 
   /// The button's width, which the menu matches; null fills what it's given.
   final double? width;
@@ -131,10 +138,16 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
                       ? AppText(
                           widget.hint ??
                               context.tr(AppStrings.pleaseSelectAnItem),
-                          color: AppColors.hintColor.wOpacity(0.75),
+                          color:
+                              widget.hintColor ??
+                              AppColors.hintColor.wOpacity(0.75),
                           isOverflow: true,
                         )
-                      : widget.itemBuilder(context, selected, foreground),
+                      : (widget.buttonItemBuilder ?? widget.itemBuilder)(
+                          context,
+                          selected,
+                          foreground,
+                        ),
                 ),
                 SizedBox(width: AppDropdown.iconGap),
                 Icon(

@@ -111,6 +111,8 @@ class _AppPhoneFormFieldState extends State<AppPhoneFormField> {
   /// Bumped by every check, so a slower one for older text is dropped.
   int _checks = 0;
 
+  bool _pickerOpen = false;
+
   @override
   void initState() {
     super.initState();
@@ -156,6 +158,33 @@ class _AppPhoneFormFieldState extends State<AppPhoneFormField> {
 
     setState(() => _country = code);
     _onNumberChanged();
+  }
+
+  Future<void> _openCountryPicker(List<PhoneCodeModel> codes) async {
+    if (_pickerOpen) return;
+    _pickerOpen = true;
+
+    // InkWellWrapper unfocuses the number field before calling this method.
+    // Let the keyboard finish closing before the sheet starts animating.
+    try {
+      if (MediaQuery.viewInsetsOf(context).bottom > 0) {
+        final deadline = DateTime.now().add(const Duration(milliseconds: 600));
+        while (mounted &&
+            MediaQuery.viewInsetsOf(context).bottom > 0 &&
+            DateTime.now().isBefore(deadline)) {
+          await WidgetsBinding.instance.endOfFrame;
+        }
+      }
+
+      if (!mounted) return;
+      await BottomSheetHelper.phoneCountry(
+        codes: codes,
+        selected: _country.countryCode,
+        onSelected: _onCountryPicked,
+      );
+    } finally {
+      _pickerOpen = false;
+    }
   }
 
   /// Tells [AppPhoneFormField.onChanged] the number with its country, then
@@ -256,13 +285,7 @@ class _AppPhoneFormFieldState extends State<AppPhoneFormField> {
     final bool canPick = widget.enabled && codes.length > 1;
 
     return InkWellWrapper(
-      onTap: canPick
-          ? () => BottomSheetHelper.phoneCountry(
-              codes: codes,
-              selected: _country.countryCode,
-              onSelected: _onCountryPicked,
-            )
-          : null,
+      onTap: canPick ? () => _openCountryPicker(codes) : null,
       child: SizedBox(
         height: widget.height,
         child: Padding(

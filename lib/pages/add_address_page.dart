@@ -88,28 +88,34 @@ class AddAddressPage extends StatelessWidget {
 
     return AppSkeletonizer(
       enabled: placeholder,
-      child: CustomDropdownButton<ShippingCountryModel>(
-        key: ValueKey(controller.country?.shippingCountryId),
-        dataList: countries,
-        initItem: placeholder ? countries.first : controller.country,
-        width: double.infinity,
-        height: _fieldHeight - 2,
-        radius: 12,
-        padding: _dropdownPadding,
-        labelText: context.tr(AppStrings.countryRegion),
-        labelTextSize: kFont13,
-        labelFontWeight: FontWeight.w500,
-        labelColor: AppColors.loginTextColor,
-        onChanged: controller.onSelectCountry,
-        dropdownItemBuilder: (context, index) => DropdownItem(
-          value: countries[index],
-          height: _fieldHeight,
-          child: _countryLabel(countries[index]),
-        ),
-        selectedItemBuilder: (context, index) => DropdownMenuItem(
-          value: countries[index],
-          child: _countryLabel(countries[index]),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 5).r,
+            child: AppText(
+              context.tr(AppStrings.countryRegion),
+              fontSize: kFont13,
+              fontWeight: FontWeight.w500,
+              color: AppColors.loginTextColor,
+            ),
+          ),
+          AppDropdown<ShippingCountryModel>(
+            items: countries,
+            value: placeholder ? countries.first : controller.country,
+            onChanged: controller.onSelectCountry,
+            itemBuilder: (context, country, color) => _countryLabel(country),
+            width: double.infinity,
+            height: _fieldHeight - 2,
+            itemHeight: _fieldHeight,
+            radius: 12,
+            padding: _dropdownPadding,
+            borderColor: AppColors.greyLightColor,
+            foregroundColor: AppColors.greyColor,
+            iconSize: 18.r,
+            tintSelected: false,
+          ),
+        ],
       ),
     );
   }
@@ -338,42 +344,67 @@ class AddAddressPage extends StatelessWidget {
   }) {
     final List<ShippingAddressOptionModel> options = field.options;
     final String? value = controller.selectValues[field.key];
+    final ShippingAddressOptionModel? selected = options
+        .where((option) => option.value == value)
+        .firstOrNull;
 
-    return CustomDropdownButton<ShippingAddressOptionModel>(
+    return FormField<ShippingAddressOptionModel>(
       key: key,
-      dataList: options,
-      initItem: options.where((element) => element.value == value).firstOrNull,
-      width: double.infinity,
-      height: _fieldHeight - 2,
-      radius: 12,
-      padding: _dropdownPadding,
-      labelText: field.label,
-      labelTextSize: kFont13,
-      labelIsRequired: field.isRequired,
-      labelFontWeight: FontWeight.w500,
-      labelColor: AppColors.loginTextColor,
-      hint: field.placeholder,
-      hintColor: AppColors.loginHintColor,
+      initialValue: selected,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: field.isRequired
           ? (option) =>
                 option == null ? context.tr(AppStrings.cantBeEmpty) : null
           : null,
-      onChanged: (option) =>
-          controller.onSelectOption(field.key, option?.value),
-      dropdownItemBuilder: (context, index) => DropdownItem(
-        value: options[index],
-        height: _fieldHeight,
-        child: AppText(
-          options[index].label ?? '',
-          color: AppColors.loginTextColor,
-        ),
-      ),
-      selectedItemBuilder: (context, index) => DropdownMenuItem(
-        value: options[index],
-        child: _dropdownLabel(
-          Icon(_fieldIcon(field), size: 14.r, color: AppColors.loginHintColor),
-          options[index].label,
-        ),
+      builder: (state) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (field.label != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5).r,
+              child: AppText(
+                field.label!,
+                isRequired: field.isRequired,
+                fontSize: kFont13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.loginTextColor,
+              ),
+            ),
+          AppDropdown<ShippingAddressOptionModel>(
+            items: options,
+            value: state.value,
+            onChanged: (option) {
+              state.didChange(option);
+              controller.onSelectOption(field.key, option.value);
+            },
+            itemBuilder: (context, option, color) =>
+                AppText(option.label ?? '', color: AppColors.loginTextColor),
+            buttonItemBuilder: (context, option, color) => _dropdownLabel(
+              Icon(
+                _fieldIcon(field),
+                size: 14.r,
+                color: AppColors.loginHintColor,
+              ),
+              option.label,
+            ),
+            hint: field.placeholder,
+            hintColor: AppColors.loginHintColor,
+            width: double.infinity,
+            height: _fieldHeight - 2,
+            itemHeight: _fieldHeight,
+            radius: 12,
+            padding: _dropdownPadding,
+            borderColor: AppColors.greyLightColor,
+            foregroundColor: AppColors.greyColor,
+            iconSize: 18.r,
+            tintSelected: false,
+          ),
+          if (state.errorText != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 3, 18, 0).r,
+              child: AppText(state.errorText!, color: AppColors.redColor),
+            ),
+        ],
       ),
     );
   }

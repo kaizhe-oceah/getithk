@@ -49,29 +49,34 @@ class _BottomSheetPhoneCountryState extends State<BottomSheetPhoneCountry> {
 
   @override
   Widget build(BuildContext context) {
+    final double keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
+    final double maxContentHeight =
+        (MediaQuery.sizeOf(context).height - keyboardHeight) * 0.8;
+
     return SafeArea(
       top: false,
       left: false,
       right: false,
       child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
+        padding: EdgeInsets.only(bottom: keyboardHeight),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16).r,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _header(),
-              5.heightSpace,
-              AppSearchField(
-                controller: _searchController,
-                hintText: context.tr(AppStrings.searchCountryRegion),
-              ),
-              10.heightSpace,
-              Flexible(child: _list()),
-            ],
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxContentHeight),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _header(),
+                5.heightSpace,
+                AppSearchField(
+                  controller: _searchController,
+                  hintText: context.tr(AppStrings.searchCountryRegion),
+                ),
+                10.heightSpace,
+                Flexible(child: _list()),
+              ],
+            ),
           ),
         ),
       ),
@@ -137,7 +142,7 @@ class _BottomSheetPhoneCountryState extends State<BottomSheetPhoneCountry> {
     }
 
     return ListView.separated(
-      shrinkWrap: true,
+      shrinkWrap: widget.codes.length <= 6,
       padding: EdgeInsets.zero,
       itemCount: shown.length,
       separatorBuilder: (_, _) => 4.heightSpace,
