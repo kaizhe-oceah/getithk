@@ -78,7 +78,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       kHorizontalPadding.r,
       12.r,
       kHorizontalPadding.r,
-      20.r + MediaQuery.paddingOf(context).bottom,
+      kHorizontalPadding,
     );
     final bool placeholder =
         tab != controller.tab ||

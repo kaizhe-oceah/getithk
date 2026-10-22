@@ -12,6 +12,10 @@ class TncPage extends StatefulWidget {
 
   const TncPage({this.type = TncType.terms, super.key});
 
+  /// Opens it on [type]'s page.
+  static void open(BuildContext context, TncType type) =>
+      AppNavigator.pushNamed(context, RouteName.tncPage, arguments: type);
+
   @override
   State<TncPage> createState() => _TncPageState();
 }

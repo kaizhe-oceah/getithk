@@ -9,6 +9,7 @@ import '../components/default/bottom_nav_bar_widget.dart';
 import '../controllers/login_controller.dart';
 import '../controllers/register_controller.dart';
 import '../imports.dart';
+import 'tnc_page.dart';
 
 class LoginPage extends StatefulWidget {
   final bool isRegister;
@@ -30,9 +31,9 @@ class _LoginPageState extends State<LoginPage>
   );
 
   late final TapGestureRecognizer _termsRecognizer = TapGestureRecognizer()
-    ..onTap = () => _openTnc(TncType.terms);
+    ..onTap = () => TncPage.open(context, TncType.terms);
   late final TapGestureRecognizer _privacyRecognizer = TapGestureRecognizer()
-    ..onTap = () => _openTnc(TncType.privacy);
+    ..onTap = () => TncPage.open(context, TncType.privacy);
 
   @override
   void initState() {
@@ -61,9 +62,6 @@ class _LoginPageState extends State<LoginPage>
     login.emailController.text = _testEmail;
     login.passwordController.text = _testPassword;
   }
-
-  void _openTnc(TncType type) =>
-      AppNavigator.pushNamed(context, RouteName.tncPage, arguments: type);
 
   void _onBack() {
     if (Navigator.of(context).canPop()) {

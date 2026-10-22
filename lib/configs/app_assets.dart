@@ -33,6 +33,10 @@ class AppAssets {
       "assets/images/menu_shipping_address.png";
   static String get menuSalesRecord => "assets/images/menu_sales_record.png";
   static String get menuDrawRecord => "assets/images/menu_draw_record.png";
+  static String get menuAgentCommission =>
+      "assets/images/menu_agent_commission.png";
+  static String get menuTerms => "assets/images/menu_terms.png";
+  static String get menuPrivacy => "assets/images/menu_privacy.png";
   static String get menuHelpCenter => "assets/images/menu_help_center.png";
   static String get menuCustomerService =>
       "assets/images/menu_customer_service.png";

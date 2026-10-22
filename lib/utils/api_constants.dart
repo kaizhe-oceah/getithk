@@ -40,6 +40,13 @@ const kPlayerRedeemVoucher = "/player/redeem-voucher";
 const kPlayerRedeemAccumulateBox = "/player/redeem-accumulate-box";
 const kPlayerSellHistory = "/player/sell-history";
 const kStockSummary = "/player/stock-summary";
+const kPlayerDrawHistory = "/player/draw-history";
+const kProductGradeListing = "/product/grade-listing";
+const kPlayerTopupCommissionListing = "/player/topup-commission-listing";
+const kPlayerInvitedPlayerListing = "/player/invited-member-listing";
+const kPlayerAvatarSetting = "/player/avatar-setting";
+const kPlayerUpdateAvatarSetting = "/player/update-avatar-setting";
+const kPlayerSocialLogin = "/player/social-login";
 
 
 

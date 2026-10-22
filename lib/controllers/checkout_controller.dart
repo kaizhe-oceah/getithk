@@ -4,6 +4,7 @@ import '../imports.dart';
 import '../models/address_model.dart';
 import '../models/shipment_item_model.dart';
 import '../models/shipping_setting_model.dart';
+import '../pages/tnc_page.dart';
 
 class CheckoutController extends ChangeNotifier {
   BuildContext context = NavigationService.context;
@@ -100,13 +101,7 @@ class CheckoutController extends ChangeNotifier {
     }
   }
 
-  void onTerms() {
-    AppNavigator.pushNamed(
-      context,
-      RouteName.tncPage,
-      arguments: TncType.terms,
-    );
-  }
+  void onTerms() => TncPage.open(context, TncType.terms);
 
   /// The stocks to ship: the first [ShipmentItemModel.quantity] ids of each
   /// item's stock.

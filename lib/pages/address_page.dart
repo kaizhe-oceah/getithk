@@ -77,7 +77,7 @@ class AddressPage extends StatelessWidget {
       kHorizontalPadding,
       12,
       kHorizontalPadding,
-      20,
+      kHorizontalPadding,
     ).r;
     final bool placeholder =
         controller.isLoading && controller.addresses.isEmpty;

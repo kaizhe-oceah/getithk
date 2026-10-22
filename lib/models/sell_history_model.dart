@@ -57,23 +57,7 @@ class SellHistoryItemModel {
     quantity = 1;
   }
 
-  static const Map<String, ProductGrade> _gradeByNumeral = {
-    '尾': ProductGrade.last,
-    '一': ProductGrade.first,
-    '二': ProductGrade.second,
-    '三': ProductGrade.third,
-    '四': ProductGrade.fourth,
-    '五': ProductGrade.fifth,
-  };
-
-  ProductGrade? get grade {
-    final String name = gradeName ?? '';
-    for (final MapEntry<String, ProductGrade> entry
-        in _gradeByNumeral.entries) {
-      if (name.contains(entry.key)) return entry.value;
-    }
-    return null;
-  }
+  ProductGrade? get grade => ProductGrade.fromName(gradeName);
 
   SubProductModel toSubProduct() => SubProductModel.fromJson({
     'id': subProductId,

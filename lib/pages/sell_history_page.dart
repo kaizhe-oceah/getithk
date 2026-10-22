@@ -1,5 +1,5 @@
 // Project imports:
-import '../components/default/app_bar_action_button.dart';
+import '../components/default/month_filter_button.dart';
 import '../components/sub_product/sub_product_parts.dart';
 import '../controllers/sell_history_controller.dart';
 import '../imports.dart';
@@ -23,36 +23,9 @@ class SellHistoryPage extends StatelessWidget {
             leading: const AppBarBackButton(),
             actions: [
               Consumer<SellHistoryController>(
-                builder: (context, controller, _) => AppBarActionButton(
+                builder: (context, controller, _) => MonthFilterButton(
+                  month: controller.month,
                   onTap: controller.onPickMonth,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Icon(
-                        Iconsax.calendar_1_copy,
-                        size: 22.r,
-                        color: AppColors.loginTextColor,
-                      ),
-                      // a month is picked
-                      if (controller.month != null)
-                        Positioned(
-                          top: -1.r,
-                          right: -1.r,
-                          child: Container(
-                            width: 9.r,
-                            height: 9.r,
-                            decoration: BoxDecoration(
-                              color: context.color.primary,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColors.whiteColor,
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
                 ),
               ),
             ],
@@ -76,7 +49,7 @@ class SellHistoryPage extends StatelessWidget {
       kHorizontalPadding.r,
       12.r,
       kHorizontalPadding.r,
-      20.r + MediaQuery.paddingOf(context).bottom,
+      kHorizontalPadding,
     );
     final bool placeholder = controller.isLoading && controller.orders.isEmpty;
 

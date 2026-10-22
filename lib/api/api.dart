@@ -538,6 +538,130 @@ class Api {
     );
   }
 
+  // prizes drawn; [gradeId] none: every grade, [monthTime] "2026-10", none:
+  // every month
+  Future<void> getDrawHistory({
+    required int page,
+    required int perPage,
+    int? gradeId,
+    String? monthTime,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerDrawHistory,
+      params: {
+        "page": page,
+        "per_page": perPage,
+        "grade_id": ?gradeId,
+        "month_time": ?monthTime,
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // referrals' top ups and the commission they earned, with the totals
+  Future<void> getTopupCommissionListing({
+    required int page,
+    required int perPage,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerTopupCommissionListing,
+      params: {"page": page, "per_page": perPage},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // the player's name, avatar and frame, and the avatars and frames to pick
+  Future<void> getAvatarSetting({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerAvatarSetting,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // saves the player's name, avatar and frame; [frameId] null: no frame
+  Future<void> updateAvatarSetting({
+    required String name,
+    required int? avatarId,
+    int? frameId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerUpdateAvatarSetting,
+      params: {"name": name, "avatar_id": avatarId, "frame_id": frameId},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // the grades: 尾賞, 一等獎, …
+  Future<void> getProductGradeListing({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kProductGradeListing,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
   // shipping detail: the order, its cards and where it's going
   Future<void> getShippingDetail({
     required int shippingId,

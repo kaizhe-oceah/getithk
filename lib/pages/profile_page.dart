@@ -5,6 +5,7 @@ import '../imports.dart';
 import '../models/level_model.dart';
 import '../models/user_model.dart';
 import 'login_page.dart';
+import 'tnc_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -16,17 +17,24 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final RefreshController _refreshController = RefreshController();
 
-  static List<_MenuItem> get _menuItems => [
+  List<_MenuItem> _menuItems(UserModel user) => [
     _MenuItem(
       AppStrings.inviteFriends,
       image: AppAssets.menuInviteFriends,
       route: RouteName.inviteFriendsPage,
     ),
+    // only for a player with a commission rate (an agent)
     _MenuItem(
       AppStrings.vouchers,
       image: AppAssets.menuVouchers,
       route: RouteName.vouhcerPage,
     ),
+    if (parseDouble(user.topupCommissionRate) != 0)
+      _MenuItem(
+        AppStrings.agentCommission,
+        image: AppAssets.menuAgentCommission,
+        route: RouteName.agentCommissionPage,
+      ),
     // _MenuItem(AppStrings.backpack, image: AppAssets.menuBackpack),
     _MenuItem(
       AppStrings.myOrders,
@@ -43,19 +51,21 @@ class _ProfilePageState extends State<ProfilePage> {
       image: AppAssets.menuSalesRecord,
       route: RouteName.sellHistoryPage,
     ),
-    _MenuItem(AppStrings.drawRecord, image: AppAssets.menuDrawRecord),
-    _MenuItem(AppStrings.helpCenter, image: AppAssets.menuHelpCenter),
-    const _MenuItem(
-      AppStrings.termsOfService,
-      icon: Iconsax.document_text,
-      route: RouteName.tncPage,
-      arguments: TncType.terms,
+    _MenuItem(
+      AppStrings.drawRecord,
+      image: AppAssets.menuDrawRecord,
+      route: RouteName.drawHistoryPage,
     ),
-    const _MenuItem(
+    _MenuItem(AppStrings.helpCenter, image: AppAssets.menuHelpCenter),
+    _MenuItem(
+      AppStrings.termsOfService,
+      image: AppAssets.menuTerms,
+      onTap: () => TncPage.open(context, TncType.terms),
+    ),
+    _MenuItem(
       AppStrings.privacyPolicy,
-      icon: Iconsax.shield_tick,
-      route: RouteName.tncPage,
-      arguments: TncType.privacy,
+      image: AppAssets.menuPrivacy,
+      onTap: () => TncPage.open(context, TncType.privacy),
     ),
     _MenuItem(
       AppStrings.onlineCustomerService,
@@ -140,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
               color: AppColors.loginTextColor,
             ),
             10.heightSpace,
-            for (final _MenuItem item in _menuItems) ...[
+            for (final _MenuItem item in _menuItems(user)) ...[
               _menuTile(item, onTap: _menuAction(item)),
               8.heightSpace,
             ],
@@ -264,7 +274,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             6.widthSpace,
             InkWellWrapper(
-              onTap: _comingSoon,
+              onTap: () =>
+                  AppNavigator.pushNamed(context, RouteName.edtiProfilePage),
               child: Icon(Iconsax.edit_2_copy, size: 14.r, color: white),
             ),
           ],
@@ -298,13 +309,14 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _levelRow(LevelModel level) {
     const Color white = AppColors.whiteColor;
     final NumberFormat exp = NumberFormat('#,##0');
+    final BorderRadius barRadius = BorderRadius.circular(4).r;
 
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1).r,
           decoration: BoxDecoration(
-            color: AppColors.levelBadgeColor,
+            gradient: AppColors.levelBadgeGradientColor,
             borderRadius: BorderRadius.circular(4).r,
           ),
           child: AppText(
@@ -316,13 +328,23 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         8.widthSpace,
         Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4).r,
-            child: LinearProgressIndicator(
-              value: level.progress,
-              minHeight: 6.r,
-              backgroundColor: white.wOpacity(0.3),
-              color: AppColors.levelBadgeColor,
+          child: Container(
+            height: 6.r,
+            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+              color: white.wOpacity(0.25),
+              borderRadius: barRadius,
+            ),
+            // the gradient runs the filled part's length
+            child: FractionallySizedBox(
+              widthFactor: level.progress,
+              heightFactor: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: AppColors.levelBarGradientColor,
+                  borderRadius: barRadius,
+                ),
+              ),
             ),
           ),
         ),
@@ -339,7 +361,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Points balance with the top-up button
   Widget _balanceCard() {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 12, 12).r,
@@ -385,13 +406,15 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// Opens [item]'s route; null ("coming soon") if it has none yet.
+  /// [item]'s own tap, else opening its route; null ("coming soon") if it
+  /// has neither yet.
   VoidCallback? _menuAction(_MenuItem item) {
+    if (item.onTap != null) return item.onTap;
+
     final String? route = item.route;
     if (route == null) return null;
 
-    return () =>
-        AppNavigator.pushNamed(context, route, arguments: item.arguments);
+    return () => AppNavigator.pushNamed(context, route);
   }
 
   Widget _menuTile(_MenuItem item, {VoidCallback? onTap, Color? color}) {
@@ -403,8 +426,8 @@ class _ProfilePageState extends State<ProfilePage> {
         decoration: _cardDecoration,
         child: Row(
           children: [
-            _menuLeading(item, color: color),
-            12.widthSpace,
+            _menuLeading(item),
+            13.widthSpace,
             Expanded(
               child: AppText(
                 context.tr(item.label),
@@ -424,25 +447,13 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _menuLeading(_MenuItem item, {Color? color}) {
-    final String? image = item.image;
-    final double imageSize = 36.r;
-
-    if (image == null) {
-      return SizedBox(
-        width: imageSize,
-        child: Icon(
-          item.icon,
-          size: 20.r,
-          color: color ?? AppColors.profileMenuIconColor,
-        ),
-      );
-    }
+  Widget _menuLeading(_MenuItem item) {
+    final double imageSize = 24.r;
 
     return ColorFiltered(
       colorFilter: _grayscale,
       child: Image.asset(
-        image,
+        item.image,
         width: imageSize,
         height: imageSize,
         fit: BoxFit.contain,
@@ -466,24 +477,17 @@ class _ProfilePageState extends State<ProfilePage> {
   );
 }
 
-/// A row of 常用功能: its label (a translation key), its picture or icon,
-/// and the page it opens.
+/// A row of 常用功能: its label (a translation key), its picture, and the
+/// page it opens.
 class _MenuItem {
   final String label;
-  final String? image;
-  final IconData? icon;
+  final String image;
 
   /// The page it opens (a [RouteName]); null: "coming soon".
   final String? route;
 
-  /// What [route] is pushed with, e.g. the TncType for the terms page.
-  final Object? arguments;
+  /// What tapping it does, in place of opening [route].
+  final VoidCallback? onTap;
 
-  const _MenuItem(
-    this.label, {
-    this.image,
-    this.icon,
-    this.route,
-    this.arguments,
-  });
+  const _MenuItem(this.label, {required this.image, this.route, this.onTap});
 }

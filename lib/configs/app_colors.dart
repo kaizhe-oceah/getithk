@@ -104,7 +104,20 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-  static const Color levelBadgeColor = Color(0xFFF5A623);
+  // the level badge and bar: orange, amber in the middle, orange
+  static const List<Color> _levelColors = [
+    Color(0xFFFF8A2A),
+    Color(0xFFF6BE33),
+    Color(0xFFFF8A2A),
+  ];
+  static const LinearGradient levelBadgeGradientColor = LinearGradient(
+    colors: _levelColors,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+  static const LinearGradient levelBarGradientColor = LinearGradient(
+    colors: _levelColors,
+  );
   static const Color coinColor = Color(0xFFF6B100);
   static const Color profileMenuIconColor = Color(0xFF3A3A3A);
 

@@ -94,6 +94,23 @@ enum ProductGrade {
 
   static ProductGrade? fromValue(int? value) =>
       values.where((element) => element.value == value).firstOrNull;
+
+  static const Map<String, ProductGrade> _byNumeral = {
+    '尾': last,
+    '一': first,
+    '二': second,
+    '三': third,
+    '四': fourth,
+    '五': fifth,
+  };
+
+  /// From a grade's name alone ("五等獎"): its numeral.
+  static ProductGrade? fromName(String? name) {
+    for (final MapEntry<String, ProductGrade> entry in _byNumeral.entries) {
+      if ((name ?? '').contains(entry.key)) return entry.value;
+    }
+    return null;
+  }
 }
 
 enum ProductSort {

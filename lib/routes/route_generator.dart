@@ -1,5 +1,7 @@
 // Package imports:
 import "package:getithk/pages/address_page.dart";
+import "package:getithk/pages/draw_history_page.dart";
+import "package:getithk/pages/edit_profile_page.dart";
 import "package:getithk/pages/voucher_page.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:page_transition/page_transition.dart";
@@ -7,6 +9,7 @@ import "package:page_transition/page_transition.dart";
 // Project imports:
 import "../imports.dart";
 import "../pages/activity_page.dart";
+import "../pages/agent_commission_page.dart";
 import "../pages/add_address_page.dart";
 import "../pages/backpack_page.dart";
 import "../pages/checkout_page.dart";
@@ -131,6 +134,9 @@ class RouteGenerator {
       case RouteName.topupPage:
         return const TopupPage();
 
+      case RouteName.edtiProfilePage:
+        return const EditProfilePage();
+
       case RouteName.subProductPage:
         final Object? product = settings.arguments;
         return product is MainProductModel
@@ -167,6 +173,12 @@ class RouteGenerator {
 
       case RouteName.sellHistoryPage:
         return const SellHistoryPage();
+
+      case RouteName.drawHistoryPage:
+        return const DrawHistoryPage();
+
+      case RouteName.agentCommissionPage:
+        return const AgentCommissionPage();
 
       case RouteName.orderDetailsPage:
         final Object? shippingId = settings.arguments;
