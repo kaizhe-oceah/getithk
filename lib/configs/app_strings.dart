@@ -11,6 +11,7 @@ class AppStrings {
   static const String comingSoon = 'coming_soon';
   static const String forgotPassword = 'forgot_password';
   static const String passwordResetUnavailable = 'password_reset_unavailable';
+  static const String resetPassword = 'reset_password';
   static const String loginWithProvider = 'login_with_provider';
   static const String socialLoginUnavailable = 'social_login_unavailable';
   static const String registerWithEmail = 'register_with_email';

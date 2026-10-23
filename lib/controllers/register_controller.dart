@@ -58,9 +58,11 @@ class RegisterController extends ChangeNotifier {
     update();
   }
 
-  void onSocialRegister(String provider) {
-    ToastHelper.showToast(
-      context.tr(AppStrings.socialLoginUnavailable, args: [provider]),
+  void onSocialRegister(SocialProvider provider) {
+    final String referralCode = referralCodeController.text.trim();
+    context.read<AppController>().socialSignIn(
+      provider,
+      referralCode: referralCode.isEmpty ? null : referralCode,
     );
   }
 

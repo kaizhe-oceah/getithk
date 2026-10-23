@@ -30,9 +30,38 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<!-- Google sign-in: the iOS client's REVERSED_CLIENT_ID -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.66603039397-72nuuphkfpam3b874f0o34gqd8j9mi1j</string>
+			</array>
+		</dict>
+		<!-- Facebook login: fb + the app ID -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb2600464973801371</string>
+			</array>
+		</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>2600464973801371</string>
+	<key>FacebookClientToken</key>
+	<string>00000000000000000000000000000000</string>
+	<key>FacebookDisplayName</key>
+	<string>GetItHK</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tel</string>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

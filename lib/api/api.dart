@@ -6,6 +6,35 @@ class Api {
   String? apiUrl;
   Api({required String this.apiUrl});
 
+  // signs in with [provider]'s [token]; the server signs a new player up
+  // first ([referralCode] then counts)
+  Future<void> socialLogin({
+    required SocialProvider provider,
+    required String token,
+    String? referralCode,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      endPoint: kPlayerSocialLogin,
+      params: {
+        "provider": provider.value,
+        "token": token,
+        "referral_code": ?referralCode,
+      },
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
   Future<void> login({
     required ContactType type,
     String? email,

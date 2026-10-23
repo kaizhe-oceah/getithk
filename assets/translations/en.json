@@ -2,6 +2,7 @@
   "coming_soon": "Coming Soon",
   "forgot_password": "Forgot password?",
   "password_reset_unavailable": "Password reset is not available yet",
+  "reset_password": "Reset Password",
   "login_with_provider": "Log in with {}",
   "social_login_unavailable": "{} login is not available yet",
   "register_with_email": "Register with Email",

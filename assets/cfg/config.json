@@ -6,5 +6,10 @@
   "api_trial_base_url": "https://blindbox-hk.stghub.asia/api/v1",
   "socket_url": "",
   "currency": "RM",
+  "google_ios_client_id": "66603039397-72nuuphkfpam3b874f0o34gqd8j9mi1j.apps.googleusercontent.com",
+  "google_server_client_id": "66603039397-tdvu03bmoglelpiahja5cphkkvhvg1tq.apps.googleusercontent.com",
+  "facebook_app_id": "2600464973801371",
+  "apple_service_id": "",
+  "apple_redirect_uri": "",
   "environment": "staging"
 }

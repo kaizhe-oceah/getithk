@@ -42,11 +42,8 @@ class LoginController extends ChangeNotifier {
     update();
   }
 
-  void onSocialLogin(String provider) {
-    ToastHelper.showToast(
-      context.tr(AppStrings.socialLoginUnavailable, args: [provider]),
-    );
-  }
+  void onSocialLogin(SocialProvider provider) =>
+      context.read<AppController>().socialSignIn(provider);
 
   Future<void> onLogin() async {
     if (!(formKey.currentState?.validate() ?? false)) return;

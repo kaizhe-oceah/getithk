@@ -56,15 +56,15 @@ android {
        signingConfigs {
         release {
             storeFile file("../app/release_key.keystore")
-            keyAlias "atasmobile"
-            keyPassword "atasmobile"
-            storePassword "atasmobile"
+            keyAlias "getithk"
+            keyPassword "u0kzJd8zG0DHzYmAAJmE1n6H"
+            storePassword "u0kzJd8zG0DHzYmAAJmE1n6H"
         }
         debug {
             storeFile file("../app/debug_key.keystore")
-            keyAlias "atasmobile"
-            keyPassword "atasmobile"
-            storePassword "atasmobile"
+            keyAlias "getithk"
+            keyPassword "getithk"
+            storePassword "getithk"
         }
     }
 

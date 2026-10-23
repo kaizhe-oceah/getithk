@@ -2,6 +2,9 @@
 import 'package:getithk/models/level_model.dart';
 import 'package:getithk/models/user_model.dart';
 import '../imports.dart';
+import '../services/apple_auth_service.dart';
+import '../services/facebook_auth_service.dart';
+import '../services/google_auth_service.dart';
 import '../services/http_services/http_service_custom.dart';
 import '../services/socket_service.dart';
 import 'main_controller.dart';
@@ -61,13 +64,47 @@ class AppController with ChangeNotifier {
       }
     }
 
-    // a new session: let a later expiry log out again
     HttpServiceCustom.resetSessionFlag();
     SocketService.connect();
 
     navigateToTab(kBottomNavHome);
     AppNavigator.popUntilFirst(context);
     AppNavigator.pushReplacementNamed(context, RouteName.mainPage);
+  }
+
+  Future<void> socialSignIn(
+    SocialProvider provider, {
+    String? referralCode,
+  }) async {
+    final Future<String?> Function()? getToken = switch (provider) {
+      SocialProvider.google when GoogleAuthService.isConfigured =>
+        GoogleAuthService.signIn,
+      SocialProvider.facebook when FacebookAuthService.isConfigured =>
+        FacebookAuthService.signIn,
+      SocialProvider.apple when AppleAuthService.isConfigured =>
+        AppleAuthService.signIn,
+      _ => null,
+    };
+    if (getToken == null) {
+      ToastHelper.showToast(
+        context.tr(AppStrings.socialLoginUnavailable, args: [provider.label]),
+      );
+      return;
+    }
+
+    final String? token = await getToken();
+    if (token == null) return;
+
+    await ApiService.api.socialLogin(
+      showLoader: true,
+      provider: provider,
+      token: token,
+      referralCode: referralCode,
+      onSuccess: (response) {
+        response.showMessage();
+        signIn(response);
+      },
+    );
   }
 
   /// Clears the session, then on to the login page; with [toHome] (an
@@ -86,6 +123,8 @@ class AppController with ChangeNotifier {
 
     // without this, the next profile refresh would log the player back in
     await ApiService.deleteApiToken();
+    await GoogleAuthService.signOut();
+    await FacebookAuthService.signOut();
     // await NotificationService.deleteToken();
     // await NotificationService.getToken();
     AppPreferences.clearSharedPrefs();

@@ -21,6 +21,7 @@ import "../pages/my_orders_page.dart";
 import "../pages/order_details_page.dart";
 import "../pages/profile_page.dart";
 import "../pages/sell_history_page.dart";
+import "../pages/settings_page.dart";
 import "../models/address_model.dart";
 import "../models/draw_result_model.dart";
 import "../models/main_product_model.dart";
@@ -136,6 +137,9 @@ class RouteGenerator {
 
       case RouteName.edtiProfilePage:
         return const EditProfilePage();
+
+      case RouteName.settingsPage:
+        return const SettingsPage();
 
       case RouteName.subProductPage:
         final Object? product = settings.arguments;

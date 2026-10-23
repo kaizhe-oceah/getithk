@@ -71,7 +71,11 @@ class _ProfilePageState extends State<ProfilePage> {
       AppStrings.onlineCustomerService,
       image: AppAssets.menuCustomerService,
     ),
-    _MenuItem(AppStrings.settings, image: AppAssets.menuSettings),
+    _MenuItem(
+      AppStrings.settings,
+      image: AppAssets.menuSettings,
+      route: RouteName.settingsPage,
+    ),
   ];
 
   static const ColorFilter _grayscale = ColorFilter.matrix(<double>[
@@ -150,16 +154,10 @@ class _ProfilePageState extends State<ProfilePage> {
               color: AppColors.loginTextColor,
             ),
             10.heightSpace,
-            for (final _MenuItem item in _menuItems(user)) ...[
+            for (final (int i, _MenuItem item) in _menuItems(user).indexed) ...[
+              if (i > 0) 8.heightSpace,
               _menuTile(item, onTap: _menuAction(item)),
-              8.heightSpace,
             ],
-
-            _menuTile(
-              _MenuItem(AppStrings.logout, image: AppAssets.menuLogout),
-              color: AppColors.redColor,
-              onTap: BottomSheetHelper.logout,
-            ),
           ],
         ),
       ),
@@ -417,7 +415,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return () => AppNavigator.pushNamed(context, route);
   }
 
-  Widget _menuTile(_MenuItem item, {VoidCallback? onTap, Color? color}) {
+  Widget _menuTile(_MenuItem item, {VoidCallback? onTap}) {
     return InkWellWrapper(
       onTap: onTap ?? _comingSoon,
       child: Container(
@@ -433,7 +431,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 context.tr(item.label),
                 fontSize: kFont14,
                 fontWeight: FontWeight.w500,
-                color: color ?? AppColors.loginTextColor,
+                color: AppColors.loginTextColor,
               ),
             ),
             Icon(

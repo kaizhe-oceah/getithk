@@ -52,8 +52,6 @@ class _LoginPageState extends State<LoginPage>
   static const String _testEmail = 'lamkaizhe2001@gmail.com';
   static const String _testPassword = '123123123';
 
-  /// Debug builds only (the logo's double tap): the login tab's email form,
-  /// filled in with the test account.
   void _fillTestAccount(BuildContext context) {
     final LoginController login = context.read<LoginController>();
 
@@ -305,7 +303,7 @@ class _LoginPageState extends State<LoginPage>
     required String providerTextKey,
     required VoidCallback onEmail,
     required VoidCallback onPhone,
-    required void Function(String provider) onSocial,
+    required void Function(SocialProvider provider) onSocial,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -328,23 +326,29 @@ class _LoginPageState extends State<LoginPage>
         12.heightSpace,
         _optionButton(
           icon: Iconsax.facebook,
-          text: context.tr(providerTextKey, args: ['Facebook']),
+          text: context.tr(
+            providerTextKey,
+            args: [SocialProvider.facebook.label],
+          ),
           color: AppColors.facebookColor,
-          onTap: () => onSocial('Facebook'),
+          onTap: () => onSocial(SocialProvider.facebook),
         ),
         12.heightSpace,
         _optionButton(
           icon: Iconsax.google_1,
-          text: context.tr(providerTextKey, args: ['Google']),
+          text: context.tr(
+            providerTextKey,
+            args: [SocialProvider.google.label],
+          ),
           color: AppColors.googleColor,
-          onTap: () => onSocial('Google'),
+          onTap: () => onSocial(SocialProvider.google),
         ),
         12.heightSpace,
         _optionButton(
           icon: Iconsax.apple,
-          text: context.tr(providerTextKey, args: ['Apple']),
+          text: context.tr(providerTextKey, args: [SocialProvider.apple.label]),
           color: AppColors.blackColor,
-          onTap: () => onSocial('Apple'),
+          onTap: () => onSocial(SocialProvider.apple),
         ),
       ],
     );

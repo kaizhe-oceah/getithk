@@ -122,3 +122,5 @@ app.*.symbols
 
 # FVM Version Cache
 .fvm/
+# JVM heap dumps (Gradle out-of-memory crashes)
+*.hprof

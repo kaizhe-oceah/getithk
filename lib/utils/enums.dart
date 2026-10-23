@@ -113,6 +113,18 @@ enum ProductGrade {
   }
 }
 
+enum SocialProvider {
+  facebook('facebook', 'Facebook'),
+  google('google', 'Google'),
+  apple('apple', 'Apple');
+
+  const SocialProvider(this.value, this.label);
+
+  /// What the social-login API calls it.
+  final String value;
+  final String label;
+}
+
 enum ProductSort {
   recommended('recommended'),
   lowStock('low_stock'),

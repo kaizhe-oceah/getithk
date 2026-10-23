@@ -2,6 +2,7 @@
   "coming_soon": "敬請期待",
   "forgot_password": "忘記密碼？",
   "password_reset_unavailable": "密碼重設功能尚未開放",
+  "reset_password": "重設密碼",
   "login_with_provider": "使用 {} 登入",
   "social_login_unavailable": "{} 登入尚未開放",
   "register_with_email": "使用電子郵件註冊",

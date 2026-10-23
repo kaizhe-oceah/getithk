@@ -103,6 +103,9 @@ dependencies:
   flutter_map: ^8.3.2
   location: ^10.0.2
   google_maps_flutter: ^2.12.3
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^8.1.0
+  flutter_facebook_auth: ^7.2.0
   searchfield: ^2.0.0
   uuid: ^4.5.1
   logger: ^2.5.0
@@ -273,5 +276,6 @@ scripts:
   # Keys land in android/app/, where the signingConfigs in build.gradle expect
   # them. Both overwrite any existing keystore — a lost release key means no
   # more updates to a published app, so back the file up somewhere safe.
-  create-release-keystore: keytool -genkey -v -keystore android/app/release_key.keystore -storepass atasmobile -alias atasmobile -keypass atasmobile -keyalg RSA -keysize 2048 -validity 10000
-  create-debug-keystore: keytool -genkey -v -keystore android/app/debug_key.keystore -storepass atasmobile -alias atasmobile -keypass atasmobile -keyalg RSA -keysize 2048 -validity 10000
+  # The release one asks for its password (it's in build.gradle, not here).
+  create-release-keystore: keytool -genkeypair -v -keystore android/app/release_key.keystore -alias getithk -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=GetItHK, OU=Mobile, O=GetItHK, L=Hong Kong, C=HK"
+  create-debug-keystore: keytool -genkeypair -v -keystore android/app/debug_key.keystore -storepass getithk -alias getithk -keypass getithk -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=GetItHK, OU=Mobile, O=GetItHK, L=Hong Kong, C=HK"
