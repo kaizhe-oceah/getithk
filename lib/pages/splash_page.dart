@@ -55,6 +55,7 @@ class _SplashPageState extends State<SplashPage>
       // access some services
       await 0.001.delay();
       NotificationService.shouldListenNotification();
+      SocketService.start();
 
       if (AppPreferences.getUser() != null) {
         await context.read<ThemeController>().loadTheme();
@@ -62,7 +63,7 @@ class _SplashPageState extends State<SplashPage>
         context.read<AppController>().setUser = AppPreferences.getUser()!;
 
         ApiService.updateApiBaseUrl(role: AppPreferences.getThemeRole());
-        SocketService.connect();
+        SocketService.joinSession();
       }
 
       AppNavigator.pushReplacementNamedWithFade(

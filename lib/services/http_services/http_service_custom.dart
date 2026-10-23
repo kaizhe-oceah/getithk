@@ -84,7 +84,7 @@ class HttpServiceCustom {
           // token (e.g. login) it's wrong credentials: show the message and
           // stay on the page.
           if (withBearer) {
-            _handleSessionExpired();
+            handleSessionExpired();
           } else {
             _handleErrorResponse(errorMessage, onError);
           }
@@ -123,7 +123,9 @@ class HttpServiceCustom {
     }
   }
 
-  static void _handleSessionExpired() {
+  /// Logs out to Home with the session-expired toast, once per session:
+  /// from a 401, or the socket saying this login was kicked.
+  static void handleSessionExpired() {
     if (!_isLoggedOutDueToSession) {
       _isLoggedOutDueToSession = true;
       ToastHelper.warning(context.tr(AppStrings.sessionExpired));

@@ -84,6 +84,38 @@ class MainProductModel {
         : [];
   }
 
+  /// A live update (the socket's main-product.update): what it has of what
+  /// everyone sees. The player's own (user_remaining_draws, is_available,
+  /// the top-up unlock progress) isn't in a public update, so it stays.
+  void applyLiveUpdate(Map<String, dynamic> json) {
+    final MainProductModel live = MainProductModel.fromJson(json);
+    bool has(String key) => json.containsKey(key);
+
+    if (has('name')) name = live.name;
+    if (has('image')) image = live.image;
+    if (has('description')) description = live.description;
+    if (has('category_id')) categoryId = live.categoryId;
+    if (has('category_name')) categoryName = live.categoryName;
+    if (has('mode_id')) modeId = live.modeId;
+    if (has('mode_name')) modeName = live.modeName;
+    if (has('sorting')) sorting = live.sorting;
+    if (has('status')) status = live.status;
+    if (has('draw_amount_type')) drawAmountType = live.drawAmountType;
+    if (has('draw_amount')) drawAmount = live.drawAmount;
+    if (has('total_draws')) totalDraws = live.totalDraws;
+    if (has('remaining_draws')) remainingDraws = live.remainingDraws;
+    if (has('total_sold')) totalSold = live.totalSold;
+    if (has('is_trial_draw')) isTrialDraw = live.isTrialDraw;
+    if (has('is_new_users_only')) isNewUsersOnly = live.isNewUsersOnly;
+    if (has('is_sold_out')) isSoldOut = live.isSoldOut;
+    if (has('is_show_quantity')) isShowQuantity = live.isShowQuantity;
+    if (has('topup_per_draw')) topupPerDraw = live.topupPerDraw;
+    if (has('max_unlock_times')) maxUnlockTimes = live.maxUnlockTimes;
+    if (has('tags')) tags = live.tags;
+    if (has('video_category_id')) videoCategoryId = live.videoCategoryId;
+    if (has('grade_videos')) gradeVideos = live.gradeVideos;
+  }
+
   bool get hasTopupUnlock => topupPerDraw != null;
   bool get canDraw => isAvailable && !isSoldOut;
 }

@@ -9,6 +9,7 @@ import '../models/main_product_model.dart';
 import '../models/page_banner_model.dart';
 import '../models/product_tag_model.dart';
 import '../services/draw_video_service.dart';
+import '../services/socket_service.dart';
 import '../utils/draw_helper.dart';
 
 class HomeController extends ChangeNotifier {
@@ -56,9 +57,39 @@ class HomeController extends ChangeNotifier {
 
   late final Future<void> ready;
 
+  late final StreamSubscription<Map<String, dynamic>> _liveUpdates;
+
   HomeController() {
     sort.addListener(onSortChanged);
+    _liveUpdates = SocketService.mainProductUpdates.listen(_onLiveUpdate);
     ready = setInit();
+  }
+
+  /// main-product.update: {"products": [the changed ones, in full]}; their
+  /// cards, on show or cached for a swipe, catch up.
+  void _onLiveUpdate(Map<String, dynamic> data) {
+    final dynamic list = data['products'];
+    if (list is! List) return;
+
+    final Map<int, Map<String, dynamic>> updates = {
+      for (final dynamic item in list)
+        if (item is Map && int.tryParse('${item['id']}') != null)
+          int.parse('${item['id']}'): Map<String, dynamic>.from(item),
+    };
+    if (updates.isEmpty) return;
+
+    bool changed = false;
+    for (final MainProductModel product in [
+      ...products,
+      for (final List<MainProductModel> cached in _cachedProducts.values)
+        ...cached,
+    ]) {
+      final Map<String, dynamic>? live = updates[product.id];
+      if (live == null) continue;
+      product.applyLiveUpdate(live);
+      changed = true;
+    }
+    if (changed) update();
   }
 
   static HomeController? _preloaded;
@@ -257,6 +288,7 @@ class HomeController extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    _liveUpdates.cancel();
     refreshController.dispose();
     bannerIndex.dispose();
     categoryScrollController.dispose();

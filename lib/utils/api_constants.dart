@@ -56,11 +56,6 @@ const kPlayerSocialLogin = "/player/social-login";
 /// closes with the status.
 const kTopUpReturnPath = "/app-payment-result";
 
-
-
-// Socket events
-const kSocketSessionExpired = "session_expired";
-
 // API Timezone
 const kApiTimezone = "Asia/Kuala_Lumpur";
 

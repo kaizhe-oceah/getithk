@@ -506,10 +506,13 @@ class MainProductDrawButtons extends StatelessWidget {
       );
     }
 
+    // logged out: either opens the login page (the button checks); a top-up
+    // unlock product is drawn by topping up, so 購買點數
     if (context.watch<AppController>().user == null) {
+      if (product.hasTopupUnlock) return _buyPointsButton(context);
       return product.isTrialDraw
           ? _trialButtons(context)
-          : _buyPointsButton(context);
+          : _drawLotsButton(context);
     }
 
     if (product.hasTopupUnlock && (product.availableDraws ?? 0) <= 0) {
@@ -538,18 +541,20 @@ class MainProductDrawButtons extends StatelessWidget {
     );
   }
 
+  Widget _drawLotsButton(BuildContext context) {
+    return _button(
+      context.tr(AppStrings.drawLots),
+      color: context.color.primary,
+      onTap: () => onDraw?.call(1),
+    );
+  }
+
   Widget _trialButtons(BuildContext context) {
     final Color primary = context.color.primary;
 
     return Row(
       children: [
-        Expanded(
-          child: _button(
-            context.tr(AppStrings.drawLots),
-            color: primary,
-            onTap: () => onDraw?.call(1),
-          ),
-        ),
+        Expanded(child: _drawLotsButton(context)),
         10.widthSpace,
         Expanded(
           child: Stack(

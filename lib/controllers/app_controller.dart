@@ -65,7 +65,7 @@ class AppController with ChangeNotifier {
     }
 
     HttpServiceCustom.resetSessionFlag();
-    SocketService.connect();
+    SocketService.joinSession();
 
     navigateToTab(kBottomNavHome);
     AppNavigator.popUntilFirst(context);
@@ -114,7 +114,7 @@ class AppController with ChangeNotifier {
     _isLoggingOut = true;
 
     Loader.show(status: "${context.tr(AppStrings.loggingOut)}...");
-    SocketService.disconnect();
+    SocketService.leaveSession();
 
     final String? token = await ApiService.getApiToken();
     if (token != null && token.isNotEmpty) {
