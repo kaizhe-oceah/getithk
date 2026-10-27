@@ -9,7 +9,7 @@ class MainProductGetItCard extends StatelessWidget {
   final VoidCallback? onTopUp;
   final VoidCallback? onTap;
 
-  const MainProductGetItCard({
+  const MainProductGetItCard({  
     required this.product,
     this.onDraw,
     this.onTopUp,

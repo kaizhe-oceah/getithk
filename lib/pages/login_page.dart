@@ -311,21 +311,21 @@ class _LoginPageState extends State<LoginPage>
         _optionButton(
           icon: Iconsax.sms,
           text: emailText,
-          color: AppColors.loginFieldColor,
-          contentColor: AppColors.loginTextColor,
+          color: context.color.primary,
+          contentColor: AppColors.whiteColor,
           onTap: onEmail,
         ),
         12.heightSpace,
         _optionButton(
           icon: Iconsax.call,
           text: phoneText,
-          color: AppColors.loginFieldColor,
-          contentColor: AppColors.loginTextColor,
+          color: context.color.primary,
+          contentColor: AppColors.whiteColor,
           onTap: onPhone,
         ),
         12.heightSpace,
         _optionButton(
-          icon: Iconsax.facebook,
+          svgIcon: AppAssets.icFacebook,
           text: context.tr(
             providerTextKey,
             args: [SocialProvider.facebook.label],
@@ -335,17 +335,19 @@ class _LoginPageState extends State<LoginPage>
         ),
         12.heightSpace,
         _optionButton(
-          icon: Iconsax.google_1,
+          svgIcon: AppAssets.icGoogle,
+          tintIcon: false,
           text: context.tr(
             providerTextKey,
             args: [SocialProvider.google.label],
           ),
-          color: AppColors.googleColor,
+          contentColor: AppColors.blackColor,
+          color: AppColors.loginFieldColor,
           onTap: () => onSocial(SocialProvider.google),
         ),
         12.heightSpace,
         _optionButton(
-          icon: Iconsax.apple,
+          svgIcon: AppAssets.icApple,
           text: context.tr(providerTextKey, args: [SocialProvider.apple.label]),
           color: AppColors.blackColor,
           onTap: () => onSocial(SocialProvider.apple),
@@ -355,7 +357,9 @@ class _LoginPageState extends State<LoginPage>
   }
 
   Widget _optionButton({
-    required IconData icon,
+    IconData? icon,
+    String? svgIcon,
+    bool tintIcon = true,
     required String text,
     required Color color,
     Color contentColor = AppColors.whiteColor,
@@ -373,7 +377,14 @@ class _LoginPageState extends State<LoginPage>
           children: [
             Positioned(
               left: 20.r,
-              child: Icon(icon, size: 20.r, color: contentColor),
+              child: svgIcon != null
+                  ? AppImage(
+                      name: svgIcon,
+                      width: 20.r,
+                      height: 20.r,
+                      color: tintIcon ? contentColor : null,
+                    )
+                  : Icon(icon, size: 20.r, color: contentColor),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 48.r),

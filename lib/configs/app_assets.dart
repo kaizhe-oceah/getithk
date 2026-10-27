@@ -7,6 +7,11 @@ class AppAssets {
   static String get appName => "assets/images/app_name.png";
   static String get appNameDark => "assets/images/app_name_dark.png";
 
+  // social login (facebook / apple are monochrome, tint them; google keeps its colors)
+  static String get icFacebook => "assets/images/ic_facebook.svg";
+  static String get icGoogle => "assets/images/ic_google.svg";
+  static String get icApple => "assets/images/ic_apple.svg";
+
   // home
   static String get banner => "assets/images/banner.png";
   static String get coins => "assets/images/coins.png";

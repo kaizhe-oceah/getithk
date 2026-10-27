@@ -73,6 +73,8 @@ class _HomePageState extends State<HomePage>
 
   static const Duration _swipeDuration = Duration(milliseconds: 280);
 
+  List<BannerModel>? _precachedBanners;
+
   @override
   void dispose() {
     _swipe.dispose();
@@ -589,10 +591,21 @@ class _HomePageState extends State<HomePage>
   double _contentWidth(BuildContext context) =>
       MediaQuery.sizeOf(context).width - kHorizontalPadding.r * 2;
 
+  // the carousel only builds the page on screen, so the rest are loaded here
+  // up front; once per banner list
+  void _precacheBanners(List<BannerModel> banners, int cacheWidth) {
+    if (identical(banners, _precachedBanners)) return;
+    _precachedBanners = banners;
+    for (final BannerModel banner in banners) {
+      AppImage.precache(context, banner.image!, cacheWidth: cacheWidth);
+    }
+  }
+
   Widget _bannerCarousel(BuildContext context, HomeController controller) {
     final List<BannerModel> banners = controller.banners;
     final bool multiple = banners.length > 1;
     final int cacheWidth = _cacheWidth(context, _contentWidth(context));
+    _precacheBanners(banners, cacheWidth);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12).r,

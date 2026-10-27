@@ -65,6 +65,29 @@ class AppImage extends StatefulWidget {
 
   @override
   State<AppImage> createState() => _AppImageState();
+
+  // shared with [precache] so a precached image is the same cache entry
+  static ImageProvider networkProvider(String url, {int? cacheWidth}) =>
+      ExtendedResizeImage.resizeIfNeeded(
+        provider: ExtendedNetworkImageProvider(url.trim(), cache: true),
+        cacheWidth: cacheWidth,
+      );
+
+  /// Loads a network image into memory ahead of time, e.g. carousel pages
+  /// that aren't built yet, so they show at once instead of a skeleton.
+  /// Pass the same [cacheWidth] the [AppImage] will use.
+  static Future<void> precache(
+    BuildContext context,
+    String url, {
+    int? cacheWidth,
+  }) async {
+    if (!isNetworkUrl(url.trim())) return;
+    await precacheImage(
+      networkProvider(url, cacheWidth: cacheWidth),
+      context,
+      onError: (_, _) {},
+    );
+  }
 }
 
 class _AppImageState extends State<AppImage> {
@@ -338,14 +361,16 @@ class _AppImageState extends State<AppImage> {
     if (isNetwork) {
       printLog("🌐 Network image");
 
-      return ExtendedImage.network(
-        _safeName,
+      return ExtendedImage(
+        image: AppImage.networkProvider(
+          _safeName,
+          cacheWidth: widget.cacheWidth,
+        ),
+        enableLoadState: true,
         width: widget.width,
         height: widget.height,
         color: widget.color,
         fit: widget.fit ?? BoxFit.cover,
-        cache: true,
-        cacheWidth: widget.cacheWidth,
         borderRadius: _radius,
         shape: BoxShape.rectangle,
         loadStateChanged: (ExtendedImageState state) {

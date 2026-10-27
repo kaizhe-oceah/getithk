@@ -77,8 +77,6 @@ class EditProfilePage extends StatelessWidget {
     );
   }
 
-  /// The avatar as it'll look, then 暱稱 and the name to edit, with ↻ to
-  /// put it back.
   Widget _header(
     BuildContext context,
     EditProfileController controller,
@@ -247,7 +245,7 @@ class EditProfilePage extends StatelessWidget {
         fontWeight: FontWeight.w600,
         textColor: AppColors.whiteColor,
         gradient: AppColors.brandGradientColor,
-        padding: const EdgeInsets.symmetric(vertical: 12).r,
+        padding: const EdgeInsets.symmetric(vertical: 8).r,
         onTap: controller.isLoading ? null : controller.onSave,
       ),
     );
