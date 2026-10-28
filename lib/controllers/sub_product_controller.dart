@@ -2,6 +2,7 @@
 import '../imports.dart';
 import '../models/main_product_model.dart';
 import '../models/sub_product_model.dart';
+import '../services/socket_service.dart';
 import '../utils/draw_helper.dart';
 
 class SubProductController extends ChangeNotifier {
@@ -19,8 +20,41 @@ class SubProductController extends ChangeNotifier {
   List<MainProductGradeModel> grades = [];
   SubProductModel? combProduct;
 
+  final List<StreamSubscription<Map<String, dynamic>>> _liveUpdates = [];
+
   SubProductController({required this.product}) {
+    final int? id = product.id;
+    if (id != null) {
+      _liveUpdates.addAll([
+        SocketService.productRemainingUpdates(id).listen(_onRemainingUpdate),
+        SocketService.playerProductRemainingUpdates(
+          id,
+        ).listen(_onPlayerRemainingUpdate),
+      ]);
+    }
     _load();
+  }
+
+  /// product-remaining.update: the draws left, as anyone draws.
+  void _onRemainingUpdate(Map<String, dynamic> data) {
+    _applyRemaining(data);
+    update();
+  }
+
+  /// player-product-remaining.update: this player's own draws left.
+  void _onPlayerRemainingUpdate(Map<String, dynamic> data) {
+    _applyRemaining(data);
+    product.applyPlayerUpdate(data);
+    update();
+  }
+
+  void _applyRemaining(Map<String, dynamic> data) {
+    product.applyLiveUpdate(data);
+    // as after a draw of our own
+    if (data.containsKey('remaining_draws') &&
+        !data.containsKey('is_sold_out')) {
+      product.isSoldOut = product.remainingDraws <= 0;
+    }
   }
 
   List<List<SubProductModel>> get gradeGroups {
@@ -94,6 +128,10 @@ class SubProductController extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    for (final StreamSubscription<Map<String, dynamic>> updates
+        in _liveUpdates) {
+      updates.cancel();
+    }
     refreshController.dispose();
     super.dispose();
   }

@@ -56,7 +56,11 @@ class _ProfilePageState extends State<ProfilePage> {
       image: AppAssets.menuDrawRecord,
       route: RouteName.drawHistoryPage,
     ),
-    _MenuItem(AppStrings.helpCenter, image: AppAssets.menuHelpCenter),
+    _MenuItem(
+      AppStrings.helpCenter,
+      image: AppAssets.menuHelpCenter,
+      route: RouteName.helpCenterPage,
+    ),
     _MenuItem(
       AppStrings.termsOfService,
       image: AppAssets.menuTerms,

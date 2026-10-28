@@ -116,6 +116,29 @@ class MainProductModel {
     if (has('grade_videos')) gradeVideos = live.gradeVideos;
   }
 
+  /// This player's own update (the socket's
+  /// player-product-remaining.update): what [applyLiveUpdate] leaves.
+  void applyPlayerUpdate(Map<String, dynamic> json) {
+    final MainProductModel live = MainProductModel.fromJson(json);
+    bool has(String key) => json.containsKey(key);
+
+    if (has('user_remaining_draws')) {
+      userRemainingDraws = live.userRemainingDraws;
+    }
+    if (has('is_available')) isAvailable = live.isAvailable;
+    if (has('current_topup_amount')) {
+      currentTopupAmount = live.currentTopupAmount;
+    }
+    if (has('topup_to_next_unlock')) {
+      topupToNextUnlock = live.topupToNextUnlock;
+    }
+    if (has('unlocked_draws')) unlockedDraws = live.unlockedDraws;
+    if (has('available_draws')) availableDraws = live.availableDraws;
+    if (has('remaining_unlocked_draws')) {
+      remainingUnlockedDraws = live.remainingUnlockedDraws;
+    }
+  }
+
   bool get hasTopupUnlock => topupPerDraw != null;
   bool get canDraw => isAvailable && !isSoldOut;
 }

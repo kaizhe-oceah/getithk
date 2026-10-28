@@ -15,7 +15,19 @@ class DrawVideoService {
 
   static Directory? _directory;
   static bool _isPreloading = false;
+  static bool _refreshPending = false;
   static final Dio _dio = Dio();
+
+  /// The listing changed (draw-videos.update): fetched again, the new ones
+  /// downloaded and the gone ones deleted; once the preload going now is
+  /// done, if there is one.
+  static void refresh() {
+    if (_isPreloading) {
+      _refreshPending = true;
+      return;
+    }
+    preload();
+  }
 
   static Future<void> preload() async {
     if (_isPreloading) return;
@@ -37,6 +49,10 @@ class DrawVideoService {
       printLog('Draw videos preload stopped: $e');
     } finally {
       _isPreloading = false;
+      if (_refreshPending) {
+        _refreshPending = false;
+        preload();
+      }
     }
   }
 

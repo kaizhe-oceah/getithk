@@ -49,6 +49,9 @@ class AppAssets {
   static String get menuLogout => "assets/images/menu_logout.png";
   static String get homeBackground => "assets/images/bg.jpg";
 
+  // help center
+  static String get helpCenterHeader => "assets/images/help.jpeg";
+
   // congratulations dialog
   static String get congratulationsHeader => "assets/images/cong.png";
   static String get congratulationsBackground => "assets/images/bg_cong.png";

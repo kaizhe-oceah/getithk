@@ -13,6 +13,7 @@ import "../pages/agent_commission_page.dart";
 import "../pages/add_address_page.dart";
 import "../pages/backpack_page.dart";
 import "../pages/checkout_page.dart";
+import "../pages/help_center_page.dart";
 import "../pages/home_page.dart";
 import "../pages/invite_friends_page.dart";
 import "../pages/login_page.dart";
@@ -140,6 +141,9 @@ class RouteGenerator {
 
       case RouteName.settingsPage:
         return const SettingsPage();
+
+      case RouteName.helpCenterPage:
+        return const HelpCenterPage();
 
       case RouteName.subProductPage:
         final Object? product = settings.arguments;
