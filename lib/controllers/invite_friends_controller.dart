@@ -27,11 +27,9 @@ class InviteFriendsController extends ChangeNotifier {
 
   int get totalRounds => invitePoint?.totalRounds ?? 1;
 
-  /// [round]'s listing; null until it first loads.
-  InvitePointModel? get roundPoint => rounds[round];
-
-  bool get isRoundLoading =>
-      roundPoint == null && (isLoading || _loadingRounds.contains(round));
+  /// No listing for round [value] yet, but one on the way.
+  bool isRoundLoading(int value) =>
+      rounds[value] == null && (isLoading || _loadingRounds.contains(value));
 
   /// The player's current round to start with; [round] once it's been
   /// swiped to another.
@@ -43,6 +41,7 @@ class InviteFriendsController extends ChangeNotifier {
 
     isLoading = false;
     update();
+    _prefetchAround(round);
   }
 
   Future<void> _getListing(int? value) async {
@@ -66,7 +65,24 @@ class InviteFriendsController extends ChangeNotifier {
     if (value < 1 || value > totalRounds || value == round) return;
 
     round = value;
-    _loadingRounds.add(value);
+    update();
+    _prefetchAround(value);
+    await _loadRound(value);
+  }
+
+  // the rounds either side, so a swipe drags in their rewards, not a
+  // skeleton
+  void _prefetchAround(int value) {
+    for (final int side in [value - 1, value + 1]) {
+      if (side >= 1 && side <= totalRounds && !rounds.containsKey(side)) {
+        _loadRound(side);
+      }
+    }
+  }
+
+  Future<void> _loadRound(int value) async {
+    // already on the way
+    if (!_loadingRounds.add(value)) return;
     update();
 
     await _getListing(value);
@@ -75,20 +91,17 @@ class InviteFriendsController extends ChangeNotifier {
     update();
   }
 
-  void onNextRound() => onSelectRound(round + 1);
-  void onPreviousRound() => onSelectRound(round - 1);
-
   Future<void> onRefresh() async {
     await _load();
     refreshController.refreshCompleted();
   }
 
-  /// 一鍵領取: every reward still to claim in the round on show.
-  void onClaimRound() => _claim(round: round);
+  /// 一鍵領取: every reward still to claim in round [value].
+  void onClaimRound(int value) => _claim(round: value);
 
-  /// 領取: [tier]'s reward, in the round on show.
-  void onClaim(InvitePointTierModel tier) =>
-      _claim(round: round, position: tier.position);
+  /// 領取: [tier]'s reward, in round [value].
+  void onClaim(int value, InvitePointTierModel tier) =>
+      _claim(round: value, position: tier.position);
 
   /// Claims; a success toast with the API's message, then the balance and
   /// the round on show catch up. A failure's toast is the API call's.
@@ -108,7 +121,7 @@ class InviteFriendsController extends ChangeNotifier {
     );
     if (!isClaimed || _isDisposed) return;
 
-    await _getListing(this.round);
+    await _getListing(round ?? this.round);
     update();
   }
 

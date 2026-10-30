@@ -6,15 +6,6 @@ import '../imports.dart';
 import 'draw_video_service.dart';
 import 'http_services/http_service_custom.dart';
 
-/// Live connection to the backend's socket.io bridge, for the app's whole
-/// run: the public channels for everyone (live.main-products,
-/// live.draw-videos), a screen's own while it's open (a product's draws
-/// left), and while logged in this login's own: its session channel, for the
-/// server kicking it, and a screen's for this player (their draws left of a
-/// product).
-///
-/// assets/cfg/config.json: socket_url, socket_path and socket_bridge_token
-/// (the bridge's shared token, not the player's).
 class SocketService {
   static io.Socket? _socket;
 

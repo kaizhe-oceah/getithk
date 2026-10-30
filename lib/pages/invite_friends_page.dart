@@ -1,4 +1,7 @@
-// Project imports:
+// Flutter imports:
+import 'package:flutter/rendering.dart' show RenderProxyBox;
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
 import '../components/invite/invite_parts.dart';
 import '../controllers/invite_friends_controller.dart';
 import '../imports.dart';
@@ -140,23 +143,26 @@ class InviteFriendsPage extends StatelessWidget {
             ],
           ),
           14.heightSpace,
-          if (controller.totalRounds > 1) ...[
-            _swipeHint(context, controller),
-            10.heightSpace,
-            _RoundSwipeArea(
-              onNext: controller.onNextRound,
-              onPrevious: controller.onPreviousRound,
-              child: _round(context, controller, inset: tableInset),
-            ),
-          ] else
-            _round(context, controller, inset: tableInset),
+          if (controller.totalRounds > 1)
+            _RoundPager(
+              initialRound: controller.round,
+              totalRounds: controller.totalRounds,
+              onRoundChanged: controller.onSelectRound,
+              hintBuilder: (pages) =>
+                  _swipeHint(context, pages, controller.totalRounds),
+              roundBuilder: (context, round) =>
+                  _round(context, controller, round, inset: tableInset),
+            )
+          else
+            _round(context, controller, controller.round, inset: tableInset),
         ],
       ),
     );
   }
 
-  /// ◀ 左右滑動查看獎勵 ▶, then a dot per round, the one on show in primary.
-  Widget _swipeHint(BuildContext context, InviteFriendsController controller) {
+  /// ◀ 左右滑動查看獎勵 ▶, then a dot per round, the one on show in primary
+  /// and sliding along with the swipe.
+  Widget _swipeHint(BuildContext context, PageController pages, int count) {
     final Color primary = context.color.primary;
     final double dotSize = 6.r;
 
@@ -183,30 +189,30 @@ class InviteFriendsPage extends StatelessWidget {
           ),
         ),
         8.widthSpace,
-        for (int i = 1; i <= controller.totalRounds; i++) ...[
-          if (i > 1) 4.widthSpace,
-          Container(
-            width: dotSize,
-            height: dotSize,
-            decoration: BoxDecoration(
-              color: i == controller.round ? primary : AppColors.greyLightColor,
-              shape: BoxShape.circle,
-            ),
+        SmoothPageIndicator(
+          controller: pages,
+          count: count,
+          effect: WormEffect(
+            dotWidth: dotSize,
+            dotHeight: dotSize,
+            spacing: 4.r,
+            activeDotColor: primary,
+            dotColor: AppColors.greyLightColor,
           ),
-        ],
+        ),
       ],
     );
   }
 
-  /// The round on show and its tiers: a skeleton till it first loads.
   Widget _round(
     BuildContext context,
-    InviteFriendsController controller, {
+    InviteFriendsController controller,
+    int round, {
     required EdgeInsets inset,
   }) {
-    final bool loading = controller.isRoundLoading;
+    final bool loading = controller.isRoundLoading(round);
     final InvitePointModel roundPoint =
-        controller.roundPoint ??
+        controller.rounds[round] ??
         (loading
             ? InvitePointModel.placeholder()
             : InvitePointModel.fromJson({}));
@@ -224,7 +230,7 @@ class InviteFriendsPage extends StatelessWidget {
                   child: AppText(
                     context.tr(
                       AppStrings.roundRewards,
-                      args: [_roundNumber(context, controller.round)],
+                      args: [_roundNumber(context, round)],
                     ),
                     fontSize: kFont14,
                     fontWeight: FontWeight.w500,
@@ -235,7 +241,7 @@ class InviteFriendsPage extends StatelessWidget {
                   text: context.tr(AppStrings.claimAll),
                   icon: Iconsax.gift,
                   onTap: roundPoint.hasAvailableTier
-                      ? controller.onClaimRound
+                      ? () => controller.onClaimRound(round)
                       : null,
                 ),
               ],
@@ -246,9 +252,9 @@ class InviteFriendsPage extends StatelessWidget {
             _tier(
               context,
               controller,
+              round,
               roundPoint.tiers[i],
               inset: inset,
-              // no line under the last one
               divider: i < roundPoint.tiers.length - 1,
             ),
         ],
@@ -271,6 +277,7 @@ class InviteFriendsPage extends StatelessWidget {
   Widget _tier(
     BuildContext context,
     InviteFriendsController controller,
+    int round,
     InvitePointTierModel tier, {
     required EdgeInsets inset,
     bool divider = true,
@@ -340,7 +347,7 @@ class InviteFriendsPage extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerRight,
-              child: _tierButton(context, controller, tier),
+              child: _tierButton(context, controller, round, tier),
             ),
           ),
         ],
@@ -351,13 +358,14 @@ class InviteFriendsPage extends StatelessWidget {
   Widget _tierButton(
     BuildContext context,
     InviteFriendsController controller,
+    int round,
     InvitePointTierModel tier,
   ) {
     if (tier.isAvailable) {
       return _smallButton(
         text: context.tr(AppStrings.claim),
         icon: Iconsax.gift,
-        onTap: () => controller.onClaim(tier),
+        onTap: () => controller.onClaim(round, tier),
       );
     }
 
@@ -388,10 +396,7 @@ class InviteFriendsPage extends StatelessWidget {
     );
   }
 
-  /// "20,000", "0.1", "0".
   String _points(double value) => NumberFormat('#,##0.##').format(value);
-
-  /// "一" for round 1 in Chinese (第一輪), digits otherwise.
   String _roundNumber(BuildContext context, int round) {
     const String numerals = '一二三四五六七八九十';
 
@@ -402,47 +407,121 @@ class InviteFriendsPage extends StatelessWidget {
 
 }
 
-/// [child], swiped left for [onNext] or right for [onPrevious]: far enough
-/// or fast enough, so a slow swipe counts too. Its buttons still tap.
-class _RoundSwipeArea extends StatefulWidget {
-  final VoidCallback onNext;
-  final VoidCallback onPrevious;
-  final Widget child;
+class _RoundPager extends StatefulWidget {
+  final int initialRound;
+  final int totalRounds;
+  final ValueChanged<int> onRoundChanged;
+  final Widget Function(PageController pages) hintBuilder;
+  final Widget Function(BuildContext context, int round) roundBuilder;
 
-  const _RoundSwipeArea({
-    required this.onNext,
-    required this.onPrevious,
-    required this.child,
+  const _RoundPager({
+    required this.initialRound,
+    required this.totalRounds,
+    required this.onRoundChanged,
+    required this.hintBuilder,
+    required this.roundBuilder,
   });
 
   @override
-  State<_RoundSwipeArea> createState() => _RoundSwipeAreaState();
+  State<_RoundPager> createState() => _RoundPagerState();
 }
 
-class _RoundSwipeAreaState extends State<_RoundSwipeArea> {
-  static const double _minDistance = 40;
-  static const double _minVelocity = 300;
+class _RoundPagerState extends State<_RoundPager> {
+  late final PageController _pages = PageController(
+    initialPage: widget.initialRound - 1,
+  );
 
-  double _dragged = 0;
+  final Map<int, double> _heights = {};
 
-  void _onEnd(DragEndDetails details) {
-    final double velocity = details.primaryVelocity ?? 0;
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
 
-    if (_dragged < -_minDistance || velocity < -_minVelocity) {
-      widget.onNext();
-    } else if (_dragged > _minDistance || velocity > _minVelocity) {
-      widget.onPrevious();
-    }
+  double get _page =>
+      _pages.hasClients && _pages.position.haveDimensions
+      ? _pages.page ?? _pages.initialPage.toDouble()
+      : _pages.initialPage.toDouble();
+
+  double get _height {
+    final double page = _page;
+    final int from = page.floor();
+    final int to = page.ceil();
+    final double fromHeight = _heights[from] ?? _heights[to] ?? 0;
+    final double toHeight = _heights[to] ?? fromHeight;
+
+    return fromHeight + (toHeight - fromHeight) * (page - from);
+  }
+
+  void _onMeasured(int index, double height) {
+    if (!mounted || _heights[index] == height) return;
+    setState(() => _heights[index] = height);
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onHorizontalDragStart: (_) => _dragged = 0,
-      onHorizontalDragUpdate: (details) => _dragged += details.delta.dx,
-      onHorizontalDragEnd: _onEnd,
-      child: widget.child,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        widget.hintBuilder(_pages),
+        10.heightSpace,
+        _pager(),
+      ],
     );
+  }
+
+  Widget _pager() {
+    return AnimatedBuilder(
+      animation: _pages,
+      builder: (context, child) => SizedBox(height: _height, child: child),
+      child: PageView.builder(
+        controller: _pages,
+        itemCount: widget.totalRounds,
+        onPageChanged: (index) => widget.onRoundChanged(index + 1),
+        itemBuilder: (context, index) => OverflowBox(
+          alignment: Alignment.topCenter,
+          minHeight: 0,
+          maxHeight: double.infinity,
+          child: _MeasureHeight(
+            onChange: (height) => _onMeasured(index, height),
+            child: widget.roundBuilder(context, index + 1),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MeasureHeight extends SingleChildRenderObjectWidget {
+  final ValueChanged<double> onChange;
+
+  const _MeasureHeight({required this.onChange, required super.child});
+
+  @override
+  _RenderMeasureHeight createRenderObject(BuildContext context) =>
+      _RenderMeasureHeight(onChange);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderMeasureHeight renderObject,
+  ) => renderObject.onChange = onChange;
+}
+
+class _RenderMeasureHeight extends RenderProxyBox {
+  ValueChanged<double> onChange;
+  double? _last;
+
+  _RenderMeasureHeight(this.onChange);
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final double height = size.height;
+    if (height == _last) return;
+
+    _last = height;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onChange(height));
   }
 }
