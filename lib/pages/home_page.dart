@@ -249,10 +249,14 @@ class _HomePageState extends State<HomePage>
       );
     }
 
+    // onRefresh swaps controller.products before the next build, while this
+    // list still builds items lazily against the old itemCount
+    final List<MainProductModel> products = controller.products;
+
     return SliverList.builder(
-      itemCount: controller.products.length,
+      itemCount: products.length,
       itemBuilder: (context, index) =>
-          _movesWithSwipe(_productCard(context, controller.products[index])),
+          _movesWithSwipe(_productCard(context, products[index])),
     );
   }
 

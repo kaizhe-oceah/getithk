@@ -2,7 +2,7 @@ name: getithk
 description: "GetItHK app."
 publish_to: "none"
 
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.11.1
@@ -259,7 +259,7 @@ flutter:
 scripts:
   # refresh
   refresh: clear && flutter clean && flutter pub get
-  refresh-ios: cd ios && pod deintegrate && rm -fr Pods && rm Pod-file && rm -Rf Podfile.lock && rm -Rf .symlinks && rm -Rf Flutter/Flutter.framework && rm -Rf Flutter/Flutter.podspec && pod cache clean --all && pod install --repo-update
+  refresh-ios: cd ios && pod deintegrate && rm -fr Pods && rm -Rf Podfile.lock && rm -Rf .symlinks && rm -Rf Flutter/Flutter.framework && rm -Rf Flutter/Flutter.podspec && pod cache clean --all && pod install --repo-update
   refresh-git: git fetch --prune && git branch --v | grep "\[gone\]" | awk '{print $1}' | xargs git branch -D
 
   # build
