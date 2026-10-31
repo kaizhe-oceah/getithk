@@ -17,6 +17,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
+    <!-- added by the location plugin -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"
+        tools:node="remove" />
+    <!-- added by the Facebook SDK -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
 
     <queries>
         <!-- checks for call support -->
