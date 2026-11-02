@@ -172,6 +172,7 @@
   "round_rewards": "第{}輪獎勵列表",
   "swipe_to_view_rewards": "左右滑動查看獎勵",
   "claim_success": "領取成功",
+  "voucher_claimed_points": "恭喜您獲得 {} 積分，\n已成功存入您的帳戶。",
   "topup_reward": "充值獎勵",
   "accumulated_topup_reward": "累計充值獎勵",
   "topup_to_unlock_reward": "累計充值即可解鎖獎勵！",
@@ -328,5 +329,11 @@
   "enter_email": "請輸入電子郵件",
   "phone_number": "手機號碼",
   "enter_phone_number": "請輸入手機號碼",
-  "phone_number_required": "請輸入手機號碼"
+  "phone_number_required": "請輸入手機號碼",
+  "link_account": "綁定帳號",
+  "link_to_ur_account": "連結您的社交帳號",
+  "link_to_ur_account_desc": "管理 Google、Facebook 及 Apple 帳號的綁定狀態。",
+  "linked": "已綁定",
+  "not_linked": "未綁定",
+  "link": "綁定"
 }

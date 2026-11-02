@@ -172,6 +172,7 @@
   "round_rewards": "Ganjaran Pusingan {}",
   "swipe_to_view_rewards": "Leret untuk lihat ganjaran",
   "claim_success": "Berjaya dituntut",
+  "voucher_claimed_points": "Tahniah! Anda menerima {} mata,\nkini dimasukkan ke akaun anda.",
   "topup_reward": "Ganjaran Tambah Nilai",
   "accumulated_topup_reward": "Ganjaran Tambah Nilai Terkumpul",
   "topup_to_unlock_reward": "Tambah nilai {} secara terkumpul untuk membuka ganjaran ini!",
@@ -328,5 +329,11 @@
   "enter_email": "Masukkan e-mel anda",
   "phone_number": "Nombor Telefon",
   "enter_phone_number": "Masukkan nombor telefon anda",
-  "phone_number_required": "Sila masukkan nombor telefon anda"
+  "phone_number_required": "Sila masukkan nombor telefon anda",
+  "link_account": "Akaun Dipautkan",
+  "link_to_ur_account": "Pautkan akaun sosial anda",
+  "link_to_ur_account_desc": "Urus akaun Google, Facebook dan Apple yang dipautkan.",
+  "linked": "Dipautkan",
+  "not_linked": "Belum dipautkan",
+  "link": "Pautkan"
 }

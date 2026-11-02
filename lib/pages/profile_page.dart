@@ -19,6 +19,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   List<_MenuItem> _menuItems(UserModel user) => [
     _MenuItem(
+      AppStrings.linkAccount,
+      image: AppAssets.menuLinkAccount,
+      route: RouteName.linkAccountPage,
+    ),
+    _MenuItem(
       AppStrings.inviteFriends,
       image: AppAssets.menuInviteFriends,
       route: RouteName.inviteFriendsPage,

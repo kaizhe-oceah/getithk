@@ -29,6 +29,7 @@ class AppAssets {
   static String get gradeFifth => "assets/images/霓虹綠光五等賞立體字標.png";
 
   // profile menu
+  static String get menuLinkAccount => "assets/images/menu_linkacc.png";
   static String get menuInviteFriends =>
       "assets/images/menu_invite_friends.png";
   static String get menuVouchers => "assets/images/menu_vouchers.png";
@@ -51,6 +52,8 @@ class AppAssets {
 
   // help center
   static String get helpCenterHeader => "assets/images/help.jpeg";
+
+  static String get claimDialogHeader => "assets/images/claim_dialog.png";
 
   // congratulations dialog
   static String get congratulationsHeader => "assets/images/cong.png";

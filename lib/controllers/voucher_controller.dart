@@ -1,4 +1,5 @@
 // Project imports:
+import '../components/default/voucher_claimed_dialog.dart';
 import '../imports.dart';
 import '../models/page_banner_model.dart';
 
@@ -51,9 +52,14 @@ class VoucherController extends ChangeNotifier {
       code: codeController.text.trim(),
       showLoader: true,
       onSuccess: (response) {
-        response.showMessage();
         context.read<AppController>().getWalletBalance();
         if (!_isDisposed) codeController.clear();
+        final dynamic data = response.data;
+        VoucherClaimedDialog.show(
+          context,
+          points: data is Map ? double.tryParse('${data['amount']}') : null,
+          message: response.message,
+        );
       },
     );
   }

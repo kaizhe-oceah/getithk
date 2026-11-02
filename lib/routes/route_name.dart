@@ -26,6 +26,7 @@ class RouteName {
   static const String edtiProfilePage = "/edit-profile-page";
   static const String settingsPage = '/settings';
   static const String helpCenterPage = '/help-center';
+  static const String linkAccountPage = "/link-account-page";
 
   static List<String> allRoutes = [
     splashPage,
@@ -55,6 +56,7 @@ class RouteName {
     edtiProfilePage,
     settingsPage,
     helpCenterPage,
+    linkAccountPage
   ];
 
   static bool containsRoute(String routeName) {

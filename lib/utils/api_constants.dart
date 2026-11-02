@@ -47,7 +47,8 @@ const kPlayerInvitedPlayerListing = "/player/invited-member-listing";
 const kPlayerAvatarSetting = "/player/avatar-setting";
 const kPlayerUpdateAvatarSetting = "/player/update-avatar-setting";
 const kPlayerSocialLogin = "/player/social-login";
-
+const kPlayerSocialAccounts = "/player/social-accounts";
+const kPlayerSocialAccountsLink = "/player/social-accounts/link";
 
 
 /// Where the payment gateway sends the player back to (fe_redirect_url),

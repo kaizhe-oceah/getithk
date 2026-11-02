@@ -185,6 +185,7 @@ class AppStrings {
   static const String roundRewards = 'round_rewards';
   static const String swipeToViewRewards = 'swipe_to_view_rewards';
   static const String claimSuccess = 'claim_success';
+  static const String voucherClaimedPoints = 'voucher_claimed_points';
   static const String topupReward = 'topup_reward';
   static const String accumulatedTopupReward = 'accumulated_topup_reward';
   static const String topupToUnlockReward = 'topup_to_unlock_reward';
@@ -336,4 +337,10 @@ class AppStrings {
   static const String update = 'update';
   static const String view = 'view';
   static const String yes = 'yes';
+  static const String linkAccount = 'link_account';
+  static const String linkToUrAccount = "link_to_ur_account";
+  static const String linkToUrAccountDesc = "link_to_ur_account_desc";
+  static const String linked = "linked";
+  static const String notLinked = "not_linked";
+  static const String link = "link";
 }

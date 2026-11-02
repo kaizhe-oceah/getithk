@@ -645,6 +645,52 @@ class Api {
     );
   }
 
+  // whether google / facebook / apple are linked to the player
+  Future<void> getSocialAccounts({
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerSocialAccounts,
+      params: {},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  // links [provider]'s account (by its sign-in [token]) to the player
+  Future<void> linkSocialAccount({
+    required SocialProvider provider,
+    required String token,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerSocialAccountsLink,
+      params: {"provider": provider.value, "token": token},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
   // saves the player's name, avatar and frame; [frameId] null: no frame
   Future<void> updateAvatarSetting({
     required String name,

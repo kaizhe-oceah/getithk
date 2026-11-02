@@ -2,6 +2,7 @@
 import "package:getithk/pages/address_page.dart";
 import "package:getithk/pages/draw_history_page.dart";
 import "package:getithk/pages/edit_profile_page.dart";
+import "package:getithk/pages/link_account_page.dart";
 import "package:getithk/pages/voucher_page.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:page_transition/page_transition.dart";
@@ -187,6 +188,9 @@ class RouteGenerator {
 
       case RouteName.agentCommissionPage:
         return const AgentCommissionPage();
+
+      case RouteName.linkAccountPage:
+        return const LinkAccountPage();
 
       case RouteName.orderDetailsPage:
         final Object? shippingId = settings.arguments;

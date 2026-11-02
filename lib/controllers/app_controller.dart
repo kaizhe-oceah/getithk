@@ -76,6 +76,24 @@ class AppController with ChangeNotifier {
     SocialProvider provider, {
     String? referralCode,
   }) async {
+    final String? token = await socialToken(provider);
+    if (token == null) return;
+
+    await ApiService.api.socialLogin(
+      showLoader: true,
+      provider: provider,
+      token: token,
+      referralCode: referralCode,
+      onSuccess: (response) {
+        response.showMessage();
+        signIn(response);
+      },
+    );
+  }
+
+  /// Opens [provider]'s sign-in for its token; null if it isn't set up
+  /// (with a toast), was cancelled or failed.
+  Future<String?> socialToken(SocialProvider provider) async {
     final Future<String?> Function()? getToken = switch (provider) {
       SocialProvider.google when GoogleAuthService.isConfigured =>
         GoogleAuthService.signIn,
@@ -89,22 +107,10 @@ class AppController with ChangeNotifier {
       ToastHelper.showToast(
         context.tr(AppStrings.socialLoginUnavailable, args: [provider.label]),
       );
-      return;
+      return null;
     }
 
-    final String? token = await getToken();
-    if (token == null) return;
-
-    await ApiService.api.socialLogin(
-      showLoader: true,
-      provider: provider,
-      token: token,
-      referralCode: referralCode,
-      onSuccess: (response) {
-        response.showMessage();
-        signIn(response);
-      },
-    );
+    return getToken();
   }
 
   /// Clears the session, then on to the login page; with [toHome] (an

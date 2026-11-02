@@ -172,6 +172,7 @@
   "round_rewards": "Round {} Rewards",
   "swipe_to_view_rewards": "Swipe to view rewards",
   "claim_success": "Claimed successfully",
+  "voucher_claimed_points": "Congratulations! You received {} points,\nnow added to your account.",
   "topup_reward": "Top-up Rewards",
   "accumulated_topup_reward": "Top-up Milestone Reward",
   "topup_to_unlock_reward": "Top up {} in total to unlock this reward!",
@@ -328,5 +329,11 @@
   "enter_email": "Enter your email",
   "phone_number": "Phone Number",
   "enter_phone_number": "Enter your phone number",
-  "phone_number_required": "Please enter your phone number"
+  "phone_number_required": "Please enter your phone number",
+  "link_account": "Linked Accounts",
+  "link_to_ur_account": "Link your social accounts",
+  "link_to_ur_account_desc": "Manage your linked Google, Facebook and Apple accounts.",
+  "linked": "Linked",
+  "not_linked": "Not linked",
+  "link": "Link"
 }

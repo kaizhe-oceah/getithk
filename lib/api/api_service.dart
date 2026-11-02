@@ -29,7 +29,7 @@ class ApiService {
     String? username,
     bool isDemoMode = false,
   }) {
-    const bool isTrial = false;
+    const bool isTrial = true;
 
     final String baseUrl = isTrial
         ? GlobalConfigs().get("api_trial_base_url")
