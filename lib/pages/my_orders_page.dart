@@ -119,6 +119,9 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     ShippingOrderModel order,
   ) {
     final bool isToShip = order.status == ShippingStatus.toShip;
+    final bool isToReceive = order.status == ShippingStatus.toReceive;
+    final bool canTrack =
+        isToReceive && (order.packageTrackingLink ?? '').isNotEmpty;
     final bool isClosed =
         order.status == ShippingStatus.completed ||
         order.status == ShippingStatus.cancelled;
@@ -140,6 +143,10 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if ((order.orderId ?? '').isNotEmpty) ...[
+            _orderId(context, order.orderId!),
+            6.heightSpace,
+          ],
           Row(
             children: [
               Expanded(
@@ -161,21 +168,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
           ),
           if (isToShip) ...[
             10.heightSpace,
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 8,
-              ).r,
-              decoration: BoxDecoration(
-                color: AppColors.greyBackgroundColor,
-                borderRadius: BorderRadius.circular(8).r,
-              ),
-              child: AppText(
-                context.tr(AppStrings.orderPendingNote),
-                fontSize: kFont12,
-                color: AppColors.textLightColor,
-              ),
-            ),
+            _note(context.tr(AppStrings.orderPendingNote)),
           ],
           for (final ShippingOrderItemModel item in order.items) ...[
             12.heightSpace,
@@ -199,10 +192,33 @@ class _MyOrdersPageState extends State<MyOrdersPage>
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              if (canTrack) ...[
+                InkWellWrapper(
+                  onTap: () => controller.onTrack(order),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8).r,
+                    child: AppText(
+                      context.tr(AppStrings.trackParcel),
+                      fontSize: kFont12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.blueHighlightColor,
+                      underline: true,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+              ],
               if (isToShip) ...[
                 _actionButton(
                   context.tr(AppStrings.cancel),
                   onTap: () => controller.onCancel(order),
+                ),
+                8.widthSpace,
+              ],
+              if (isToReceive) ...[
+                _actionButton(
+                  context.tr(AppStrings.orderReceived),
+                  onTap: () => controller.onComplete(order),
                 ),
                 8.widthSpace,
               ],
@@ -213,6 +229,44 @@ class _MyOrdersPageState extends State<MyOrdersPage>
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _note(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8).r,
+      decoration: BoxDecoration(
+        color: AppColors.greyBackgroundColor,
+        borderRadius: BorderRadius.circular(8).r,
+      ),
+      child: AppText(text, fontSize: kFont12, color: AppColors.textLightColor),
+    );
+  }
+
+  Widget _orderId(BuildContext context, String orderId) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: InkWellWrapper(
+        onTap: () => copyToClipboard(contentToCopy: orderId),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppText(
+              context.tr(AppStrings.orderNo),
+              fontSize: kFont12,
+              color: AppColors.loginHintColor,
+            ),
+            6.widthSpace,
+            AppText(orderId, fontSize: kFont13, fontWeight: FontWeight.w600),
+            4.widthSpace,
+            Icon(
+              Iconsax.copy_copy,
+              size: 14.r,
+              color: AppColors.loginHintColor,
+            ),
+          ],
+        ),
       ),
     );
   }

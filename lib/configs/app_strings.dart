@@ -12,6 +12,12 @@ class AppStrings {
   static const String forgotPassword = 'forgot_password';
   static const String passwordResetUnavailable = 'password_reset_unavailable';
   static const String resetPassword = 'reset_password';
+  static const String currentPassword = 'current_password';
+  static const String enterCurrentPassword = 'enter_current_password';
+  static const String newPassword = 'new_password';
+  static const String enterNewPassword = 'enter_new_password';
+  static const String confirmNewPassword = 'confirm_new_password';
+  static const String reEnterNewPassword = 're_enter_new_password';
   static const String loginWithProvider = 'login_with_provider';
   static const String socialLoginUnavailable = 'social_login_unavailable';
   static const String registerWithEmail = 'register_with_email';
@@ -282,6 +288,10 @@ class AppStrings {
   static const String allOrders = 'all_orders';
   static const String all = 'all';
   static const String orderPendingNote = 'order_pending_note';
+  static const String trackParcel = 'track_parcel';
+  static const String smartLockerNumber = 'smart_locker_number';
+  static const String orderReceived = 'order_received';
+  static const String orderReceivedDescription = 'order_received_description';
   static const String freight = 'freight';
   static const String shippingAddress = 'shipping_address';
   static const String salesRecord = 'sales_record';

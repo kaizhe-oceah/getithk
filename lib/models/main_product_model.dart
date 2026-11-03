@@ -116,6 +116,29 @@ class MainProductModel {
     if (has('grade_videos')) gradeVideos = live.gradeVideos;
   }
 
+  /// The socket's product-remaining.update; sold out once none are left,
+  /// unless it says otherwise. True when it brings the product back in
+  /// stock: the player's own values (is_available, …) aren't in a public
+  /// update, so the product needs fetching again.
+  bool applyRemainingUpdate(Map<String, dynamic> json) {
+    final bool wasSoldOut = isSoldOut || remainingDraws <= 0;
+
+    applyLiveUpdate(json);
+    if (json.containsKey('remaining_draws') &&
+        !json.containsKey('is_sold_out')) {
+      isSoldOut = remainingDraws <= 0;
+    }
+
+    return wasSoldOut && !isSoldOut && remainingDraws > 0;
+  }
+
+  /// The product fetched again in full: what everyone sees and the
+  /// player's own.
+  void applyFetched(Map<String, dynamic> json) {
+    applyLiveUpdate(json);
+    applyPlayerUpdate(json);
+  }
+
   /// This player's own update (the socket's
   /// player-product-remaining.update): what [applyLiveUpdate] leaves.
   void applyPlayerUpdate(Map<String, dynamic> json) {

@@ -35,9 +35,8 @@ class SettingsPage extends StatelessWidget {
           _row(
             context,
             label: AppStrings.resetPassword,
-            onTap: () => ToastHelper.showToast(
-              context.tr(AppStrings.passwordResetUnavailable),
-            ),
+            onTap: () =>
+                AppNavigator.pushNamed(context, RouteName.resetPasswordPage),
           ),
           8.heightSpace,
           InkWellWrapper(

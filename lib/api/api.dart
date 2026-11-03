@@ -146,6 +146,7 @@ class Api {
     await HttpClientCustom.httpPost(
       showLoader: showLoader,
       apiUrl: apiUrl,
+      withBearer: true,
       endPoint: kResetPassword,
       params: {"current_password": currentPassword, "password": password},
       onSuccess: (response) => onSuccess(response),
@@ -772,6 +773,28 @@ class Api {
       apiUrl: apiUrl,
       withBearer: true,
       endPoint: kPlayerCancelShipping,
+      params: {"shipping_id": shippingId},
+      onSuccess: (response) => onSuccess(response),
+      onError: (error) {
+        ToastHelper.error(error);
+        if (onError != null) {
+          onError(error);
+        }
+      },
+    );
+  }
+
+  Future<void> completeShipping({
+    required int shippingId,
+    required Function(ApiResponseModel) onSuccess,
+    bool showLoader = false,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpPost(
+      showLoader: showLoader,
+      apiUrl: apiUrl,
+      withBearer: true,
+      endPoint: kPlayerCompleteShipping,
       params: {"shipping_id": shippingId},
       onSuccess: (response) => onSuccess(response),
       onError: (error) {

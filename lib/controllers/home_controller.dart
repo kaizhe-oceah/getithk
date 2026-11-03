@@ -59,6 +59,13 @@ class HomeController extends ChangeNotifier {
 
   late final StreamSubscription<Map<String, dynamic>> _liveUpdates;
 
+  /// live.{id}.product-remaining, for each product of the category on show.
+  final Map<int, StreamSubscription<Map<String, dynamic>>> _remainingUpdates =
+      {};
+
+  /// The products being fetched again, back in stock.
+  final Set<int> _refetching = {};
+
   HomeController() {
     sort.addListener(onSortChanged);
     _liveUpdates = SocketService.mainProductUpdates.listen(_onLiveUpdate);
@@ -79,11 +86,7 @@ class HomeController extends ChangeNotifier {
     if (updates.isEmpty) return;
 
     bool changed = false;
-    for (final MainProductModel product in [
-      ...products,
-      for (final List<MainProductModel> cached in _cachedProducts.values)
-        ...cached,
-    ]) {
+    for (final MainProductModel product in _allProducts) {
       final Map<String, dynamic>? live = updates[product.id];
       if (live == null) continue;
       product.applyLiveUpdate(live);
@@ -91,6 +94,69 @@ class HomeController extends ChangeNotifier {
     }
     if (changed) update();
   }
+
+  /// product-remaining.update for [id]'s channel; many channels share the
+  /// event, so one without [id] in it isn't applied.
+  void _onRemainingUpdate(int id, Map<String, dynamic> data) {
+    if ('${data['main_product_id']}' != '$id') return;
+
+    bool changed = false;
+    bool restocked = false;
+    for (final MainProductModel product in _allProducts) {
+      if (product.id != id) continue;
+      if (product.applyRemainingUpdate(data)) restocked = true;
+      changed = true;
+    }
+    if (changed) update();
+    if (restocked) _refetchProduct(id);
+  }
+
+  /// Back in stock: [id] fetched again for the player's own values, which
+  /// the public update can't carry.
+  Future<void> _refetchProduct(int id) async {
+    if (!_refetching.add(id)) return;
+
+    await ApiService.api.getSubProductListing(
+      mainProductId: id,
+      onSuccess: (response) {
+        final dynamic data = response.data;
+        final dynamic json = data is Map ? data['main_product'] : null;
+        if (json is! Map) return;
+
+        final Map<String, dynamic> fetched = Map<String, dynamic>.from(json);
+        for (final MainProductModel product in _allProducts) {
+          if (product.id == id) product.applyFetched(fetched);
+        }
+      },
+    );
+
+    _refetching.remove(id);
+    update();
+  }
+
+  /// On the channels of the products on show, and off the rest.
+  void _syncRemainingUpdates() {
+    final Set<int> ids = {
+      for (final MainProductModel product in products) ?product.id,
+    };
+
+    _remainingUpdates.removeWhere((id, subscription) {
+      if (ids.contains(id)) return false;
+      subscription.cancel();
+      return true;
+    });
+    for (final int id in ids) {
+      _remainingUpdates[id] ??= SocketService.productRemainingUpdates(
+        id,
+      ).listen((data) => _onRemainingUpdate(id, data));
+    }
+  }
+
+  Iterable<MainProductModel> get _allProducts => [
+    ...products,
+    for (final List<MainProductModel> cached in _cachedProducts.values)
+      ...cached,
+  ];
 
   static HomeController? _preloaded;
 
@@ -289,6 +355,10 @@ class HomeController extends ChangeNotifier {
   void dispose() {
     _isDisposed = true;
     _liveUpdates.cancel();
+    for (final subscription in _remainingUpdates.values) {
+      subscription.cancel();
+    }
+    _remainingUpdates.clear();
     refreshController.dispose();
     bannerIndex.dispose();
     categoryScrollController.dispose();
@@ -296,9 +366,11 @@ class HomeController extends ChangeNotifier {
     super.dispose();
   }
 
+  // every change to the products comes through here
   void update() {
-    if (!_isDisposed) {
-      notifyListeners();
-    }
+    if (_isDisposed) return;
+
+    _syncRemainingUpdates();
+    notifyListeners();
   }
 }

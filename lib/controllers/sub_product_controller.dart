@@ -14,6 +14,7 @@ class SubProductController extends ChangeNotifier {
   MainProductModel product;
 
   bool isLoading = true;
+  bool _isRefetching = false;
 
   List<SubProductModel> subProducts = [];
 
@@ -37,24 +38,16 @@ class SubProductController extends ChangeNotifier {
 
   /// product-remaining.update: the draws left, as anyone draws.
   void _onRemainingUpdate(Map<String, dynamic> data) {
-    _applyRemaining(data);
+    final bool restocked = product.applyRemainingUpdate(data);
     update();
+    if (restocked) _refetch();
   }
 
   /// player-product-remaining.update: this player's own draws left.
   void _onPlayerRemainingUpdate(Map<String, dynamic> data) {
-    _applyRemaining(data);
+    product.applyRemainingUpdate(data);
     product.applyPlayerUpdate(data);
     update();
-  }
-
-  void _applyRemaining(Map<String, dynamic> data) {
-    product.applyLiveUpdate(data);
-    // as after a draw of our own
-    if (data.containsKey('remaining_draws') &&
-        !data.containsKey('is_sold_out')) {
-      product.isSoldOut = product.remainingDraws <= 0;
-    }
   }
 
   List<List<SubProductModel>> get gradeGroups {
@@ -86,32 +79,46 @@ class SubProductController extends ChangeNotifier {
 
     await Future.wait([
       context.read<AppController>().getWalletBalance(),
-      ApiService.api.getSubProductListing(
-        mainProductId: id,
-        onSuccess: (response) {
-          final Map data = response.data is Map ? response.data : {};
-          final Object? mainProduct = data['main_product'];
-          final Object? comb = data['comb_product'];
-
-          if (mainProduct is Map) {
-            product = MainProductModel.fromJson(
-              Map<String, dynamic>.from(mainProduct),
-            );
-          }
-          subProducts = SubProductModel.listFromJson(data['sub_products']);
-          grades =
-              List.from(data['main_product_grades'] ?? [])
-                  .map((element) => MainProductGradeModel.fromJson(element))
-                  .toList()
-                ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-          combProduct = comb is Map
-              ? SubProductModel.fromJson(Map<String, dynamic>.from(comb))
-              : null;
-        },
-      ),
+      _fetch(id),
     ]);
 
     isLoading = false;
+    update();
+  }
+
+  Future<void> _fetch(int id) => ApiService.api.getSubProductListing(
+    mainProductId: id,
+    onSuccess: (response) {
+      final Map data = response.data is Map ? response.data : {};
+      final Object? mainProduct = data['main_product'];
+      final Object? comb = data['comb_product'];
+
+      if (mainProduct is Map) {
+        product = MainProductModel.fromJson(
+          Map<String, dynamic>.from(mainProduct),
+        );
+      }
+      subProducts = SubProductModel.listFromJson(data['sub_products']);
+      grades =
+          List.from(
+              data['main_product_grades'] ?? [],
+            ).map((element) => MainProductGradeModel.fromJson(element)).toList()
+            ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+      combProduct = comb is Map
+          ? SubProductModel.fromJson(Map<String, dynamic>.from(comb))
+          : null;
+    },
+  );
+
+  /// Back in stock: fetched again, without the skeleton, for the player's
+  /// own values and the restocked prizes.
+  Future<void> _refetch() async {
+    final int? id = product.id;
+    if (id == null || _isRefetching) return;
+
+    _isRefetching = true;
+    await _fetch(id);
+    _isRefetching = false;
     update();
   }
 

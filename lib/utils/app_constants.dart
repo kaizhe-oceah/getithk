@@ -7,6 +7,10 @@ const kTrialAccounts = <String>{};
 const String kDefaultPhoneCountry = "MY";
 const String kDefaultPhoneDialCode = "+60";
 
+// CUSTOMER SERVICE
+const String kCustomerServiceUrl =
+    "https://ocgaichat.online/chat?key=oIkk5PHWi3jyvskAmbIj5hhp3PFQnAYYd6tt1RFt3BxKG1QVT0jU3BwtLfeV1uzb&origin=com.asia.getithk";
+
 // BOTTOM NAV
 const int kBottomNavHome = 0;
 const int kBottomNavBackpack = 1;

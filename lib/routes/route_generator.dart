@@ -29,6 +29,7 @@ import "../models/draw_result_model.dart";
 import "../models/main_product_model.dart";
 import "../models/shipment_item_model.dart";
 import "../pages/prize_result_page.dart";
+import "../pages/reset_password_page.dart";
 import "../pages/splash_page.dart";
 import "../pages/sub_product_page.dart";
 import "../pages/tnc_page.dart";
@@ -191,6 +192,9 @@ class RouteGenerator {
 
       case RouteName.linkAccountPage:
         return const LinkAccountPage();
+
+      case RouteName.resetPasswordPage:
+        return const ResetPasswordPage();
 
       case RouteName.orderDetailsPage:
         final Object? shippingId = settings.arguments;

@@ -138,6 +138,35 @@ class MyOrdersController extends ChangeNotifier {
     return isCancelled;
   }
 
+  Future<void> onComplete(ShippingOrderModel order) async {
+    final int? shippingId = order.shippingId;
+    if (shippingId == null) return;
+
+    final bool? isCompleted = await BottomSheetHelper.confirm(
+      title: AppStrings.orderReceived,
+      description: AppStrings.orderReceivedDescription,
+      cancelText: AppStrings.thinkAgain,
+      confirmText: AppStrings.confirm,
+      onConfirm: () => _completeShipping(shippingId),
+    );
+    if (isCompleted == true && !_isDisposed) {
+      refreshController.requestRefresh();
+    }
+  }
+
+  Future<bool> _completeShipping(int shippingId) async {
+    bool isCompleted = false;
+    await ApiService.api.completeShipping(
+      shippingId: shippingId,
+      showLoader: true,
+      onSuccess: (response) {
+        isCompleted = true;
+        response.showMessage();
+      },
+    );
+    return isCompleted;
+  }
+
   void onView(ShippingOrderModel order) {
     final int? shippingId = order.shippingId;
     if (shippingId == null) return;
@@ -146,6 +175,17 @@ class MyOrdersController extends ChangeNotifier {
       context,
       RouteName.orderDetailsPage,
       arguments: shippingId,
+    );
+  }
+
+  void onTrack(ShippingOrderModel order) {
+    final String link = order.packageTrackingLink ?? '';
+    if (link.isEmpty) return;
+
+    AppNavigator.pushNamed(
+      context,
+      RouteName.webviewPage,
+      arguments: {"url": link, "title": context.tr(AppStrings.trackParcel)},
     );
   }
 

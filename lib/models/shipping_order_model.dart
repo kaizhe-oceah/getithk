@@ -52,6 +52,7 @@ class ShippingOrderModel {
 
   /// Stand-in values for the page's loading skeleton.
   ShippingOrderModel.placeholder() {
+    orderId = '20260101000000';
     status = ShippingStatus.toShip;
     statusName = 'Status';
     createdAt = DateTime.utc(2026);

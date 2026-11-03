@@ -149,6 +149,7 @@ class OrderDetailsPage extends StatelessWidget {
 
   Widget _info(BuildContext context, ShippingOrderDetailModel order) {
     final String trackingNo = order.trackingNo ?? '';
+    final String lockerNumber = order.sfExpressSmartLockerNumber ?? '';
 
     return Container(
       padding: const EdgeInsets.all(14).r,
@@ -172,6 +173,8 @@ class OrderDetailsPage extends StatelessWidget {
           _infoRow(context, AppStrings.orderNo, order.orderId ?? ''),
           if (trackingNo.isNotEmpty)
             _infoRow(context, AppStrings.trackingNo, trackingNo),
+          if (lockerNumber.isNotEmpty)
+            _infoRow(context, AppStrings.smartLockerNumber, lockerNumber),
           _infoRow(
             context,
             AppStrings.orderTime,

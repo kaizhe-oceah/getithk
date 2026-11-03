@@ -79,6 +79,14 @@ class _ProfilePageState extends State<ProfilePage> {
     _MenuItem(
       AppStrings.onlineCustomerService,
       image: AppAssets.menuCustomerService,
+      onTap: () => AppNavigator.pushNamed(
+        context,
+        RouteName.webviewPage,
+        arguments: {
+          "url": kCustomerServiceUrl,
+          "title": context.tr(AppStrings.onlineCustomerService),
+        },
+      ),
     ),
     _MenuItem(
       AppStrings.settings,
@@ -194,30 +202,27 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           14.heightSpace,
 
-          InkWellWrapper(
-            onTap: _comingSoon,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8).r,
-              decoration: BoxDecoration(
-                color: white.wOpacity(0.2),
-                borderRadius: BorderRadius.circular(12).r,
-              ),
-              child: Column(
-                children: [
-                  AppText(
-                    '$cardCount',
-                    fontSize: kFont18,
-                    fontWeight: FontWeight.w700,
-                    color: white,
-                  ),
-                  2.heightSpace,
-                  AppText(
-                    context.tr(AppStrings.myCards),
-                    fontSize: kFont11,
-                    color: white.wOpacity(0.9),
-                  ),
-                ],
-              ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8).r,
+            decoration: BoxDecoration(
+              color: white.wOpacity(0.2),
+              borderRadius: BorderRadius.circular(12).r,
+            ),
+            child: Column(
+              children: [
+                AppText(
+                  '$cardCount',
+                  fontSize: kFont18,
+                  fontWeight: FontWeight.w700,
+                  color: white,
+                ),
+                2.heightSpace,
+                AppText(
+                  context.tr(AppStrings.myCards),
+                  fontSize: kFont11,
+                  color: white.wOpacity(0.9),
+                ),
+              ],
             ),
           ),
         ],
