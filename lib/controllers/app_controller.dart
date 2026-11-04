@@ -92,8 +92,15 @@ class AppController with ChangeNotifier {
   }
 
   /// Opens [provider]'s sign-in for its token; null if it isn't set up
-  /// (with a toast), was cancelled or failed.
+  /// (with a toast), isn't live yet (coming soon dialog), was cancelled or
+  /// failed.
   Future<String?> socialToken(SocialProvider provider) async {
+    // Facebook and Apple only work on staging for now
+    if (!ApiService.isTrial && provider != SocialProvider.google) {
+      _socialComingSoon(provider);
+      return null;
+    }
+
     final Future<String?> Function()? getToken = switch (provider) {
       SocialProvider.google when GoogleAuthService.isConfigured =>
         GoogleAuthService.signIn,
@@ -111,6 +118,20 @@ class AppController with ChangeNotifier {
     }
 
     return getToken();
+  }
+
+  void _socialComingSoon(SocialProvider provider) {
+    DialogHelper<void>().appDialog(
+      title: context.tr(AppStrings.comingSoon),
+      description: context.tr(
+        AppStrings.socialLoginUnavailable,
+        args: [provider.label],
+      ),
+      rightButtonText: context.tr(AppStrings.okay),
+      rightButtonColor: context.color.primary,
+      rightTextColor: AppColors.whiteColor,
+      rightFunction: () => AppNavigator.pop(context),
+    );
   }
 
   /// Clears the session, then on to the login page; with [toHome] (an

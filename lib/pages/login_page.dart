@@ -323,16 +323,19 @@ class _LoginPageState extends State<LoginPage>
           contentColor: AppColors.whiteColor,
           onTap: onPhone,
         ),
-        12.heightSpace,
-        _optionButton(
-          svgIcon: AppAssets.icFacebook,
-          text: context.tr(
-            providerTextKey,
-            args: [SocialProvider.facebook.label],
+        // Facebook and Apple only work on staging for now
+        if (ApiService.isTrial) ...[
+          12.heightSpace,
+          _optionButton(
+            svgIcon: AppAssets.icFacebook,
+            text: context.tr(
+              providerTextKey,
+              args: [SocialProvider.facebook.label],
+            ),
+            color: AppColors.facebookColor,
+            onTap: () => onSocial(SocialProvider.facebook),
           ),
-          color: AppColors.facebookColor,
-          onTap: () => onSocial(SocialProvider.facebook),
-        ),
+        ],
         12.heightSpace,
         _optionButton(
           svgIcon: AppAssets.icGoogle,
@@ -345,13 +348,18 @@ class _LoginPageState extends State<LoginPage>
           color: AppColors.loginFieldColor,
           onTap: () => onSocial(SocialProvider.google),
         ),
-        12.heightSpace,
-        _optionButton(
-          svgIcon: AppAssets.icApple,
-          text: context.tr(providerTextKey, args: [SocialProvider.apple.label]),
-          color: AppColors.blackColor,
-          onTap: () => onSocial(SocialProvider.apple),
-        ),
+        if (ApiService.isTrial) ...[
+          12.heightSpace,
+          _optionButton(
+            svgIcon: AppAssets.icApple,
+            text: context.tr(
+              providerTextKey,
+              args: [SocialProvider.apple.label],
+            ),
+            color: AppColors.blackColor,
+            onTap: () => onSocial(SocialProvider.apple),
+          ),
+        ],
       ],
     );
   }

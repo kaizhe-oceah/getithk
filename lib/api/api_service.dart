@@ -14,6 +14,9 @@ class ApiService {
   static Api get api => _api;
   static const _flutterSecureStorage = FlutterSecureStorage();
 
+  // true: staging API, false: production (live)
+  static const bool isTrial = false;
+
   static Future<void> init() async {
     updateApiBaseUrl();
     if (AppPreferences.instance.getBool(SP_FIRST_RUN) ?? true) {
@@ -29,8 +32,6 @@ class ApiService {
     String? username,
     bool isDemoMode = false,
   }) {
-    const bool isTrial = true;
-
     final String baseUrl = isTrial
         ? GlobalConfigs().get("api_trial_base_url")
         // ignore: dead_code
