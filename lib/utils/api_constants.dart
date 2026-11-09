@@ -57,6 +57,12 @@ const kPlayerSocialAccountsLink = "/player/social-accounts/link";
 /// closes with the status.
 const kTopUpReturnPath = "/app-payment-result";
 
+// "/player" in an endpoint is sent as an HMAC-SHA256 of the UTC minute,
+// keyed with this secret. See api_path_signer.dart.
+const kPlayerSegment = "/player";
+const kApiPathSecret =
+    "Trma7QAdSNBSTR7T/Aj37WEFa01rgE4wiICqa4v/3PkqfeB8XD3nBvJOLvfVDg5I";
+
 // API Timezone
 const kApiTimezone = "Asia/Kuala_Lumpur";
 

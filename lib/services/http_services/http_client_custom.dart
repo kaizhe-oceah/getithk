@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 
 // Project imports:
 import '../../imports.dart';
+import '../../utils/api_path_signer.dart';
 import 'http_logger_custom.dart';
 import 'http_service_custom.dart';
 
@@ -32,6 +33,10 @@ class HttpClientCustom {
 
   static bool _hasToken(String? token) => token != null && token.isNotEmpty;
 
+  // signed per request: the /player key changes every minute
+  static String _url(String? apiUrl, String? endPoint) =>
+      "$apiUrl${signEndPoint(endPoint ?? "")}";
+
   /// Get method
   static Future<void> httpGet({
     required String? apiUrl,
@@ -49,7 +54,7 @@ class HttpClientCustom {
 
     try {
       String? token = tempToken ?? await ApiService.getApiToken();
-      final String url = customUrl ?? "$apiUrl$endPoint";
+      final String url = customUrl ?? _url(apiUrl, endPoint);
 
       final queryParams = <String, dynamic>{
         "language": _language,
@@ -110,7 +115,7 @@ class HttpClientCustom {
 
     try {
       String? token = tempToken ?? await ApiService.getApiToken();
-      final String url = customUrl ?? "$apiUrl$endPoint";
+      final String url = customUrl ?? _url(apiUrl, endPoint);
 
       params["language"] = _language;
       params["timezone"] = kApiTimezone;
@@ -169,7 +174,7 @@ class HttpClientCustom {
 
     try {
       String? token = tempToken ?? await ApiService.getApiToken();
-      final String url = customUrl ?? "$apiUrl$endPoint";
+      final String url = customUrl ?? _url(apiUrl, endPoint);
 
       final Map<String, dynamic> formMap = {
         "language": _language,

@@ -18,3 +18,11 @@ analyzer:
     implementation_imports: ignore
     avoid_types_as_parameter_names: ignore
     prefer_generic_function_type_aliases: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

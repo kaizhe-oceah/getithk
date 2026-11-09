@@ -11,7 +11,7 @@
   "google_ios_client_id": "718669333412-o71qi6ekaj4l2cb5r6ej6l5v4i5h1nn0.apps.googleusercontent.com",
   "google_server_client_id": "718669333412-f08cjiuqf632l9dsm50om8v5lnnu8ae9.apps.googleusercontent.com",
   "facebook_app_id": "2600464973801371",
-  "apple_service_id": "",
+  "apple_service_id": "com.getithk.web",
   "apple_redirect_uri": "",
   "environment": "staging"
 }
