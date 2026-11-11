@@ -21,6 +21,7 @@ class MainProductGetItCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWellWrapper(
       onTap: onTap,
+      pressedScale: 0.97,
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(

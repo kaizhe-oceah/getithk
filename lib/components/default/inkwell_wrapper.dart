@@ -38,6 +38,8 @@ class InkWellWrapper extends StatefulWidget {
   final Duration cooldownDuration;
   final bool keyboardCheckingEnabled;
 
+  final double? pressedScale;
+
   const InkWellWrapper({
     super.key,
     required this.child,
@@ -75,6 +77,7 @@ class InkWellWrapper extends StatefulWidget {
     this.checkLogin = false,
     this.keyboardCheckingEnabled = false,
     this.cooldownDuration = const Duration(milliseconds: 0),
+    this.pressedScale,
   });
 
   @override
@@ -82,7 +85,44 @@ class InkWellWrapper extends StatefulWidget {
 }
 
 class _InkWellWrapperState extends State<InkWellWrapper> {
+  static const Duration _minPressDuration = Duration(milliseconds: 120);
+
   bool _isTapped = false;
+  bool _isPressed = false;
+  final Stopwatch _pressWatch = Stopwatch();
+  Timer? _releaseTimer;
+
+  @override
+  void dispose() {
+    _releaseTimer?.cancel();
+    super.dispose();
+  }
+
+  // InkWell only reports this for its own press, not a nested button's
+  void _handleHighlightChanged(bool value) {
+    widget.onHighlightChanged?.call(value);
+    if (widget.pressedScale == null) return;
+
+    _releaseTimer?.cancel();
+    if (value) {
+      _pressWatch
+        ..reset()
+        ..start();
+      setState(() => _isPressed = true);
+      return;
+    }
+
+    // a quick tap presses and releases in the same frame, so hold the press
+    // long enough to be seen
+    final Duration remaining = _minPressDuration - _pressWatch.elapsed;
+    if (remaining <= Duration.zero) {
+      setState(() => _isPressed = false);
+    } else {
+      _releaseTimer = Timer(remaining, () {
+        if (mounted) setState(() => _isPressed = false);
+      });
+    }
+  }
 
   void _handleTap() async {
     if (_isTapped) return;
@@ -120,6 +160,19 @@ class _InkWellWrapperState extends State<InkWellWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final double? pressedScale = widget.pressedScale;
+    final Widget inkWell = _buildInkWell();
+    if (pressedScale == null) return inkWell;
+
+    return AnimatedScale(
+      scale: _isPressed ? pressedScale : 1,
+      duration: Duration(milliseconds: _isPressed ? 120 : 220),
+      curve: _isPressed ? Curves.easeOut : Curves.easeOutBack,
+      child: inkWell,
+    );
+  }
+
+  Widget _buildInkWell() {
     return InkWell(
       onTap: _handleTap,
       onDoubleTap: widget.onDoubleTap,
@@ -132,7 +185,7 @@ class _InkWellWrapperState extends State<InkWellWrapper> {
       onSecondaryTapUp: widget.onSecondaryTapUp,
       onSecondaryTapDown: widget.onSecondaryTapDown,
       onSecondaryTapCancel: widget.onSecondaryTapCancel,
-      onHighlightChanged: widget.onHighlightChanged,
+      onHighlightChanged: _handleHighlightChanged,
       onHover: widget.onHover,
       mouseCursor: widget.mouseCursor,
       focusColor: widget.focusColor,
