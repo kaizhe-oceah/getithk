@@ -309,11 +309,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _socialSection(void Function(SocialProvider provider) onSocial) {
-    // Facebook and Apple only work on staging for now
+    // Facebook and Apple hidden for now, on staging and live
     final List<SocialProvider> providers = [
-      if (ApiService.isTrial) SocialProvider.facebook,
+      // SocialProvider.facebook,
       SocialProvider.google,
-      if (ApiService.isTrial) SocialProvider.apple,
+      // SocialProvider.apple,
     ];
 
     return Column(
