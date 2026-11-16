@@ -48,9 +48,9 @@ class BottomNavigationWidget extends StatelessWidget {
             child: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
               currentIndex: selectedIndex,
-              backgroundColor: AppColors.whiteColor,
+              backgroundColor: AppColors.surfaceColor,
               selectedItemColor: context.color.primary,
-              unselectedItemColor: AppColors.blackColor,
+              unselectedItemColor: AppColors.textColor,
               iconSize: 26,
               selectedFontSize: kFont11,
               unselectedFontSize: kFont11,
@@ -72,7 +72,7 @@ class BottomNavigationWidget extends StatelessWidget {
         return Theme(
           data: theme.copyWith(
             colorScheme: theme.colorScheme.copyWith(
-              brightness: Brightness.light,
+              brightness: AppColors.isDark ? Brightness.dark : Brightness.light,
             ),
           ),
           child: MediaQuery(
@@ -87,11 +87,11 @@ class BottomNavigationWidget extends StatelessWidget {
             child: LiquidGlassNavBar(
               selectedIndex: selectedIndex,
               activeColor: context.color.primary,
-              inactiveColor: AppColors.blackColor,
+              inactiveColor: AppColors.textColor,
               iconSize: 26,
               labelStyle: const TextStyle(fontSize: kFont11),
               showShadow: true,
-              glassColor: AppColors.whiteColor.wOpacity(0.90),
+              glassColor: AppColors.surfaceColor.wOpacity(0.90),
               items: [
                 for (int i = 0; i < navItems.length; i++)
                   LiquidGlassNavItem(

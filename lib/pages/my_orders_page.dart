@@ -19,13 +19,13 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     return ChangeNotifierProvider(
       create: (_) => MyOrdersController(vsync: this),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.myOrders),
             centerTitle: true,
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
             bottomWidget: Consumer<MyOrdersController>(
               builder: (context, controller, _) => TabBarWidget(
@@ -129,7 +129,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     return Container(
       padding: const EdgeInsets.all(14).r,
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(14).r,
         border: Border.all(color: AppColors.greyLight2Color),
         boxShadow: [
@@ -183,11 +183,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
             ],
           ),
           10.heightSpace,
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.greyLight2Color,
-          ),
+          Divider(height: 1, thickness: 1, color: AppColors.greyLight2Color),
           10.heightSpace,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,

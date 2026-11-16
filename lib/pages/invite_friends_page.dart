@@ -15,12 +15,12 @@ class InviteFriendsPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => InviteFriendsController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.inviteFriends),
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -287,7 +287,7 @@ class InviteFriendsPage extends StatelessWidget {
     return Container(
       padding: inset.copyWith(top: 12.r, bottom: 12.r),
       decoration: divider
-          ? const BoxDecoration(
+          ? BoxDecoration(
               border: Border(
                 bottom: BorderSide(color: AppColors.greyLight2Color),
               ),
@@ -404,7 +404,6 @@ class InviteFriendsPage extends StatelessWidget {
         ? numerals[round - 1]
         : '$round';
   }
-
 }
 
 class _RoundPager extends StatefulWidget {
@@ -439,8 +438,7 @@ class _RoundPagerState extends State<_RoundPager> {
     super.dispose();
   }
 
-  double get _page =>
-      _pages.hasClients && _pages.position.haveDimensions
+  double get _page => _pages.hasClients && _pages.position.haveDimensions
       ? _pages.page ?? _pages.initialPage.toDouble()
       : _pages.initialPage.toDouble();
 
@@ -463,11 +461,7 @@ class _RoundPagerState extends State<_RoundPager> {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        widget.hintBuilder(_pages),
-        10.heightSpace,
-        _pager(),
-      ],
+      children: [widget.hintBuilder(_pages), 10.heightSpace, _pager()],
     );
   }
 

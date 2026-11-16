@@ -8,13 +8,14 @@ class PrimaryCheckBox extends StatelessWidget {
   final bool isGradient;
   final Color? checkBoxColor;
 
-  const PrimaryCheckBox(
-      {super.key,
-      required this.value,
-      required this.onChanged,
-      this.isRound = false,
-      this.isGradient = false,
-      this.checkBoxColor});
+  const PrimaryCheckBox({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.isRound = false,
+    this.isGradient = false,
+    this.checkBoxColor,
+  });
   @override
   Widget build(BuildContext context) {
     return isGradient ? gradientBox() : (isRound ? singleBox() : multipleBox());
@@ -40,11 +41,7 @@ class PrimaryCheckBox extends StatelessWidget {
             // Material on purpose: Iconsax has no plain ✓, and its boxed one
             // would double the painted box
             child: value
-                ? const Icon(
-                    Icons.check,
-                    size: 16.0,
-                    color: Colors.white,
-                  )
+                ? const Icon(Icons.check, size: 16.0, color: Colors.white)
                 : null,
           ),
         ),
@@ -63,12 +60,12 @@ class PrimaryCheckBox extends StatelessWidget {
           onChanged: (v) {
             onChanged(v ?? false);
           },
-          side: const BorderSide(
-            color: AppColors.greyColor,
-          ),
+          side: const BorderSide(color: AppColors.greyColor),
           splashRadius: 0,
-          activeColor: checkBoxColor ?? AppColors.blackColor,
-          checkColor: AppColors.whiteColor,
+          activeColor: checkBoxColor ?? AppColors.textColor,
+          checkColor: checkBoxColor == null
+              ? AppColors.backgroundColor
+              : AppColors.whiteColor,
           shape: null,
         ),
       ),
@@ -91,7 +88,7 @@ class PrimaryCheckBox extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: value
-                  ? checkBoxColor ?? AppColors.blackColor
+                  ? checkBoxColor ?? AppColors.textColor
                   : AppColors.transparentColor,
             ),
           ),
@@ -105,16 +102,14 @@ class GradientCheckboxPainter extends CustomPainter {
   final bool isChecked;
   final Gradient gradient;
 
-  GradientCheckboxPainter({
-    required this.isChecked,
-    required this.gradient,
-  });
+  GradientCheckboxPainter({required this.isChecked, required this.gradient});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..shader =
-          gradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..shader = gradient.createShader(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+      )
       ..style = PaintingStyle.fill;
 
     // Draw the checkbox background with gradient
@@ -128,8 +123,9 @@ class GradientCheckboxPainter extends CustomPainter {
 
     // Draw the border
     final borderPaint = Paint()
-      ..color =
-          isChecked ? Colors.transparent : AppColors.greyColor.wOpacity(0.5)
+      ..color = isChecked
+          ? Colors.transparent
+          : AppColors.greyColor.wOpacity(0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 

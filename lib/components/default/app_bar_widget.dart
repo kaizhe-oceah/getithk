@@ -97,7 +97,8 @@ class _AppBarWidgetState extends State<AppBarWidget> {
                 decoration: widget.gradient != null
                     ? BoxDecoration(gradient: widget.gradient)
                     : BoxDecoration(
-                        color: widget.backgroundColor ?? context.color.surface,
+                        color:
+                            widget.backgroundColor ?? AppColors.backgroundColor,
                       ),
               ),
             ),
@@ -162,7 +163,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
         if (widget.bottomWidget != null)
           Container(
             width: double.infinity,
-            color: widget.backgroundColor ?? AppColors.whiteColor,
+            color: widget.backgroundColor ?? AppColors.backgroundColor,
             child: widget.bottomWidget!,
           ),
 

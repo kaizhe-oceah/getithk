@@ -193,7 +193,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                 //     : BoxConstraints.tightFor(height: widget.height ?? 45.fh),
                 width: widget.width ?? 80.fw,
                 decoration: BoxDecoration(
-                  color: widget.backgroundColor ?? AppColors.whiteColor,
+                  color: widget.backgroundColor ?? AppColors.surfaceColor,
                   border:
                       widget.border ??
                       Border.all(color: AppColors.greyLightColor),
@@ -272,7 +272,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                                       decoration: BoxDecoration(
                                         color:
                                             widget.dropDownBackgroundColor ??
-                                            AppColors.whiteColor,
+                                            AppColors.surfaceColor,
                                         borderRadius: BorderRadius.only(
                                           bottomLeft: Radius.circular(
                                             widget.radius ?? 5,

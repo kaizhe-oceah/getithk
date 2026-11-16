@@ -33,7 +33,7 @@ class BackpackStockCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected && !isLoading
               ? primary.wOpacity(0.09)
-              : AppColors.whiteColor,
+              : AppColors.surfaceColor,
           borderRadius: BorderRadius.circular(8).r,
           border: Border.all(
             color: selected && !isLoading ? primary : AppColors.greyLight2Color,
@@ -159,7 +159,9 @@ class BackpackCheckBox extends StatelessWidget {
 
   const BackpackCheckBox({required this.value, this.size = 18, super.key});
 
-  static const Color _border = Color(0xFFDCE3EC);
+  static Color get _border => AppColors.isDark
+      ? AppColors.darkModeBorderColor
+      : const Color(0xFFDCE3EC);
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +172,7 @@ class BackpackCheckBox extends StatelessWidget {
       width: size.r,
       height: size.r,
       decoration: BoxDecoration(
-        color: value ? primary : AppColors.whiteColor,
+        color: value ? primary : AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(4).r,
         border: Border.all(color: value ? primary : _border, width: 1.2),
       ),
@@ -261,10 +263,10 @@ class BackpackCheckoutRow extends StatelessWidget {
                 context,
                 AppStrings.requestShipment,
                 color: canRequestShipment
-                    ? AppColors.blackColor
+                    ? AppColors.textColor
                     : AppColors.greyBackgroundColor,
                 textColor: canRequestShipment
-                    ? AppColors.whiteColor
+                    ? AppColors.backgroundColor
                     : AppColors.loginHintColor,
                 onTap: onRequestShipment,
               ),

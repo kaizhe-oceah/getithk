@@ -7,28 +7,36 @@ class PointsPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double points = context.watch<AppController>().points;
-    final double height = 30.r;
+    final double height = 32.r;
+    final double coinSize = 22.r;
     final double addSize = 22.r;
+    final double inset = (height - addSize) / 2;
 
     return InkWellWrapper(
+      pressedScale: 0.95,
       onTap: () => AppNavigator.pushNamed(context, RouteName.topupPage),
       child: Container(
         height: height,
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.55,
         ),
-        padding: EdgeInsets.only(right: (height - addSize) / 2),
+        padding: EdgeInsets.symmetric(horizontal: inset),
         decoration: BoxDecoration(
-          color: AppColors.greyLight2Color,
+          color: context.color.surface,
           borderRadius: BorderRadius.circular(100),
+          border: Border.all(
+            color: context.isDark
+                ? AppColors.darkModeBorderColor
+                : AppColors.greyLightColor,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             AppImage(
               name: AppAssets.coins,
-              width: height,
-              height: height,
+              width: coinSize,
+              height: coinSize,
               fit: BoxFit.contain,
             ),
             6.widthSpace,
@@ -38,8 +46,7 @@ class PointsPill extends StatelessWidget {
                 child: AppText(
                   NumberFormat('#,##0.00').format(points),
                   fontSize: kFont14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.loginTextColor,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -53,7 +60,7 @@ class PointsPill extends StatelessWidget {
               ),
               child: Icon(
                 Iconsax.add_copy,
-                size: 16.r,
+                size: 15.r,
                 color: AppColors.whiteColor,
                 fontWeight: FontWeight.bold,
               ),

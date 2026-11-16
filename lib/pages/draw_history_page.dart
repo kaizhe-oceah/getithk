@@ -21,13 +21,13 @@ class _DrawHistoryPageState extends State<DrawHistoryPage>
     return ChangeNotifierProvider(
       create: (_) => DrawHistoryController(vsync: this),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.drawRecord),
             centerTitle: true,
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
             actions: [
               Consumer<DrawHistoryController>(
@@ -131,7 +131,7 @@ class _DrawHistoryPageState extends State<DrawHistoryPage>
     return Container(
       padding: const EdgeInsets.all(14).r,
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(14).r,
         border: Border.all(color: AppColors.greyLight2Color),
         boxShadow: [

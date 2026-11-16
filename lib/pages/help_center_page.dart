@@ -54,7 +54,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold.basic(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.backgroundColor,
       forceOverlayStyle: SystemUiOverlayStyle.light,
       headerWidgets: [_header(context)],
       child: ListView.separated(
@@ -128,7 +128,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             height: _sheetRadius,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: AppColors.whiteColor,
+                color: AppColors.backgroundColor,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(_sheetRadius),
                 ),

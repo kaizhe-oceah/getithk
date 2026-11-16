@@ -87,16 +87,17 @@ class AppText extends StatelessWidget {
               fontWeight: fontWeight ?? textModeTextStyle.fontWeight,
               fontStyle: fontStyle ?? FontStyle.normal,
               height: height,
-              decoration: decoration ?? (underline ? TextDecoration.underline : null),
+              decoration:
+                  decoration ?? (underline ? TextDecoration.underline : null),
               decorationColor:
-                  color ?? textModeTextStyle.color ?? AppColors.blackColor,
+                  color ?? textModeTextStyle.color ?? AppColors.textColor,
               shadows: underline
                   ? [
                       Shadow(
                         color:
                             color ??
                             textModeTextStyle.color ??
-                            AppColors.blackColor,
+                            AppColors.textColor,
                         offset: const Offset(0, -4),
                       ),
                     ]

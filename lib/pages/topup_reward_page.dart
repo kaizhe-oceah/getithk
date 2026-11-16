@@ -18,12 +18,15 @@ class TopupRewardPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => TopupRewardController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.greyBackgroundColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        // greyBackgroundColor's dark shade is lighter than the cards
+        backgroundColor: AppColors.isDark
+            ? AppColors.darkModeBackgroundColor
+            : AppColors.greyBackgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.topupReward),
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -224,8 +227,8 @@ class TopupRewardPage extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            Color.alphaBlend(primary.wOpacity(0.07), AppColors.whiteColor),
-            Color.alphaBlend(primary.wOpacity(0.36), AppColors.whiteColor),
+            Color.alphaBlend(primary.wOpacity(0.07), AppColors.surfaceColor),
+            Color.alphaBlend(primary.wOpacity(0.36), AppColors.surfaceColor),
           ],
         ),
         borderRadius: BorderRadius.circular(14).r,
@@ -286,7 +289,7 @@ class TopupRewardPage extends StatelessWidget {
     required String highlight,
     String? rest,
   }) {
-    const TextStyle style = TextStyle(
+    final TextStyle style = TextStyle(
       fontSize: kFont15,
       color: AppColors.loginTextColor,
     );
@@ -437,7 +440,7 @@ class TopupRewardPage extends StatelessWidget {
 
   /// White card with a hairline border and a soft shadow.
   BoxDecoration get _cardDecoration => BoxDecoration(
-    color: AppColors.whiteColor,
+    color: AppColors.surfaceColor,
     borderRadius: BorderRadius.circular(14).r,
     border: Border.all(color: AppColors.greyLight2Color),
     boxShadow: [
@@ -587,8 +590,8 @@ class _ImagePlaceholderState extends State<_ImagePlaceholder>
           child: Container(
             width: circle,
             height: circle,
-            decoration: const BoxDecoration(
-              color: AppColors.whiteColor,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceColor,
               shape: BoxShape.circle,
             ),
           ),

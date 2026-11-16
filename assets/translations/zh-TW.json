@@ -345,5 +345,15 @@
   "link_to_ur_account_desc": "管理 Google、Facebook 及 Apple 帳號的綁定狀態。",
   "linked": "已綁定",
   "not_linked": "未綁定",
-  "link": "綁定"
+  "link": "綁定",
+  "login_title": "歡迎回來",
+  "login_subtitle": "登入帳戶，繼續你的抽籤之旅",
+  "register_title": "建立帳戶",
+  "register_subtitle": "幾步完成註冊，立即開始抽籤",
+  "or_continue_with": "或使用以下方式",
+  "no_account": "還沒有帳戶？",
+  "have_account": "已有帳戶？",
+  "dark_mode": "深色模式",
+  "dark_mode_on": "已開啟，護眼更舒適",
+  "dark_mode_off": "已關閉"
 }

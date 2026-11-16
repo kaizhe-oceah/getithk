@@ -35,7 +35,10 @@ class MonthFilterButton extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: context.color.primary,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.whiteColor, width: 1.5),
+                  border: Border.all(
+                    color: AppColors.backgroundColor,
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),

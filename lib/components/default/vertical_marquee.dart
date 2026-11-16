@@ -8,7 +8,7 @@ class VerticalMarquee extends StatefulWidget {
   final List<String> textList;
   final List<TextSpan> textSpanList;
   final double fontSize;
-  final Color textColor;
+  final Color? textColor;
   final Duration scrollDuration;
   final Duration stopDuration;
   final MarqueeController controller;
@@ -21,7 +21,7 @@ class VerticalMarquee extends StatefulWidget {
     this.textList = const [],
     this.textSpanList = const [],
     this.fontSize = 14.0,
-    this.textColor = Colors.black,
+    this.textColor,
     this.scrollDuration = const Duration(seconds: 1),
     this.stopDuration = const Duration(seconds: 3),
     this.onTap,
@@ -122,13 +122,15 @@ class _MarqueeState extends State<VerticalMarquee>
       return Container();
     }
 
+    final Color textColor = widget.textColor ?? AppColors.textColor;
+
     if (textList.length == 1) {
       return Center(
         child: Text(
           textList[0],
           style: TextStyle(
             fontSize: widget.fontSize,
-            color: widget.textColor,
+            color: textColor,
             fontWeight: widget.fontWeight,
           ),
         ),
@@ -141,7 +143,7 @@ class _MarqueeState extends State<VerticalMarquee>
           textSpanList[0],
           style: TextStyle(
             fontSize: widget.fontSize,
-            color: widget.textColor,
+            color: textColor,
             fontWeight: widget.fontWeight,
           ),
         ),
@@ -154,7 +156,7 @@ class _MarqueeState extends State<VerticalMarquee>
           widget.textList,
           textSpanList: textSpanList,
           fontSize: widget.fontSize,
-          textColor: widget.textColor,
+          textColor: textColor,
           heightSpace: 0.0,
           percent: percent,
           current: current,

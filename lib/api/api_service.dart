@@ -14,8 +14,11 @@ class ApiService {
   static Api get api => _api;
   static const _flutterSecureStorage = FlutterSecureStorage();
 
-  // true: staging API, false: production (live)
-  static const bool isTrial = false;
+  // true: the trial API (api_trial_base_url), false: live (api_base_url);
+  // set by [loadApiMode]
+  static bool isTrial = false;
+
+  static const Duration _settingsTimeout = Duration(seconds: 5);
 
   static Future<void> init() async {
     updateApiBaseUrl();
@@ -34,7 +37,6 @@ class ApiService {
   }) {
     final String baseUrl = isTrial
         ? GlobalConfigs().get("api_trial_base_url")
-        // ignore: dead_code
         : GlobalConfigs().get("api_base_url");
 
     final String apiUrl = baseUrl;
@@ -42,6 +44,30 @@ class ApiService {
     printLog("API URL : $apiUrl");
 
     _api = Api(apiUrl: apiUrl);
+  }
+
+  /// Asks the live API's /app/settings which API to use: staging (the trial
+  /// one) when data.app_setting is true, else live; live too if it can't be
+  /// reached in time. Silent: no loader, toast or dialog.
+  static Future<void> loadApiMode() async {
+    bool trial = false;
+
+    try {
+      await Api(apiUrl: GlobalConfigs().get("api_base_url"))
+          .getAppSettings(
+            onSuccess: (response) {
+              final dynamic data = response.data;
+              trial = data is Map && parseBool(data["app_setting"]);
+            },
+            onError: (_) {},
+          )
+          .timeout(_settingsTimeout);
+    } catch (e) {
+      printLog("--- loadApiMode error: $e");
+    }
+
+    isTrial = trial;
+    updateApiBaseUrl();
   }
 
   static Future<void> updateApiToken(String token) async {

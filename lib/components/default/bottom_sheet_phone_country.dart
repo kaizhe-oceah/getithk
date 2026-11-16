@@ -28,7 +28,8 @@ class BottomSheetPhoneCountry extends StatefulWidget {
 class _BottomSheetPhoneCountryState extends State<BottomSheetPhoneCountry> {
   final TextEditingController _searchController = TextEditingController();
 
-  static const Color _mutedColor = Color(0xFFA3AFBF);
+  static Color get _mutedColor =>
+      AppColors.isDark ? AppColors.darkModeHintColor : const Color(0xFFA3AFBF);
 
   @override
   void initState() {

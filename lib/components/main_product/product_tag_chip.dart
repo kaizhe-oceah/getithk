@@ -15,8 +15,11 @@ class ProductTagChip extends StatelessWidget {
   /// The name's size; the ✕ follows it.
   final double fontSize;
 
-  static const Color _plainBorder = Color(0xFFDCE3EC);
-  static const Color _plainText = Color(0xFFA3AFBF);
+  static Color get _plainBorder => AppColors.isDark
+      ? AppColors.darkModeBorderColor
+      : const Color(0xFFDCE3EC);
+  static Color get _plainText =>
+      AppColors.isDark ? AppColors.darkModeHintColor : const Color(0xFFA3AFBF);
 
   const ProductTagChip({
     required this.tag,
@@ -44,7 +47,7 @@ class ProductTagChip extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.fromLTRB(12, 5, removable ? 8 : 12, 5).r,
         decoration: BoxDecoration(
-          color: selected ? color.wOpacity(0.1) : AppColors.whiteColor,
+          color: selected ? color.wOpacity(0.1) : AppColors.surfaceColor,
           border: Border.all(
             color: selected ? color : _plainBorder,
             width: 1.2,

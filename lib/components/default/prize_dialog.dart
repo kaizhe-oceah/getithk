@@ -53,7 +53,7 @@ class PrizeDialog extends StatelessWidget {
     final double levelHeight = 36.r;
 
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       surfaceTintColor: AppColors.transparentColor,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40).r,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16).r),
@@ -143,7 +143,7 @@ class PrizeDialog extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.greyLight2Color,
           shape: BoxShape.circle,
         ),

@@ -12,12 +12,12 @@ class AgentCommissionPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => AgentCommissionController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.agentCommission),
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -150,7 +150,7 @@ class AgentCommissionPage extends StatelessWidget {
             ),
           for (int i = 0; i < commissions.length; i++) ...[
             if (i > 0)
-              const Divider(
+              Divider(
                 height: 1,
                 thickness: 1,
                 color: AppColors.greyLight2Color,

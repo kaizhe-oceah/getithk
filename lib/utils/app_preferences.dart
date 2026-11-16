@@ -9,6 +9,7 @@ import '../models/user_model.dart';
 const SP_FIRST_RUN = "sp_first_run";
 const SP_USER = "spUser";
 const themeRoleKey = "themeRole";
+const darkModeKey = "darkMode";
 
 class AppPreferences {
   static late final SharedPreferences _instance;
@@ -44,6 +45,11 @@ class AppPreferences {
     }
     return _user;
   }
+
+  static bool getDarkMode() => _instance.getBool(darkModeKey) ?? true;
+
+  static Future<void> setDarkMode(bool value) =>
+      _instance.setBool(darkModeKey, value);
 
   ///
   /// Theme color role management

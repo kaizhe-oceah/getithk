@@ -40,7 +40,7 @@ class BottomSheetLogout extends StatelessWidget {
                       radius: 100,
                       textColor: context.color.primary,
                       borderColor: context.color.primary,
-                      buttonColor: AppColors.whiteColor,
+                      buttonColor: AppColors.surfaceColor,
                     ),
 
                     // InkWellWrapper(

@@ -19,12 +19,12 @@ class PrizeResultPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => PrizeResultController(result: result),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.drawResult),
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -84,7 +84,9 @@ class PrizeResultPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12).r,
       decoration: BoxDecoration(
-        color: AppColors.lightPrimaryColor,
+        color: AppColors.isDark
+            ? AppColors.secondaryColorSoild.wOpacity(0.15)
+            : AppColors.lightPrimaryColor,
         borderRadius: BorderRadius.circular(10).r,
       ),
       child: AppText(
@@ -151,7 +153,7 @@ class PrizeResultPage extends StatelessWidget {
               width: imageWidth,
               padding: const EdgeInsets.all(3).r,
               decoration: BoxDecoration(
-                color: AppColors.whiteColor,
+                color: AppColors.surfaceColor,
                 borderRadius: BorderRadius.circular(6).r,
               ),
               child: AspectRatio(
@@ -256,7 +258,7 @@ class PrizeResultPage extends StatelessWidget {
         12.r + MediaQuery.paddingOf(context).bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         boxShadow: [
           BoxShadow(
             color: AppColors.blackColor.wOpacity(0.08),

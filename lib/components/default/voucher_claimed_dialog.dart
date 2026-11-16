@@ -25,7 +25,7 @@ class VoucherClaimedDialog extends StatelessWidget {
     final double imageSize = 140.r;
 
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       surfaceTintColor: AppColors.transparentColor,
       insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40).r,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16).r),

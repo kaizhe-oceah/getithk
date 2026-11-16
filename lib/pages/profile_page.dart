@@ -1,4 +1,5 @@
 // Project imports:
+// import '../components/dark_mode_tile.dart';
 import '../components/default/bottom_nav_bar_widget.dart';
 import '../components/points_pill.dart';
 import '../imports.dart';
@@ -135,12 +136,12 @@ class _ProfilePageState extends State<ProfilePage> {
     if (user == null) return const LoginPage(isTab: true);
 
     return AppScaffold.basic(
-      backgroundColor: AppColors.whiteColor,
-      forceOverlayStyle: SystemUiOverlayStyle.dark,
+      backgroundColor: AppColors.backgroundColor,
+      forceOverlayStyle: AppColors.pageOverlayStyle,
       headerWidgets: [
         AppBarWidget(
           centerTitle: false,
-          backgroundColor: AppColors.whiteColor,
+          backgroundColor: AppColors.backgroundColor,
           title: AppLogo(height: 28.r),
           actions: [
             Padding(
@@ -162,6 +163,8 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           children: [
             _header(user, app.level, app.cardCount),
+            // 12.heightSpace,
+            // DarkModeTile(decoration: _cardDecoration),
             kHorizontalPadding.heightSpace,
 
             AppText(
@@ -476,7 +479,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   BoxDecoration get _cardDecoration => BoxDecoration(
-    color: AppColors.whiteColor,
+    color: AppColors.surfaceColor,
     borderRadius: BorderRadius.circular(12).r,
     border: Border.all(color: AppColors.greyLight2Color),
     boxShadow: [

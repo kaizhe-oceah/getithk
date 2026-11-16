@@ -4,13 +4,12 @@ import '../imports.dart';
 /// GetItHK logo: the round mark next to the "GET iT" name.
 ///
 /// [height] is the size of the mark; the name scales with it. The name is
-/// dark by default for light backgrounds; set [onDark] on dark backgrounds to
-/// use the white one.
+/// white on a dark background: in dark mode, or wherever [onDark] says.
 class AppLogo extends StatelessWidget {
   final double height;
-  final bool onDark;
+  final bool? onDark;
 
-  const AppLogo({this.height = 36, this.onDark = false, super.key});
+  const AppLogo({this.height = 36, this.onDark, super.key});
 
   /// Height of the name relative to the mark.
   static const double nameHeightRatio = 0.47;
@@ -36,7 +35,9 @@ class AppLogo extends StatelessWidget {
         ),
         SizedBox(width: height * gapRatio),
         Image.asset(
-          onDark ? AppAssets.appName : AppAssets.appNameDark,
+          (onDark ?? AppColors.isDark)
+              ? AppAssets.appName
+              : AppAssets.appNameDark,
           width: nameHeight * nameAspectRatio,
           height: nameHeight,
           fit: BoxFit.contain,

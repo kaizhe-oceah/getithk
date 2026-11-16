@@ -13,13 +13,13 @@ class SellHistoryPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => SellHistoryController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.salesRecord),
             centerTitle: true,
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
             actions: [
               Consumer<SellHistoryController>(
@@ -86,7 +86,7 @@ class SellHistoryPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14).r,
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(14).r,
         border: Border.all(color: AppColors.greyLight2Color),
         boxShadow: [

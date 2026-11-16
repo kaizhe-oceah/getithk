@@ -1,3 +1,7 @@
+// Dart imports:
+import 'dart:math' as math;
+import 'dart:ui' as ui;
+
 // Project imports:
 import '../../imports.dart';
 import '../../models/main_product_model.dart';
@@ -5,6 +9,12 @@ import 'main_product_trial_dialog.dart';
 
 String formatMainProductAmount(double value) =>
     NumberFormat('#,##0.##').format(value);
+
+// a card's main and secondary text, on white or on a dark card
+Color _ink(BuildContext context) =>
+    context.isDark ? AppColors.whiteColor : AppColors.loginTextColor;
+Color _subtle(BuildContext context) =>
+    context.isDark ? AppColors.darkModeHintColor : AppColors.textLightColor;
 
 class MainProductImage extends StatelessWidget {
   final String? image;
@@ -30,45 +40,57 @@ class MainProductImage extends StatelessWidget {
 
 class MainProductTags extends StatelessWidget {
   final List<MainProductTagModel> tags;
+  final bool dense;
 
-  const MainProductTags({required this.tags, super.key});
+  const MainProductTags({required this.tags, this.dense = false, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 6.r,
-      runSpacing: 6.r,
+      spacing: (dense ? 4 : 6).r,
+      runSpacing: (dense ? 4 : 6).r,
       children: [
         for (final MainProductTagModel tag in tags)
-          if ((tag.name ?? '').isNotEmpty) _tag(tag),
+          if ((tag.name ?? '').isNotEmpty) _tag(context, tag),
       ],
     );
   }
 
-  Widget _tag(MainProductTagModel tag) {
+  Widget _tag(BuildContext context, MainProductTagModel tag) {
     final Color color = tag.colorValue ?? AppColors.greyColor;
     final bool light = color.computeLuminance() > 0.55;
+    final bool dark = context.isDark;
+    final Color text = _readable(color, onDark: dark);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2).r,
+      padding: EdgeInsets.symmetric(
+        horizontal: dense ? 7 : 10,
+        vertical: dense ? 1 : 2,
+      ).r,
       decoration: BoxDecoration(
         color: color.wOpacity(light ? 0.25 : 0.1),
-        border: Border.all(color: color),
+        border: Border.all(color: dark ? text : color),
         borderRadius: BorderRadius.circular(100),
       ),
       child: AppText(
         tag.name!,
-        fontSize: kFont12,
+        fontSize: dense ? kFont10 : kFont12,
         fontWeight: FontWeight.w500,
-        color: _readableOnWhite(color),
+        color: text,
       ),
     );
   }
 
-  static Color _readableOnWhite(Color color) {
+  // darker on white, lighter on a dark card
+  static Color _readable(Color color, {required bool onDark}) {
     HSLColor hsl = HSLColor.fromColor(color);
-    while (hsl.toColor().computeLuminance() > 0.3 && hsl.lightness > 0) {
-      hsl = hsl.withLightness((hsl.lightness - 0.02).clamp(0.0, 1.0));
+    bool readable() => onDark
+        ? hsl.toColor().computeLuminance() >= 0.2 || hsl.lightness >= 1
+        : hsl.toColor().computeLuminance() <= 0.3 || hsl.lightness <= 0;
+    while (!readable()) {
+      hsl = hsl.withLightness(
+        (hsl.lightness + (onDark ? 0.02 : -0.02)).clamp(0.0, 1.0),
+      );
     }
     return hsl.toColor();
   }
@@ -121,15 +143,12 @@ class MainProductPrice extends StatelessWidget {
                 style: TextStyle(
                   fontSize: kFont16.sp,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.loginTextColor,
+                  color: _ink(context),
                 ),
               ),
               TextSpan(
                 text: ' ${context.tr(AppStrings.perDraw)}',
-                style: TextStyle(
-                  fontSize: kFont12.sp,
-                  color: AppColors.textLightColor,
-                ),
+                style: TextStyle(fontSize: kFont12.sp, color: _subtle(context)),
               ),
             ],
           ),
@@ -141,8 +160,13 @@ class MainProductPrice extends StatelessWidget {
 
 class MainProductStock extends StatelessWidget {
   final MainProductModel product;
+  final CrossAxisAlignment alignment;
 
-  const MainProductStock({required this.product, super.key});
+  const MainProductStock({
+    required this.product,
+    this.alignment = CrossAxisAlignment.end,
+    super.key,
+  });
 
   static const Color _amber = Color(0xFFF59E0B);
   static const Color _green = Color(0xFF22C55E);
@@ -160,23 +184,20 @@ class MainProductStock extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: alignment,
       children: [
         // `is_show_quantity` hides only the count; the bar always shows
         if (product.isShowQuantity) ...[
           Text.rich(
             TextSpan(
-              style: TextStyle(
-                fontSize: kFont11.sp,
-                color: AppColors.textLightColor,
-              ),
+              style: TextStyle(fontSize: kFont11.sp, color: _subtle(context)),
               children: [
                 TextSpan(text: '${context.tr(AppStrings.remainingStock)} '),
                 TextSpan(
                   text: '${product.remainingDraws}/${product.totalDraws}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.loginTextColor,
+                    color: _ink(context),
                   ),
                 ),
               ],
@@ -218,7 +239,15 @@ class MainProductStock extends StatelessWidget {
 class MainProductTopupUnlock extends StatefulWidget {
   final MainProductModel product;
 
-  const MainProductTopupUnlock({required this.product, super.key});
+  /// For a grid cell: the amount still to top up and the draws available
+  /// now; the rest is on the product's page.
+  final bool dense;
+
+  const MainProductTopupUnlock({
+    required this.product,
+    this.dense = false,
+    super.key,
+  });
 
   @override
   State<MainProductTopupUnlock> createState() => _MainProductTopupUnlockState();
@@ -226,14 +255,24 @@ class MainProductTopupUnlock extends StatefulWidget {
 
 class _MainProductTopupUnlockState extends State<MainProductTopupUnlock>
     with SingleTickerProviderStateMixin {
-  static const Color _background = Color(0xFFF6F4FF);
-  static const double _borderWidth = 1.5;
   static const Duration _flowDuration = Duration(seconds: 6);
-  static const List<Color> _amountColors = [
-    Color(0xFF2F6BFF),
-    Color(0xFFA334D6),
-    Color(0xFFE6248C),
-    Color(0xFF2F6BFF),
+  static const double _borderWidth = 1.5;
+
+  bool get _dark => context.isDark;
+
+  // the brand red reads dim on charcoal, so dark mode lifts it
+  Color get _primary => _dark
+      ? Color.lerp(context.color.primary, AppColors.whiteColor, 0.3)!
+      : context.color.primary;
+
+  Color get _labelColor =>
+      _dark ? AppColors.textLightColor : AppColors.loginHintColor;
+
+  // the primary with a lighter band sweeping across it
+  List<Color> get _flowColors => [
+    _primary,
+    Color.lerp(_primary, AppColors.whiteColor, 0.45)!,
+    _primary,
   ];
 
   late final AnimationController _flow = AnimationController(
@@ -250,190 +289,347 @@ class _MainProductTopupUnlockState extends State<MainProductTopupUnlock>
   @override
   Widget build(BuildContext context) {
     final MainProductModel product = widget.product;
+    final bool dense = widget.dense;
+    final double radius = (dense ? 10 : 12).r;
 
-    final double radius = 10.r;
     return RepaintBoundary(
       child: AnimatedBuilder(
         animation: _flow,
-        builder: (context, child) => DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: _flowingGradient(_amountColors, _flow.value),
-            borderRadius: BorderRadius.circular(radius),
-          ),
-          child: child,
-        ),
+        builder: (context, child) {
+          final GradientRotation rotation = GradientRotation(
+            2 * math.pi * _flow.value,
+          );
+
+          return Stack(
+            children: [
+              // the running light's glow, spilling past the border
+              Positioned.fill(
+                child: ImageFiltered(
+                  imageFilter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(radius),
+                      gradient: _runningLight(
+                        rotation,
+                        base: _primary.wOpacity(0),
+                        light: _primary.wOpacity(_dark ? 0.3 : 0.55),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // the border itself: grey, with the light running round it
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(radius),
+                  gradient: _runningLight(
+                    rotation,
+                    base: context.isDark
+                        ? AppColors.darkModeBorderColor
+                        : AppColors.greyLightColor,
+                    light: _primary,
+                  ),
+                ),
+                child: child,
+              ),
+            ],
+          );
+        },
         child: Padding(
           padding: const EdgeInsets.all(_borderWidth),
           child: Container(
-            clipBehavior: Clip.antiAlias,
+            padding: EdgeInsets.all(dense ? 8 : 12).r,
             decoration: BoxDecoration(
-              color: _background,
               borderRadius: BorderRadius.circular(radius - _borderWidth),
+              // a soft wash of the primary, strongest at the top left; opaque,
+              // so only the border and the glow outside it show the light
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.alphaBlend(
+                    _primary.wOpacity(_dark ? 0.1 : 0.07),
+                    context.color.surface,
+                  ),
+                  Color.alphaBlend(
+                    _primary.wOpacity(_dark ? 0.02 : 0.01),
+                    context.color.surface,
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _ribbon(context),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12).r,
-                  child: Table(
-                    columnWidths: const {
-                      0: FlexColumnWidth(),
-                      1: IntrinsicColumnWidth(),
-                    },
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            child: dense
+                ? _denseContent(product)
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TableRow(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AppText(
-                            context.tr(AppStrings.topupMore),
-                            fontSize: kFont14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.loginTextColor,
-                          ),
-                          _info(
-                            context.tr(AppStrings.drawsAvailableNow),
-                            context.tr(
-                              AppStrings.drawTimes,
-                              args: ['${product.availableDraws ?? 0}'],
+                          _amountBlock(product),
+                          10.widthSpace,
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: _rule(product),
                             ),
-                            flowing: true,
                           ),
                         ],
                       ),
-                      TableRow(
-                        children: [
-                          _amount(product.topupToNextUnlock ?? 0),
-                          Padding(
-                            padding: EdgeInsets.only(top: 2.r),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _info(
-                                  context.tr(AppStrings.remainingUnlock),
-                                  _drawTimes(product.remainingUnlockedDraws),
-                                ),
-                                2.heightSpace,
-                                _info(
-                                  context.tr(AppStrings.chanceToGet),
-                                  _drawTimes(product.maxUnlockTimes),
-                                ),
-                              ],
+                      12.heightSpace,
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _stat(
+                              label: context.tr(AppStrings.drawsAvailableNow),
+                              times: product.availableDraws ?? 0,
                             ),
-                          ),
-                        ],
+                            8.widthSpace,
+                            _stat(
+                              label: context.tr(AppStrings.remainingUnlock),
+                              times: product.remainingUnlockedDraws,
+                            ),
+                            8.widthSpace,
+                            _stat(
+                              label: context.tr(AppStrings.chanceToGet),
+                              times: product.maxUnlockTimes,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _ribbon(BuildContext context) {
-    return RepaintBoundary(
-      child: ClipPath(
-        clipper: const _SwallowtailClipper(),
-        child: AnimatedBuilder(
-          animation: _flow,
-          builder: (context, child) => DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: _flowingGradient(_amountColors, _flow.value),
+  Widget _denseContent(MainProductModel product) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label(context.tr(AppStrings.topupMore)),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: _FlowingGradient(
+            flow: _flow,
+            colors: _flowColors,
+            child: _amount(
+              product.topupToNextUnlock ?? 0,
+              fontSize: kFont18,
+              unitSize: kFont11,
             ),
-            child: child,
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 4, 20, 4).r,
+        ),
+        6.heightSpace,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Flexible(child: _label(context.tr(AppStrings.drawsAvailableNow))),
+            4.widthSpace,
+            _count(product.availableDraws ?? 0, fontSize: kFont13),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _label(String text) {
+    return AppText(
+      // the labels end in a colon ("現正可抽：") for inline use
+      text.replaceFirst(RegExp(r'\s*[：:]\s*$'), ''),
+      fontSize: kFont10,
+      fontWeight: FontWeight.w500,
+      color: _labelColor,
+      maxLines: 1,
+      isOverflow: true,
+    );
+  }
+
+  // two lights chasing each other round the border, each fading in from
+  // its tail to a bright head
+  SweepGradient _runningLight(
+    GradientRotation rotation, {
+    required Color base,
+    required Color light,
+  }) {
+    return SweepGradient(
+      transform: rotation,
+      colors: [base, base, light, base, base, light, base],
+      stops: const [0, 0.15, 0.45, 0.5, 0.65, 0.95, 1],
+    );
+  }
+
+  Widget _amountBlock(MainProductModel product) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          context.tr(AppStrings.topupMore),
+          fontSize: kFont12,
+          fontWeight: FontWeight.w500,
+          color: _labelColor,
+        ),
+        2.heightSpace,
+        _FlowingGradient(
+          flow: _flow,
+          colors: _flowColors,
+          child: _amount(product.topupToNextUnlock ?? 0),
+        ),
+      ],
+    );
+  }
+
+  Widget _amount(
+    double value, {
+    double fontSize = kFont26,
+    double unitSize = kFont14,
+  }) {
+    return Text.rich(
+      TextSpan(
+        style: const TextStyle(
+          fontWeight: FontWeight.w800,
+          color: AppColors.whiteColor,
+          height: 1.1,
+        ),
+        children: [
+          TextSpan(
+            text: formatMainProductAmount(value),
+            style: TextStyle(fontSize: fontSize.sp),
+          ),
+          TextSpan(
+            text: ' pt',
+            style: TextStyle(fontSize: unitSize.sp),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _rule(MainProductModel product) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4).r,
+      decoration: BoxDecoration(
+        color: _primary.wOpacity(_dark ? 0.14 : 0.06),
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(color: _primary.wOpacity(_dark ? 0.35 : 0.15)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 1.r),
+            child: Icon(Iconsax.flash_1, size: 12.r, color: _primary),
+          ),
+          4.widthSpace,
+          Flexible(
             child: AppText(
               context.tr(
                 AppStrings.topupPerDraw,
-                args: [
-                  formatMainProductAmount(widget.product.topupPerDraw ?? 0),
-                ],
+                args: [formatMainProductAmount(product.topupPerDraw ?? 0)],
               ),
-              fontSize: kFont12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.whiteColor,
+              fontSize: kFont11,
+              fontWeight: FontWeight.w600,
+              color: _primary,
+              maxLines: 2,
+              isOverflow: true,
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _amount(double value) {
-    return _FlowingGradient(
+  // the number in the flowing primary, the rest ("次") in black; null is
+  // unlimited, all of it flowing
+  Widget _count(int? times, {double fontSize = kFont16}) {
+    Widget flowing(String text) => _FlowingGradient(
       flow: _flow,
-      colors: _amountColors,
-      child: Text.rich(
-        TextSpan(
-          style: const TextStyle(fontWeight: FontWeight.w700),
-          children: [
-            TextSpan(
-              text: formatMainProductAmount(value),
-              style: const TextStyle(fontSize: kFont26),
-            ),
-            const TextSpan(
-              text: ' pt',
-              style: TextStyle(fontSize: kFont14),
-            ),
-          ],
-        ),
-      ),
+      colors: _flowColors,
+      child: _countText(text, fontSize: fontSize),
     );
-  }
 
-  String _drawTimes(int? times) => times == null
-      ? context.tr(AppStrings.unlimited)
-      : context.tr(AppStrings.drawTimes, args: ['$times']);
+    if (times == null) return flowing(context.tr(AppStrings.unlimited));
 
-  Widget _info(String label, String value, {bool flowing = false}) {
-    final TextStyle style = TextStyle(
-      fontSize: kFont13.sp,
-      color: AppColors.loginTextColor,
-    );
-    final Widget valueText = Text(
-      value,
-      style: style.copyWith(fontWeight: FontWeight.w700),
-    );
+    final String number = '$times';
+    final String text = context.tr(AppStrings.drawTimes, args: [number]);
+    final int at = text.indexOf(number);
+    if (at < 0) return flowing(text);
+
+    final String before = text.substring(0, at);
+    final String after = text.substring(at + number.length);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(label, style: style),
-        if (flowing)
-          _FlowingGradient(flow: _flow, colors: _amountColors, child: valueText)
-        else
-          valueText,
+        if (before.isNotEmpty)
+          _countText(before, fontSize: fontSize, color: _primary),
+        flowing(number),
+        if (after.isNotEmpty)
+          _countText(after, fontSize: fontSize, color: _primary),
       ],
     );
   }
-}
 
-/// A ribbon whose right end has a V notch cut into it.
-class _SwallowtailClipper extends CustomClipper<Path> {
-  const _SwallowtailClipper();
-
-  @override
-  Path getClip(Size size) {
-    final double notch = size.height * 0.3;
-
-    return Path()
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width - notch, size.height / 2)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
+  Widget _countText(String text, {required double fontSize, Color? color}) {
+    return AppText(
+      text,
+      fontSize: fontSize,
+      fontWeight: FontWeight.w700,
+      color: color,
+      maxLines: 1,
+    );
   }
 
-  @override
-  bool shouldReclip(_SwallowtailClipper oldClipper) => false;
+  Widget _stat({required String label, required int? times}) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 9, 8, 9).r,
+        decoration: BoxDecoration(
+          color: _dark ? AppColors.darkModeRaisedColor : context.color.surface,
+          borderRadius: BorderRadius.circular(12).r,
+          boxShadow: _dark
+              ? null
+              : [
+                  BoxShadow(
+                    color: AppColors.blackColor.wOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // shrinks a long value ("Tanpa had") rather than cutting it
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: _count(times),
+            ),
+            3.heightSpace,
+            AppText(
+              // the labels end in a colon ("現正可抽：") for inline use
+              label.replaceFirst(RegExp(r'\s*[：:]\s*$'), ''),
+              fontSize: kFont11,
+              color: _labelColor,
+              maxLines: 2,
+              isOverflow: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 LinearGradient _flowingGradient(List<Color> colors, double progress) {
@@ -487,19 +683,29 @@ class MainProductDrawButtons extends StatelessWidget {
   final ValueChanged<int>? onDraw;
   final VoidCallback? onTopUp;
 
+  /// For a grid cell: smaller buttons, and 1 and 10 draws only; the
+  /// product's page has 100.
+  final bool dense;
+
   const MainProductDrawButtons({
     required this.product,
     this.onDraw,
     this.onTopUp,
+    this.dense = false,
     super.key,
   });
 
   static const Color _disabled = Color(0xFFDBE2EB);
 
+  // 抽1次: black on white, white on a dark card
+  static Color _plain(BuildContext context) =>
+      context.isDark ? AppColors.whiteColor : AppColors.blackColor;
+
   @override
   Widget build(BuildContext context) {
     if (!product.isAvailable || product.isSoldOut) {
       return _button(
+        context,
         context.tr(
           product.isSoldOut ? AppStrings.soldOut : AppStrings.drawUnavailable,
         ),
@@ -521,17 +727,20 @@ class MainProductDrawButtons extends StatelessWidget {
 
     return Row(
       children: [
-        Expanded(child: _draw(context, 1, AppColors.blackColor)),
+        Expanded(child: _draw(context, 1, _plain(context))),
         6.widthSpace,
         Expanded(child: _draw(context, 10, context.color.primary)),
-        6.widthSpace,
-        Expanded(child: _draw(context, 100, context.color.primary)),
+        if (!dense) ...[
+          6.widthSpace,
+          Expanded(child: _draw(context, 100, context.color.primary)),
+        ],
       ],
     );
   }
 
   Widget _buyPointsButton(BuildContext context) {
     return _button(
+      context,
       context.tr(AppStrings.buyPoints),
       color: context.color.primary,
       onTap: () async {
@@ -543,6 +752,7 @@ class MainProductDrawButtons extends StatelessWidget {
 
   Widget _drawLotsButton(BuildContext context) {
     return _button(
+      context,
       context.tr(AppStrings.drawLots),
       color: context.color.primary,
       onTap: () => onDraw?.call(1),
@@ -555,20 +765,23 @@ class MainProductDrawButtons extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: _drawLotsButton(context)),
-        10.widthSpace,
+        (dense ? 6 : 10).widthSpace,
         Expanded(
           child: Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.topCenter,
             children: [
               AppButtonWidget(
-                text: context.tr(AppStrings.trialDraw),
-                buttonColor: AppColors.whiteColor,
+                buttonColor: context.color.surface,
                 borderColor: primary,
-                radius: 10,
-                textSize: kFont14,
-                textColor: primary,
+                radius: _radius,
+                padding: _padding,
                 onTap: () => MainProductTrialDialog.show(context, product),
+                builder: _label(
+                  context.tr(AppStrings.trialDraw),
+                  fontSize: dense ? kFont12 : kFont14,
+                  color: primary,
+                ),
               ),
               Positioned(
                 top: -8.r,
@@ -605,6 +818,7 @@ class MainProductDrawButtons extends StatelessWidget {
     final bool enabled = onDraw != null && count <= limit;
 
     return _button(
+      context,
       count == 1
           ? context.tr(AppStrings.drawOnce)
           : context.tr(AppStrings.drawMulti, args: ['$count']),
@@ -613,16 +827,48 @@ class MainProductDrawButtons extends StatelessWidget {
     );
   }
 
-  Widget _button(String text, {Color? color, VoidCallback? onTap}) {
+  double get _radius => dense ? 8 : 10;
+
+  EdgeInsets? get _padding =>
+      dense ? const EdgeInsets.symmetric(horizontal: 6, vertical: 7).r : null;
+
+  Widget _button(
+    BuildContext context,
+    String text, {
+    Color? color,
+    VoidCallback? onTap,
+  }) {
+    final bool dark = context.isDark;
+    final Color label = onTap == null
+        ? (dark ? AppColors.darkModeHintColor : AppColors.whiteColor)
+        : color == AppColors.whiteColor
+        ? AppColors.blackColor
+        : AppColors.whiteColor;
+
     return AppButtonWidget(
-      text: text,
       buttonColor: color,
-      disabledColor: _disabled,
-      radius: 10,
-      textSize: kFont13,
-      textColor: AppColors.whiteColor,
+      disabledColor: dark ? AppColors.darkModeBorderColor : _disabled,
+      radius: _radius,
+      padding: _padding,
       checkLogin: true,
       onTap: onTap,
+      builder: _label(text, fontSize: dense ? kFont12 : kFont13, color: label),
+    );
+  }
+
+  // shrinks a long label ("Belum Boleh Dicabut") to the button's width
+  Widget _label(String text, {required double fontSize, required Color color}) {
+    return Center(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: AppText(
+          text,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w600,
+          color: color,
+          maxLines: 1,
+        ),
+      ),
     );
   }
 }

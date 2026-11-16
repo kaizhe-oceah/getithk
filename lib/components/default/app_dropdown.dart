@@ -17,7 +17,7 @@ class AppDropdown<T> extends StatefulWidget {
     this.padding,
     this.radius = 8,
     this.iconSize,
-    this.backgroundColor = AppColors.whiteColor,
+    this.backgroundColor,
     this.borderColor,
     this.foregroundColor,
     this.boxShadow,
@@ -52,7 +52,7 @@ class AppDropdown<T> extends StatefulWidget {
   final EdgeInsets? padding;
   final double radius;
   final double? iconSize;
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final Color? borderColor;
   final Color? foregroundColor;
   final List<BoxShadow>? boxShadow;
@@ -125,7 +125,7 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
             height: widget.height,
             padding: padding,
             decoration: BoxDecoration(
-              color: widget.backgroundColor,
+              color: widget.backgroundColor ?? AppColors.surfaceColor,
               border: Border.all(color: widget.borderColor ?? foreground),
               borderRadius: radius,
               boxShadow: widget.boxShadow,
@@ -168,7 +168,7 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
           offset: Offset(0, -4.r),
           elevation: 0,
           decoration: BoxDecoration(
-            color: AppColors.whiteColor,
+            color: AppColors.surfaceColor,
             borderRadius: radius,
             border: Border.all(color: AppColors.greyLight2Color),
             boxShadow: [

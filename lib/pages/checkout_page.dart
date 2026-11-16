@@ -21,12 +21,12 @@ class CheckoutPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => CheckoutController(items: items),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.confirmShipmentDetails),
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -122,11 +122,7 @@ class CheckoutPage extends StatelessWidget {
             ],
           ),
           12.heightSpace,
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.greyLightColor,
-          ),
+          Divider(height: 1, thickness: 1, color: AppColors.greyLightColor),
           12.heightSpace,
           AppText(
             context.tr(AppStrings.shippingFeeDescription),
@@ -311,7 +307,7 @@ class CheckoutPage extends StatelessWidget {
         MediaQuery.paddingOf(context).bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         boxShadow: [
           BoxShadow(
             color: AppColors.blackColor.wOpacity(0.08),

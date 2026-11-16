@@ -83,6 +83,21 @@ class Api {
     );
   }
 
+  // live or staging: data.app_setting true means the staging API
+  Future<void> getAppSettings({
+    required Function(ApiResponseModel) onSuccess,
+    Function(String)? onError,
+  }) async {
+    await HttpClientCustom.httpGet(
+      apiUrl: apiUrl,
+      endPoint: kAppSettings,
+      params: {},
+      isRethrowRequired: true,
+      onSuccess: onSuccess,
+      onError: (error) => onError?.call(error),
+    );
+  }
+
   Future<void> getPhoneCode({
     Function(ApiResponseModel)? onSuccess,
     bool showLoader = false,

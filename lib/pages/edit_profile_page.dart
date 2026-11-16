@@ -13,13 +13,13 @@ class EditProfilePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => EditProfileController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.editProfile),
             centerTitle: true,
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -107,7 +107,7 @@ class EditProfilePage extends StatelessWidget {
                 decoration: InputDecoration(
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 8).r,
-                  enabledBorder: const UnderlineInputBorder(
+                  enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: AppColors.greyLight2Color),
                   ),
                   focusedBorder: UnderlineInputBorder(
@@ -168,7 +168,7 @@ class EditProfilePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: primary,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.whiteColor, width: 2),
+                border: Border.all(color: AppColors.backgroundColor, width: 2),
               ),
               child: Icon(
                 Iconsax.camera,
@@ -212,9 +212,9 @@ class EditProfilePage extends StatelessWidget {
   Widget _circleImage(String? image) {
     return ClipOval(
       child: image == null
-          ? const ColoredBox(
+          ? ColoredBox(
               color: AppColors.greyBackgroundColor,
-              child: SizedBox.expand(),
+              child: const SizedBox.expand(),
             )
           : AppImage(
               name: image,
@@ -235,8 +235,8 @@ class EditProfilePage extends StatelessWidget {
         side,
         10.r + MediaQuery.paddingOf(context).bottom,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.whiteColor,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceColor,
         border: Border(top: BorderSide(color: AppColors.greyLight2Color)),
       ),
       child: AppButtonWidget(

@@ -345,5 +345,15 @@
   "link_to_ur_account_desc": "Manage your linked Google, Facebook and Apple accounts.",
   "linked": "Linked",
   "not_linked": "Not linked",
-  "link": "Link"
+  "link": "Link",
+  "login_title": "Welcome back",
+  "login_subtitle": "Log in to keep drawing and collecting prizes",
+  "register_title": "Create an account",
+  "register_subtitle": "Sign up in a few steps and start drawing",
+  "or_continue_with": "or continue with",
+  "no_account": "Don't have an account?",
+  "have_account": "Already have an account?",
+  "dark_mode": "Dark Mode",
+  "dark_mode_on": "On, easier on the eyes",
+  "dark_mode_off": "Off"
 }

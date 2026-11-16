@@ -510,7 +510,7 @@ class _AppImageState extends State<AppImage> {
           ? AppImage(
               name: AppAssets.appLogo,
               fit: BoxFit.contain,
-              color: AppColors.blackColor.wOpacity(0.2),
+              color: AppColors.textColor.wOpacity(0.2),
             )
           : null,
     );

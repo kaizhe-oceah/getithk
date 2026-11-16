@@ -9,7 +9,7 @@ class MainProductGetItCard extends StatelessWidget {
   final VoidCallback? onTopUp;
   final VoidCallback? onTap;
 
-  const MainProductGetItCard({  
+  const MainProductGetItCard({
     required this.product,
     this.onDraw,
     this.onTopUp,
@@ -25,7 +25,7 @@ class MainProductGetItCard extends StatelessWidget {
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: AppColors.whiteColor,
+          color: AppColors.surfaceColor,
           borderRadius: BorderRadius.circular(14).r,
         ),
         child: Column(

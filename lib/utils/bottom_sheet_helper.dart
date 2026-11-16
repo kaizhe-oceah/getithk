@@ -42,7 +42,7 @@ class BottomSheetHelper {
       topControl: const SizedBox.shrink(),
       expand: false,
       useRootNavigator: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceColor,
       isDismissible: isDismissable,
       enableDrag: enableDrag,
       builder: (context) {
@@ -116,7 +116,7 @@ class BottomSheetHelper {
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       topControl: const SizedBox.shrink(),
       builder: (context) =>
           BottomSheetTagFilter(selected: selected, onConfirm: onConfirm),
@@ -133,7 +133,7 @@ class BottomSheetHelper {
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       topControl: const SizedBox.shrink(),
       builder: (context) =>
           BottomSheetCategoryFilter(selected: selected, onConfirm: onConfirm),
@@ -150,7 +150,7 @@ class BottomSheetHelper {
       BottomSheetStocks(
         title: AppStrings.requestShipment,
         confirmText: AppStrings.confirmShipment,
-        confirmColor: AppColors.blackColor,
+        confirmColor: AppColors.textColor,
         stocks: stocks,
         onConfirm: onConfirm,
       ),
@@ -162,7 +162,7 @@ class BottomSheetHelper {
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       isScrollControlled: true,
       useSafeArea: true,
       constraints: BoxConstraints(
@@ -171,7 +171,6 @@ class BottomSheetHelper {
       builder: (context) => sheet,
     );
   }
-
 
   static Future<void> phoneCountry({
     required List<PhoneCodeModel> codes,
@@ -182,7 +181,7 @@ class BottomSheetHelper {
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       clipBehavior: Clip.antiAlias,
       isScrollControlled: true,
       builder: (context) => BottomSheetPhoneCountry(
@@ -204,7 +203,7 @@ class BottomSheetHelper {
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       topControl: const SizedBox.shrink(),
       builder: (context) => BottomSheetConfirm(
         title: title,
@@ -221,6 +220,7 @@ class BottomSheetHelper {
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
+      backgroundColor: AppColors.surfaceColor,
       builder: (context) => const BottomSheetLogout(),
       topControl: const SizedBox.shrink(),
     );
@@ -231,6 +231,7 @@ class BottomSheetHelper {
       context: context,
       barrierColor: Colors.black54,
       shape: roundShapeBorder,
+      backgroundColor: AppColors.surfaceColor,
       isDismissible: false,
       enableDrag: false,
       builder: (context) => const BottomSheetNoInternetConnection(),

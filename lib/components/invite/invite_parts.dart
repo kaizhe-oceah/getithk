@@ -6,7 +6,7 @@ import '../../imports.dart';
 import '../gift_shake.dart';
 
 BoxDecoration get inviteCardDecoration => BoxDecoration(
-  color: AppColors.whiteColor,
+  color: AppColors.surfaceColor,
   borderRadius: BorderRadius.circular(14).r,
   border: Border.all(color: AppColors.greyLight2Color),
   boxShadow: [
@@ -32,15 +32,17 @@ class InviteHeader extends StatelessWidget {
     super.key,
   });
 
-  static const Color _topColor = Color(0xFFFFE3E7);
-  static const Color _bottomColor = Color(0xFFFFF6F7);
+  static Color get _topColor =>
+      AppColors.isDark ? const Color(0xFF52222A) : const Color(0xFFFFE3E7);
+  static Color get _bottomColor =>
+      AppColors.isDark ? const Color(0xFF362A2C) : const Color(0xFFFFF6F7);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 16, 10, 12).r,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [_topColor, _bottomColor],
@@ -70,14 +72,14 @@ class InviteHeader extends StatelessWidget {
                         vertical: 3,
                       ).r,
                       decoration: BoxDecoration(
-                        color: AppColors.blackColor,
+                        color: AppColors.textColor,
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: AppText(
                         context.tr(chip),
                         fontSize: kFont11,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.whiteColor,
+                        color: AppColors.backgroundColor,
                       ),
                     ),
                     8.heightSpace,
@@ -113,7 +115,7 @@ class InviteHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12).r,
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(12).r,
       ),
       child: Row(
@@ -146,7 +148,7 @@ class InviteHeader extends StatelessWidget {
                     context.tr(steps[i].$2),
                     fontSize: kFont11,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.blackColor,
+                    color: AppColors.textColor,
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -226,8 +228,7 @@ class InviteCodeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color primary = context.color.primary;
-    final String code =
-        context.watch<AppController>().user?.referralCode ?? '';
+    final String code = context.watch<AppController>().user?.referralCode ?? '';
 
     return Container(
       padding: const EdgeInsets.all(14).r,
@@ -304,8 +305,8 @@ class InviteCodeCard extends StatelessWidget {
                   text: context.tr(AppStrings.inviteNow),
                   isMinWidth: true,
                   textSize: kFont12,
-                  buttonColor: AppColors.blackColor,
-                  textColor: AppColors.whiteColor,
+                  buttonColor: AppColors.textColor,
+                  textColor: AppColors.backgroundColor,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 10,

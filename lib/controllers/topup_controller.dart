@@ -93,12 +93,6 @@ class TopupController extends ChangeNotifier {
     if (url != null && url.isNotEmpty) await _openPaymentWebview(url);
   }
 
-  /// The gateway's [paymentUrl]; it closes, back to this page, once the
-  /// gateway sends the player back (kTopUpReturnPath) with how it went:
-  /// - paid: this page reloads (pulled down to refresh): balance, packages;
-  /// - pending (not confirmed yet, probably paid): the balance checked again
-  ///   a little later, for when it's confirmed;
-  /// - anything else, the back button too: not paid.
   Future<void> _openPaymentWebview(String paymentUrl) async {
     final Object? result = await AppNavigator.pushNamed(
       context,

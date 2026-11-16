@@ -31,6 +31,7 @@ class AppTextFormField extends StatefulWidget {
   final FocusNode? focusNode;
   final String? errorText;
   final bool labelIsRequired;
+
   /// Corner radius; defaults to [kDefaultRadius].
   final double radius;
   final FontWeight? labelFontWeight;
@@ -266,7 +267,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
                       ? widget.obscureTextDisabledColor
                       : widget.obscureTextEnabledColor ??
                             widget.obscureTextDisabledColor) ??
-                  AppColors.blackColor,
+                  AppColors.textColor,
               size: 20.r,
             ),
           ),
@@ -363,7 +364,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
         keyboardType: widget.textInputType,
         inputFormatters: widget.textInputFormatter ?? const [],
         style: TextStyle(
-          color: widget.textColor ?? AppColors.blackColor,
+          color: widget.textColor ?? AppColors.textColor,
           fontSize: widget.textSize?.sp,
           fontWeight: widget.textFontWeight,
         ),
@@ -374,7 +375,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
         decoration: InputDecoration(
           // color
           fillColor: widget.enabled
-              ? (widget.backgroundColor ?? AppColors.whiteColor)
+              ? (widget.backgroundColor ?? AppColors.surfaceColor)
               : AppColors.greyLightColor.wOpacity(0.7),
           filled: true,
           hoverColor: Colors.transparent,

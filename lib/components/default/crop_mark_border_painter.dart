@@ -2,6 +2,8 @@
 import '../../../imports.dart';
 
 class CropMarkBorderPainter extends CustomPainter {
+  final Color color = AppColors.textColor;
+
   @override
   void paint(Canvas canvas, Size size) {
     const width = 4.0;
@@ -14,12 +16,7 @@ class CropMarkBorderPainter extends CustomPainter {
       size.height - 2 * width,
     );
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(radius));
-    const clippingRect0 = Rect.fromLTWH(
-      0,
-      0,
-      tRadius,
-      tRadius,
-    );
+    const clippingRect0 = Rect.fromLTWH(0, 0, tRadius, tRadius);
     final clippingRect1 = Rect.fromLTWH(
       size.width - tRadius,
       0,
@@ -49,14 +46,14 @@ class CropMarkBorderPainter extends CustomPainter {
     canvas.drawRRect(
       rrect,
       Paint()
-        ..color = AppColors.blackColor
+        ..color = color
         ..style = PaintingStyle.stroke
         ..strokeWidth = width,
     );
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(CropMarkBorderPainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }

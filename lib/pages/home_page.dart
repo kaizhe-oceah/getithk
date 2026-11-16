@@ -11,6 +11,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // Project imports:
 import '../components/default/bottom_nav_bar_widget.dart';
+import '../components/default/filter_button.dart';
 import '../components/main_product/main_product_card.dart';
 import '../components/main_product/main_product_empty.dart';
 import '../components/main_product/product_tag_chip.dart';
@@ -27,20 +28,29 @@ class HomePage extends StatefulWidget {
 
   static const double _bannerAspectRatio = 15 / 8;
   static const double _pageBannerAspectRatio = 2.2;
+  // with more than one banner, each takes this much of the width and the
+  // ones either side peek in
+  static const double _bannerViewportFraction = 0.86;
 
   static const double _categoryLogoAspectRatio = 2.7;
   static double get _categoryLogoHeight => 30.r;
   static double get _categoryLogoWidth =>
       _categoryLogoHeight * _categoryLogoAspectRatio;
+  // the bottom leaves room for the pill under the picked logo
   static EdgeInsets get _categoryTabPadding =>
-      const EdgeInsets.fromLTRB(8, 14, 8, 0).r;
+      const EdgeInsets.fromLTRB(10, 8, 10, 13).r;
+  static double get _categoryTabWidth =>
+      _categoryLogoWidth + _categoryTabPadding.horizontal;
+  static double get _categoryTabHeight =>
+      _categoryLogoHeight + _categoryTabPadding.vertical;
 
   @override
   State<HomePage> createState() => _HomePageState();
 
-  static EdgeInsets get _filterBarPadding =>
-      const EdgeInsets.symmetric(horizontal: 12, vertical: 6).r;
-  static const FontWeight _filterBarWeight = FontWeight.w500;
+  // the sort button matches the filter one beside it
+  static EdgeInsets get _filterBarPadding => FilterButton.padding;
+  static const FontWeight _filterBarWeight = FilterButton.fontWeight;
+  static const double _filterBarRadius = FilterButton.radius;
 
   static const double _backgroundAspectRatio = 2560 / 1184;
 
@@ -89,8 +99,8 @@ class _HomePageState extends State<HomePage>
     return ChangeNotifierProvider(
       create: (_) => HomeController.takePreloaded() ?? HomeController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [_appBar(context)],
         child: Consumer<HomeController>(
           builder: (context, controller, _) => _content(context, controller),
@@ -103,15 +113,16 @@ class _HomePageState extends State<HomePage>
     final EdgeInsets sidePadding = EdgeInsets.symmetric(
       horizontal: kHorizontalPadding.r,
     );
+    final Color background = AppColors.backgroundColor;
 
     return Stack(
       key: _stackKey,
       children: [
-        const Positioned.fill(
+        Positioned.fill(
           child: Column(
             children: [
-              Expanded(child: ColoredBox(color: AppColors.whiteColor)),
-              Expanded(
+              Expanded(child: ColoredBox(color: background)),
+              const Expanded(
                 child: ColoredBox(color: HomePage._productsBackgroundColor),
               ),
             ],
@@ -149,43 +160,38 @@ class _HomePageState extends State<HomePage>
                 SliverToBoxAdapter(
                   child: ColoredBox(
                     key: _headerKey,
-                    color: AppColors.whiteColor,
+                    color: background,
                     child: Padding(
                       padding: EdgeInsets.only(top: 10.r),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Padding(
-                            padding: sidePadding,
-                            child: controller.isLoading
-                                ? _skeleton()
-                                : Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      if (controller.banners.isNotEmpty) ...[
-                                        _bannerCarousel(context, controller),
-                                        10.heightSpace,
-                                      ],
-                                      if (controller
-                                          .pageBanners
-                                          .isNotEmpty) ...[
-                                        _pageBanners(context, controller),
-                                        12.heightSpace,
-                                      ],
-                                      if (controller.categories.isNotEmpty)
-                                        _categoryTabs(context, controller),
-                                    ],
-                                  ),
-                          ),
-                          12.heightSpace,
-
-                          Padding(
-                            padding: sidePadding,
-                            child: _filterBar(context, controller),
-                          ),
+                          if (controller.isLoading)
+                            Padding(padding: sidePadding, child: _skeleton())
+                          else ...[
+                            // full width, so the banners either side peek in
+                            if (controller.banners.isNotEmpty) ...[
+                              _bannerCarousel(context, controller),
+                              12.heightSpace,
+                            ],
+                            if (controller.pageBanners.isNotEmpty) ...[
+                              Padding(
+                                padding: sidePadding,
+                                child: _pageBanners(context, controller),
+                              ),
+                              8.heightSpace,
+                            ],
+                            if (controller.categories.isNotEmpty) ...[
+                              _categoryTabs(context, controller),
+                              10.heightSpace,
+                            ],
+                            Padding(
+                              padding: sidePadding,
+                              child: _filterBar(context, controller),
+                            ),
+                          ],
                           if (controller.filterTags.isNotEmpty) ...[
-                            6.heightSpace,
+                            8.heightSpace,
                             _activeFilters(context, controller),
                           ],
                           12.heightSpace,
@@ -442,24 +448,10 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _filterBar(BuildContext context, HomeController controller) {
-    final Color primary = context.color.primary;
-
     return Row(
       children: [
-        AppButtonWidget(
-          text: controller.tagIds.isEmpty
-              ? context.tr(AppStrings.filter)
-              : '${context.tr(AppStrings.filter)} (${controller.tagIds.length})',
-          isMinWidth: true,
-          radius: 8,
-          textSize: kFont12,
-          fontWeight: HomePage._filterBarWeight,
-          buttonColor: AppColors.whiteColor,
-          borderColor: primary,
-          textColor: primary,
-          icon: Icon(Iconsax.setting_4_copy, size: 15.r, color: primary),
-          iconSpace: 5,
-          padding: HomePage._filterBarPadding,
+        FilterButton(
+          count: controller.tagIds.length,
           onTap: () => BottomSheetHelper.tagFilter(
             selected: controller.filterTags,
             onConfirm: controller.onFilterTags,
@@ -578,6 +570,10 @@ class _HomePageState extends State<HomePage>
         width: size.width,
         itemHeight: size.height,
         padding: HomePage._filterBarPadding,
+        radius: HomePage._filterBarRadius,
+        backgroundColor: FilterButton.backgroundColor(context),
+        borderColor: AppColors.transparentColor,
+        foregroundColor: context.color.onSurface,
         itemBuilder: (context, sort, color) => AppText(
           _sortLabel(context, sort),
           fontSize: kFont12,
@@ -608,58 +604,88 @@ class _HomePageState extends State<HomePage>
   Widget _bannerCarousel(BuildContext context, HomeController controller) {
     final List<BannerModel> banners = controller.banners;
     final bool multiple = banners.length > 1;
-    final int cacheWidth = _cacheWidth(context, _contentWidth(context));
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    // one banner lines up with the page padding instead
+    final double fraction = multiple
+        ? HomePage._bannerViewportFraction
+        : _contentWidth(context) / screenWidth;
+    final double gap = multiple ? 5.r : 0;
+    final double width = screenWidth * fraction - gap * 2;
+    // room under each banner for its shadow
+    final double shadowRoom = 12.r;
+    final BorderRadius radius = BorderRadius.circular(16).r;
+    final int cacheWidth = _cacheWidth(context, width);
     _precacheBanners(banners, cacheWidth);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12).r,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          CarouselSlider(
-            items: [
-              for (final BannerModel banner in banners)
-                InkWellWrapper(
-                  onTap: banner.link == null
-                      ? null
-                      : () => launchLink(url: banner.link!),
-                  child: AppImage(
-                    name: banner.image,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                    cacheWidth: cacheWidth,
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        CarouselSlider(
+          items: [
+            for (final BannerModel banner in banners)
+              Padding(
+                padding: EdgeInsets.fromLTRB(gap, 0, gap, shadowRoom),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: radius,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.blackColor.wOpacity(0.15),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ),
-            ],
-            options: CarouselOptions(
-              aspectRatio: HomePage._bannerAspectRatio,
-              viewportFraction: 1,
-              autoPlay: multiple,
-              enableInfiniteScroll: multiple,
-              onPageChanged: (index, _) => controller.bannerIndex.value = index,
-            ),
-          ),
-          if (multiple)
-            Positioned(
-              bottom: 8.r,
-              child: ValueListenableBuilder<int>(
-                valueListenable: controller.bannerIndex,
-                builder: (context, index, _) => AnimatedSmoothIndicator(
-                  activeIndex: index,
-                  count: banners.length,
-                  effect: WormEffect(
-                    dotWidth: 6.r,
-                    dotHeight: 6.r,
-                    spacing: 6.r,
-                    activeDotColor: AppColors.whiteColor,
-                    dotColor: AppColors.whiteColor.wOpacity(0.45),
+                  child: InkWellWrapper(
+                    pressedScale: banner.link == null ? null : 0.97,
+                    onTap: banner.link == null
+                        ? null
+                        : () => launchLink(url: banner.link!),
+                    child: ClipRRect(
+                      borderRadius: radius,
+                      child: AppImage(
+                        name: banner.image,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        cacheWidth: cacheWidth,
+                      ),
+                    ),
                   ),
                 ),
               ),
+          ],
+          options: CarouselOptions(
+            height: width / HomePage._bannerAspectRatio + shadowRoom,
+            viewportFraction: fraction,
+            enlargeCenterPage: multiple,
+            enlargeFactor: 0.12,
+            autoPlay: multiple,
+            enableInfiniteScroll: multiple,
+            onPageChanged: (index, _) => controller.bannerIndex.value = index,
+          ),
+        ),
+        // on the middle banner, above the room left for its shadow
+        if (multiple)
+          Positioned(
+            bottom: shadowRoom + 8.r,
+            child: ValueListenableBuilder<int>(
+              valueListenable: controller.bannerIndex,
+              builder: (context, index, _) => AnimatedSmoothIndicator(
+                activeIndex: index,
+                count: banners.length,
+                effect: ExpandingDotsEffect(
+                  dotWidth: 6.r,
+                  dotHeight: 6.r,
+                  spacing: 5.r,
+                  expansionFactor: 3,
+                  activeDotColor: AppColors.whiteColor,
+                  dotColor: AppColors.whiteColor.wOpacity(0.5),
+                ),
+              ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 
@@ -678,17 +704,32 @@ class _HomePageState extends State<HomePage>
           Expanded(
             child: InkWellWrapper(
               // logged out: the login page instead
-              checkLogin: true,
-              onTap: () => _onTapPageBanner(context, items[i]),
-              child: AspectRatio(
-                aspectRatio: HomePage._pageBannerAspectRatio,
-                child: AppImage(
-                  name: items[i].image,
-                  radius: 12,
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                  cacheWidth: cacheWidth,
+              checkLogin: _pageBannerTappable(i),
+              pressedScale: _pageBannerTappable(i) ? 0.96 : null,
+              onTap: _pageBannerTappable(i)
+                  ? () => _onTapPageBanner(context, items[i])
+                  : null,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14).r,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.blackColor.wOpacity(0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: AspectRatio(
+                  aspectRatio: HomePage._pageBannerAspectRatio,
+                  child: AppImage(
+                    name: items[i].image,
+                    radius: 14,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                    cacheWidth: cacheWidth,
+                  ),
                 ),
               ),
             ),
@@ -697,6 +738,9 @@ class _HomePageState extends State<HomePage>
       ],
     );
   }
+
+  // with /app/settings' app_setting on, the first one does nothing
+  bool _pageBannerTappable(int index) => !(index == 0 && ApiService.isTrial);
 
   /// invite_point: 邀請好友; accumulate_box: 充值獎勵; the others aren't
   /// ready yet.
@@ -711,54 +755,77 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _categoryTabs(BuildContext context, HomeController controller) {
-    // every tab is as wide, so the line's spot comes from its position
-    final double tabWidth =
-        HomePage._categoryLogoWidth + HomePage._categoryTabPadding.horizontal;
-    final double lineWidth = HomePage._categoryLogoWidth * 0.8;
+    final Color primary = context.color.primary;
+    final double tabWidth = HomePage._categoryTabWidth;
+    final double tabHeight = HomePage._categoryTabHeight;
+    final double pillWidth = 32.r;
+    final double pillHeight = 3.r;
+    final int count = controller.categories.length;
+    final List<Widget> tabs = [
+      for (int i = 0; i < count; i++) _categoryTab(context, controller, i),
+    ];
 
-    return Container(
-      decoration: _cardDecoration,
-      child: SingleChildScrollView(
-        controller: controller.categoryScrollController,
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 6).r,
-        child: Stack(
-          children: [
-            Row(
-              children: [
-                for (int i = 0; i < controller.categories.length; i++)
-                  _categoryTab(context, controller, i),
-              ],
-            ),
-
-            // the selected tab's line, one for all of them, so it can slide
-            AnimatedBuilder(
+    return Stack(
+      children: [
+        // the line the pill sits on, inset like the page
+        Positioned(
+          left: kHorizontalPadding.r,
+          right: kHorizontalPadding.r,
+          bottom: 0,
+          child: Container(height: 1, color: AppColors.greyLight2Color),
+        ),
+        SingleChildScrollView(
+          controller: controller.categoryScrollController,
+          scrollDirection: Axis.horizontal,
+          // the first logo lines up with the page padding
+          padding: EdgeInsets.symmetric(
+            horizontal:
+                kHorizontalPadding.r - HomePage._categoryTabPadding.left,
+          ),
+          child: SizedBox(
+            width: count * tabWidth,
+            height: tabHeight,
+            child: AnimatedBuilder(
               animation: Listenable.merge([_swipe, _tabLine]),
               builder: (context, _) {
                 final ({double position, double progress}) line = _tabLineState(
                   controller,
                 );
-                // narrow mid-way, full on a tab
-                final double travel = math.sin(math.pi * line.progress);
-                final double width = lineWidth * (1 - 0.6 * travel);
+                // every tab is as wide, so the pill's spot comes from its
+                // position; it stretches mid-way, like it's being pulled
+                final double width =
+                    pillWidth * (1 + 1.5 * math.sin(math.pi * line.progress));
 
-                return Positioned(
-                  left: line.position * tabWidth + (tabWidth - width) / 2,
-                  bottom: 0,
-                  child: Container(
-                    width: width,
-                    height: 3.r,
-                    decoration: BoxDecoration(
-                      color: context.color.primary,
-                      borderRadius: BorderRadius.circular(2).r,
+                return Stack(
+                  children: [
+                    for (int i = 0; i < count; i++)
+                      Positioned(
+                        left: i * tabWidth,
+                        width: tabWidth,
+                        height: tabHeight,
+                        child: tabs[i],
+                      ),
+
+                    // one pill for all the tabs, so it can slide
+                    Positioned(
+                      left: line.position * tabWidth + (tabWidth - width) / 2,
+                      bottom: 0,
+                      child: Container(
+                        width: width,
+                        height: pillHeight,
+                        decoration: BoxDecoration(
+                          color: primary,
+                          borderRadius: BorderRadius.circular(2).r,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 );
               },
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -818,20 +885,12 @@ class _HomePageState extends State<HomePage>
         },
         child: Padding(
           padding: HomePage._categoryTabPadding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppImage(
-                name: category.image,
-                width: logoWidth,
-                height: HomePage._categoryLogoHeight,
-                fit: BoxFit.contain,
-                cacheWidth: _cacheWidth(context, logoWidth),
-              ),
-              10.heightSpace,
-              // room for the line, drawn over all the tabs
-              SizedBox(height: 3.r),
-            ],
+          child: AppImage(
+            name: category.image,
+            width: logoWidth,
+            height: HomePage._categoryLogoHeight,
+            fit: BoxFit.contain,
+            cacheWidth: _cacheWidth(context, logoWidth),
           ),
         ),
       ),
@@ -860,22 +919,9 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  BoxDecoration get _cardDecoration => BoxDecoration(
-    color: AppColors.whiteColor,
-    borderRadius: BorderRadius.circular(12).r,
-    border: Border.all(color: AppColors.greyLight2Color),
-    boxShadow: [
-      BoxShadow(
-        color: AppColors.blackColor.wOpacity(0.12),
-        blurRadius: 20,
-        spreadRadius: -2,
-        offset: const Offset(0, 8),
-      ),
-    ],
-  );
-
   Widget _skeleton() {
-    final BorderRadius radius = BorderRadius.circular(12).r;
+    final BorderRadius radius = BorderRadius.circular(14).r;
+    final BorderRadius cardRadius = BorderRadius.circular(16).r;
 
     return AppSkeletonizer(
       child: Column(
@@ -883,9 +929,9 @@ class _HomePageState extends State<HomePage>
         children: [
           AspectRatio(
             aspectRatio: HomePage._bannerAspectRatio,
-            child: Bone(borderRadius: radius),
+            child: Bone(borderRadius: cardRadius),
           ),
-          10.heightSpace,
+          14.heightSpace,
           Row(
             children: [
               Expanded(
@@ -903,10 +949,15 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          12.heightSpace,
-          Bone(
-            height: HomePage._categoryLogoHeight + 27.r,
-            borderRadius: radius,
+          8.heightSpace,
+          Bone(height: HomePage._categoryTabHeight, borderRadius: radius),
+          10.heightSpace,
+          Row(
+            children: [
+              Bone(width: 70.r, height: 30.r, borderRadius: radius),
+              const Spacer(),
+              Bone(width: 110.r, height: 30.r, borderRadius: radius),
+            ],
           ),
         ],
       ),
@@ -918,7 +969,7 @@ class _HomePageState extends State<HomePage>
 
     return AppBarWidget(
       centerTitle: false,
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.backgroundColor,
       title: AppLogo(height: 28.r),
       actions: [
         Padding(
@@ -968,7 +1019,7 @@ class _HomePageState extends State<HomePage>
       isMinWidth: true,
       radius: 10,
       textSize: kFont13,
-      buttonColor: outlined ? AppColors.whiteColor : primary,
+      buttonColor: outlined ? AppColors.transparentColor : primary,
       borderColor: primary,
       textColor: outlined ? primary : AppColors.whiteColor,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6).r,

@@ -3,8 +3,8 @@ import '../../imports.dart';
 
 class AppPinput extends StatelessWidget {
   final int length;
-  final Color borderColor;
-  final Color fillColor;
+  final Color? borderColor;
+  final Color? fillColor;
   final double pinSize;
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -18,8 +18,8 @@ class AppPinput extends StatelessWidget {
   const AppPinput({
     super.key,
     this.length = 6,
-    this.borderColor = AppColors.blackColor,
-    this.fillColor = AppColors.whiteColor,
+    this.borderColor,
+    this.fillColor,
     this.pinSize = kToolbarHeight,
     this.controller,
     this.focusNode,
@@ -33,34 +33,28 @@ class AppPinput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color borderColor = this.borderColor ?? AppColors.textColor;
+    final Color fillColor = this.fillColor ?? AppColors.surfaceColor;
+
     final defaultPinTheme = PinTheme(
       width: (pinSize - 6).fw,
       height: (pinSize - 6).fw,
-      textStyle: TextStyle(
-        fontSize: fontSize.sp,
-        color: AppColors.blackColor,
-      ),
+      textStyle: TextStyle(fontSize: fontSize.sp, color: AppColors.textColor),
       decoration: BoxDecoration(
-          color: fillColor,
-          borderRadius: BorderRadius.circular(radius).r,
-          border: Border.all(
-            color: borderColor.wOpacity(0.25),
-          )),
+        color: fillColor,
+        borderRadius: BorderRadius.circular(radius).r,
+        border: Border.all(color: borderColor.wOpacity(0.25)),
+      ),
     );
 
     final focusedPinTheme = PinTheme(
       width: (pinSize - 6).fw,
       height: pinSize.fw,
-      textStyle: TextStyle(
-        fontSize: fontSize.sp,
-        color: AppColors.blackColor,
-      ),
+      textStyle: TextStyle(fontSize: fontSize.sp, color: AppColors.textColor),
       decoration: BoxDecoration(
         color: fillColor,
         borderRadius: BorderRadius.circular(radius).r,
-        border: Border.all(
-          color: borderColor.wOpacity(1.0),
-        ),
+        border: Border.all(color: borderColor.wOpacity(1.0)),
       ),
     );
 

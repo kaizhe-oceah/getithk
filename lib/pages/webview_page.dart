@@ -234,7 +234,9 @@ class _WebviewPageState extends State<WebviewPage> {
                       preferredSize: const Size(double.infinity, 3.0),
                       child: LinearProgressIndicator(
                         value: progress,
-                        backgroundColor: Colors.grey[300],
+                        backgroundColor: AppColors.isDark
+                            ? AppColors.darkModeDividerColor
+                            : Colors.grey.shade300,
                         color: context.color.primary,
                       ),
                     )

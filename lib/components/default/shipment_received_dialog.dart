@@ -21,7 +21,7 @@ class ShipmentReceivedDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       surfaceTintColor: AppColors.transparentColor,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40).r,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16).r),

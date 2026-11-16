@@ -13,8 +13,11 @@ class AppSearchField extends StatelessWidget {
     super.key,
   });
 
-  static const Color _background = Color(0xFFF2F4F7);
-  static const Color _hintColor = Color(0xFFA3AFBF);
+  static Color get _background => AppColors.isDark
+      ? AppColors.darkModeRaisedColor
+      : const Color(0xFFF2F4F7);
+  static Color get _hintColor =>
+      AppColors.isDark ? AppColors.darkModeHintColor : const Color(0xFFA3AFBF);
 
   @override
   Widget build(BuildContext context) {

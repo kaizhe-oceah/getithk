@@ -345,5 +345,15 @@
   "link_to_ur_account_desc": "Urus akaun Google, Facebook dan Apple yang dipautkan.",
   "linked": "Dipautkan",
   "not_linked": "Belum dipautkan",
-  "link": "Pautkan"
+  "link": "Pautkan",
+  "login_title": "Selamat kembali",
+  "login_subtitle": "Log masuk untuk terus mencabut dan mengumpul hadiah",
+  "register_title": "Cipta akaun",
+  "register_subtitle": "Daftar dalam beberapa langkah dan mula mencabut",
+  "or_continue_with": "atau teruskan dengan",
+  "no_account": "Belum ada akaun?",
+  "have_account": "Sudah ada akaun?",
+  "dark_mode": "Mod Gelap",
+  "dark_mode_on": "Hidup, lebih selesa untuk mata",
+  "dark_mode_off": "Mati"
 }

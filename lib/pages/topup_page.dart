@@ -12,12 +12,12 @@ class TopupPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => TopupController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.topUp),
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -236,7 +236,7 @@ class TopupPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14).r,
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(12).r,
         border: Border.all(color: AppColors.greyLight2Color),
         boxShadow: _cardShadow,

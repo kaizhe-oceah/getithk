@@ -35,7 +35,7 @@ class DrawConfirmDialog extends StatelessWidget {
     final Color primary = context.color.primary;
 
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       surfaceTintColor: AppColors.transparentColor,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40).r,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16).r),

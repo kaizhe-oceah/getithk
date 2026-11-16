@@ -62,7 +62,7 @@ class MainProductCardSkeleton extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(14).r,
       ),
       child: AppSkeletonizer(

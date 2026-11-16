@@ -225,7 +225,7 @@ class DialogHelper<T> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10).r,
         ),
-        backgroundColor: AppColors.whiteColor,
+        backgroundColor: AppColors.surfaceColor,
         title: title != null
             ? AppText(title, fontWeight: FontWeight.w600)
             : null,

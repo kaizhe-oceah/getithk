@@ -30,7 +30,7 @@ class AccumulateBoxRewardDialog extends StatelessWidget {
             .round();
 
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       surfaceTintColor: AppColors.transparentColor,
       clipBehavior: Clip.antiAlias,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40).r,

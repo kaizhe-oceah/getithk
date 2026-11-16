@@ -35,6 +35,7 @@ Future<void> main() async {
   await GlobalConfigs().loadJsonFromdir("assets/cfg/config.json");
   await EasyLocalization.ensureInitialized();
   await AppPreferences.init();
+  ThemeController.loadDarkMode();
   await ApiService.init();
 
   if (!kIsWeb) {
@@ -142,10 +143,13 @@ class MyApp extends StatelessWidget {
               widget = EasyLoading.init()(context, widget);
               widget = botToastBuilder(context, widget);
 
-              Widget app = Material(
-                type: MaterialType.transparency,
-                child: LifeCycleManager(
-                  child: KeyboardVisibilityProvider(child: widget),
+              Widget app = RepaintBoundary(
+                key: ThemeController.snapshotKey,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: LifeCycleManager(
+                    child: KeyboardVisibilityProvider(child: widget),
+                  ),
                 ),
               );
 
@@ -158,6 +162,10 @@ class MyApp extends StatelessWidget {
             onGenerateRoute: RouteGenerator.generateRoute,
             debugShowCheckedModeBanner: false,
             theme: _themeController.theme,
+            darkTheme: darkTheme,
+            themeMode: _themeController.themeMode,
+            // AppColors switches at once, so the theme does too
+            themeAnimationDuration: Duration.zero,
           );
         },
       ),

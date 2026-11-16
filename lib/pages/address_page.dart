@@ -20,15 +20,15 @@ class AddressPage extends StatelessWidget {
       create: (_) =>
           AddressController(isSelect: isSelect, selectedId: selectedId),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           // under the provider, for 新增 while picking
           Builder(
             builder: (context) => AppBarWidget(
               text: context.tr(AppStrings.shippingAddress),
               centerTitle: true,
-              backgroundColor: AppColors.whiteColor,
+              backgroundColor: AppColors.backgroundColor,
               leading: const AppBarBackButton(),
               actions: [
                 if (isSelect)
@@ -126,7 +126,7 @@ class AddressPage extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.fromLTRB(16, 14, 16, isSelect ? 14 : 12).r,
         decoration: BoxDecoration(
-          color: AppColors.whiteColor,
+          color: AppColors.surfaceColor,
           borderRadius: BorderRadius.circular(14).r,
           border: Border.all(color: AppColors.greyLight2Color),
           boxShadow: [
@@ -210,11 +210,7 @@ class AddressPage extends StatelessWidget {
         // the line and 編輯 / 刪除 under it; none while picking
         if (!controller.isSelect) ...[
           10.heightSpace,
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.greyLight2Color,
-          ),
+          Divider(height: 1, thickness: 1, color: AppColors.greyLight2Color),
           10.heightSpace,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -317,7 +313,7 @@ class AddressPage extends StatelessWidget {
         10 + MediaQuery.paddingOf(context).bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         boxShadow: [
           BoxShadow(
             color: AppColors.blackColor.wOpacity(0.08),

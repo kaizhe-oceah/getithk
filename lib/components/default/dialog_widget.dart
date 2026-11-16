@@ -12,29 +12,29 @@ class DialogWidget extends StatelessWidget {
   final String? imageAsset;
   final double? imageSize;
 
-  const DialogWidget(
-      {super.key,
-      this.title,
-      this.message,
-      this.iconPath,
-      this.primaryButtonText,
-      this.secondaryButtonText,
-      this.onPrimaryTap,
-      this.onSecondaryTap,
-      this.imageAsset,
-      this.imageSize = 250});
+  const DialogWidget({
+    super.key,
+    this.title,
+    this.message,
+    this.iconPath,
+    this.primaryButtonText,
+    this.secondaryButtonText,
+    this.onPrimaryTap,
+    this.onSecondaryTap,
+    this.imageAsset,
+    this.imageSize = 250,
+  });
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 50.fw),
       child: Container(
         decoration: BoxDecoration(
-            color: AppColors.whiteColor,
-            borderRadius: BorderRadius.circular(18)),
+          color: AppColors.surfaceColor,
+          borderRadius: BorderRadius.circular(18),
+        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 30,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: LayoutBuilder(
             builder: (context, constraint) {
               return Stack(
@@ -50,12 +50,10 @@ class DialogWidget extends StatelessWidget {
                         Align(
                           heightFactor: 0,
                           child: Container(
-                            decoration:
-                                const BoxDecoration(shape: BoxShape.circle),
-                            child: AppImage(
-                              name: iconPath,
-                              width: 150.fw,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
                             ),
+                            child: AppImage(name: iconPath, width: 150.fw),
                           ),
                         ),
                       if (iconPath != null) 90.heightSpace,
@@ -66,10 +64,11 @@ class DialogWidget extends StatelessWidget {
                         ),
                       Padding(
                         padding: EdgeInsets.only(
-                            top: title != null ? 2.fw : 12.fw,
-                            bottom: 16.fw,
-                            left: 12.fw,
-                            right: 12.fw),
+                          top: title != null ? 2.fw : 12.fw,
+                          bottom: 16.fw,
+                          left: 12.fw,
+                          right: 12.fw,
+                        ),
                         child: Text(
                           message ?? context.tr(AppStrings.internalServerError),
                           textAlign: TextAlign.center,
@@ -79,14 +78,14 @@ class DialogWidget extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Padding(
-                              padding:
-                                  EdgeInsets.symmetric(vertical: 6.fw),
+                              padding: EdgeInsets.symmetric(vertical: 6.fw),
                               child: AppButtonWidget(
                                 onTap: onPrimaryTap ?? () {},
                                 text: primaryButtonText!,
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20.fw,
-                                    vertical: 8.fw),
+                                  horizontal: 20.fw,
+                                  vertical: 8.fw,
+                                ),
                               ),
                             ),
                           ),
@@ -96,14 +95,14 @@ class DialogWidget extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Padding(
-                              padding:
-                                  EdgeInsets.symmetric(vertical: 6.fw),
+                              padding: EdgeInsets.symmetric(vertical: 6.fw),
                               child: AppButtonWidget(
                                 onTap: onSecondaryTap ?? () {},
                                 text: secondaryButtonText!,
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20.fw,
-                                    vertical: 8.fw),
+                                  horizontal: 20.fw,
+                                  vertical: 8.fw,
+                                ),
                               ),
                             ),
                           ),
@@ -178,10 +177,7 @@ class DialogWidget extends StatelessWidget {
                     Positioned(
                       top: -(imageSize!.fw / 1.7),
                       left: constraint.maxWidth / 2 - imageSize!.fw / 1.7,
-                      child: AppImage(
-                        name: imageAsset,
-                        width: imageSize!.fw,
-                      ),
+                      child: AppImage(name: imageAsset, width: imageSize!.fw),
                     ),
                 ],
               );

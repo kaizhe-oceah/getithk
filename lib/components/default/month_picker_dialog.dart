@@ -48,12 +48,12 @@ class _MonthPickerDialogState extends State<MonthPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final TextStyle style = context.text.bodyMedium!.copyWith(
-      color: AppColors.blackColor,
+      color: AppColors.textColor,
     );
     final DateTime? last = widget.lastDate;
 
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       surfaceTintColor: AppColors.transparentColor,
       insetPadding: EdgeInsets.symmetric(horizontal: 0.075.sw),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15).r),
@@ -150,7 +150,7 @@ class _MonthPickerDialogState extends State<MonthPickerDialog> {
         child: Icon(
           icon,
           size: 16.r,
-          color: onTap == null ? AppColors.greyColor : AppColors.blackColor,
+          color: onTap == null ? AppColors.greyColor : AppColors.textColor,
         ),
       ),
     );
@@ -183,7 +183,7 @@ class _MonthPickerDialogState extends State<MonthPickerDialog> {
             color: isSelected
                 ? AppColors.whiteColor
                 : isEnabled
-                ? AppColors.blackColor
+                ? AppColors.textColor
                 : AppColors.greyColor,
           ),
         ),

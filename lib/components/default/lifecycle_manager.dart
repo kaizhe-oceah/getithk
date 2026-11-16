@@ -65,13 +65,9 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
         textScaler: const TextScaler.linear(1.0),
       ),
       child: Container(
-        color: AppColors.whiteColor,
+        color: AppColors.backgroundColor,
         child: Center(
-          child: SizedBox(
-            width: width,
-            height: height,
-            child: widget.child,
-          ),
+          child: SizedBox(width: width, height: height, child: widget.child),
         ),
       ),
     );

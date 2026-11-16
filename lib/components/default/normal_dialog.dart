@@ -51,7 +51,7 @@ class NormalDialog extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(kDialogPadding).r,
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: AppColors.surfaceColor,
           borderRadius: BorderRadius.circular(10).r,
           boxShadow: const [
             BoxShadow(
@@ -170,7 +170,7 @@ class NormalDialog extends StatelessWidget {
         alignment: Alignment.center,
         child: AppText(
           text,
-          color: textColor ?? AppColors.blackColor,
+          color: textColor ?? AppColors.textColor,
           fontWeight: FontWeight.normal,
         ),
       ),

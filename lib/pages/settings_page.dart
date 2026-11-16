@@ -10,13 +10,13 @@ class SettingsPage extends StatelessWidget {
     final UserModel? user = context.watch<AppController>().user;
 
     return AppScaffold.basic(
-      backgroundColor: AppColors.whiteColor,
-      forceOverlayStyle: SystemUiOverlayStyle.dark,
+      backgroundColor: AppColors.backgroundColor,
+      forceOverlayStyle: AppColors.pageOverlayStyle,
       headerWidgets: [
         AppBarWidget(
           text: context.tr(AppStrings.settings),
           centerTitle: true,
-          backgroundColor: AppColors.whiteColor,
+          backgroundColor: AppColors.backgroundColor,
           leading: const AppBarBackButton(),
         ),
       ],
@@ -117,7 +117,7 @@ class SettingsPage extends StatelessWidget {
       (value == null || value.isEmpty) ? '-' : value;
 
   BoxDecoration get _cardDecoration => BoxDecoration(
-    color: AppColors.whiteColor,
+    color: AppColors.surfaceColor,
     borderRadius: BorderRadius.circular(12).r,
     border: Border.all(color: AppColors.greyLight2Color),
     boxShadow: [

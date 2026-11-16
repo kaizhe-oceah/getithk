@@ -25,9 +25,14 @@ class _BottomSheetCategoryFilterState extends State<BottomSheetCategoryFilter> {
   /// The picked category's id; null: every category.
   late int? _selectedId = widget.selected?.id;
 
-  static const Color _plainBorder = Color(0xFFDCE3EC);
-  static const Color _plainText = Color(0xFFA3AFBF);
-  static const Color _resetColor = Color(0xFFF0F2F5);
+  static Color get _plainBorder => AppColors.isDark
+      ? AppColors.darkModeBorderColor
+      : const Color(0xFFDCE3EC);
+  static Color get _plainText =>
+      AppColors.isDark ? AppColors.darkModeHintColor : const Color(0xFFA3AFBF);
+  static Color get _resetColor => AppColors.isDark
+      ? AppColors.darkModeRaisedColor
+      : const Color(0xFFF0F2F5);
 
   @override
   void initState() {
@@ -156,7 +161,7 @@ class _BottomSheetCategoryFilterState extends State<BottomSheetCategoryFilter> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5).r,
         decoration: BoxDecoration(
-          color: selected ? primary.wOpacity(0.1) : AppColors.whiteColor,
+          color: selected ? primary.wOpacity(0.1) : AppColors.surfaceColor,
           border: Border.all(
             color: selected ? primary : _plainBorder,
             width: 1.2,

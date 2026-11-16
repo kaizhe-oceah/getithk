@@ -42,9 +42,13 @@ class _SplashPageState extends State<SplashPage>
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final Future<void> precache = SplashView.precache(context);
+
+      // live or trial API first, so nothing loads from the wrong one
+      await ApiService.loadApiMode();
       HomeController.preload().ignore();
 
-      await SplashView.precache(context);
+      await precache;
       if (!mounted) return;
 
       _checkForUpdate();

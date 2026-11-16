@@ -51,14 +51,9 @@ const kPlayerSocialLogin = "/player/social-login";
 const kPlayerSocialAccounts = "/player/social-accounts";
 const kPlayerSocialAccountsLink = "/player/social-accounts/link";
 
-/// Where the payment gateway sends the player back to (fe_redirect_url),
-/// as `…/app-payment-result?reference=TOP-…&status=paid|pending|failed`.
-/// It needn't exist on the web: the payment web view stops there and
-/// closes with the status.
+// api settings to control live or staging
+const kAppSettings = "/app-setting";
 const kTopUpReturnPath = "/app-payment-result";
-
-// "/player" in an endpoint is sent as an HMAC-SHA256 of the UTC minute,
-// keyed with this secret. See api_path_signer.dart.
 const kPlayerSegment = "/player";
 const kApiPathSecret =
     "Trma7QAdSNBSTR7T/Aj37WEFa01rgE4wiICqa4v/3PkqfeB8XD3nBvJOLvfVDg5I";

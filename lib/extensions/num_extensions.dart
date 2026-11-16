@@ -17,15 +17,19 @@ extension NumExtensions on num {
 
   /// horizontal divider
   Widget get dividerHorizontal => Container(
-        height: kIsWeb ? AppSize.getSize(this).w : (this).h,
-        color: const Color.fromARGB(255, 238, 237, 237),
-      );
+    height: kIsWeb ? AppSize.getSize(this).w : (this).h,
+    color: AppColors.isDark
+        ? AppColors.darkModeDividerColor
+        : const Color.fromARGB(255, 238, 237, 237),
+  );
 
   /// vertical divider
   Widget get dividerVertical => Container(
-        width: kIsWeb ? AppSize.getSize(this).w : (this).w,
-        color: const Color.fromRGBO(222, 222, 222, 1),
-      );
+    width: kIsWeb ? AppSize.getSize(this).w : (this).w,
+    color: AppColors.isDark
+        ? AppColors.darkModeBorderColor
+        : const Color.fromRGBO(222, 222, 222, 1),
+  );
 
   /// Checks if num a LOWER than num b.
   bool isLowerThan(num b) => this < b;
@@ -37,10 +41,8 @@ extension NumExtensions on num {
   bool isEqual(num b) => this == b;
 
   /// Utility to delay some callback (or code execution).
-  Future delay([FutureOr Function()? callback]) async => Future.delayed(
-        Duration(milliseconds: (this * 1000).round()),
-        callback,
-      );
+  Future delay([FutureOr Function()? callback]) async =>
+      Future.delayed(Duration(milliseconds: (this * 1000).round()), callback);
 
   Duration get milliseconds => Duration(microseconds: (this * 1000).round());
 

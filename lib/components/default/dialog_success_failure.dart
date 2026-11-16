@@ -42,7 +42,7 @@ class DialogSuccessFailureWidget extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(kHorizontalPadding.r),
                   decoration: BoxDecoration(
-                    color: AppColors.whiteColor,
+                    color: AppColors.surfaceColor,
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Column(
@@ -158,7 +158,7 @@ class DialogSuccessFailureWidget extends StatelessWidget {
                       () {
                         AppNavigator.pop(context);
                       },
-                  child: const SizedBox(
+                  child: SizedBox(
                     width: 40,
                     height: 40,
                     child: Icon(

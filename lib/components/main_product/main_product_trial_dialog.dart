@@ -10,8 +10,9 @@ class MainProductTrialDialog extends StatelessWidget {
   const MainProductTrialDialog({required this.product, super.key});
 
   static Future<void> show(BuildContext context, MainProductModel product) {
+    // from the root, so a card on a dark page doesn't pass its theme on to
+    // this dialog
     return DialogHelper<void>().showDefaultDialog(
-      context2: context,
       child: MainProductTrialDialog(product: product),
     );
   }
@@ -19,7 +20,7 @@ class MainProductTrialDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       surfaceTintColor: AppColors.transparentColor,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40).r,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20).r),
@@ -83,7 +84,7 @@ class MainProductTrialDialog extends StatelessWidget {
                 vertical: 3,
               ).r,
               decoration: BoxDecoration(
-                color: AppColors.whiteColor,
+                color: AppColors.surfaceColor,
                 borderRadius: BorderRadius.circular(100),
               ),
               child: AppText(
@@ -115,7 +116,7 @@ class MainProductTrialDialog extends StatelessWidget {
               text: context.tr(AppStrings.drawOnce),
               radius: 10,
               textSize: kFont14,
-              buttonColor: AppColors.whiteColor,
+              buttonColor: AppColors.surfaceColor,
               borderColor: primary,
               textColor: primary,
               padding: padding,
@@ -127,7 +128,7 @@ class MainProductTrialDialog extends StatelessWidget {
         Expanded(
           child: _freeBadge(
             context,
-            color: AppColors.whiteColor,
+            color: AppColors.surfaceColor,
             textColor: primary,
             child: AppButtonWidget(
               text: context.tr(AppStrings.drawMulti, args: ['10']),

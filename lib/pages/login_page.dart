@@ -22,13 +22,10 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController = TabController(
-    length: 2,
-    initialIndex: widget.isRegister ? 1 : 0,
-    vsync: this,
-  );
+class _LoginPageState extends State<LoginPage> {
+  static const Duration _switchDuration = Duration(milliseconds: 250);
+
+  late bool _isRegister = widget.isRegister;
 
   late final TapGestureRecognizer _termsRecognizer = TapGestureRecognizer()
     ..onTap = () => TncPage.open(context, TncType.terms);
@@ -36,29 +33,23 @@ class _LoginPageState extends State<LoginPage>
     ..onTap = () => TncPage.open(context, TncType.privacy);
 
   @override
-  void initState() {
-    super.initState();
-    _tabController.addListener(unfocusKeyboard);
-  }
-
-  @override
   void dispose() {
-    _tabController.dispose();
     _termsRecognizer.dispose();
     _privacyRecognizer.dispose();
     super.dispose();
   }
 
-  static const String _testEmail = 'lamkaizhe2001@gmail.com';
-  static const String _testPassword = '123123123';
-
   void _fillTestAccount(BuildContext context) {
     final LoginController login = context.read<LoginController>();
 
-    _tabController.animateTo(0);
+    _setRegister(false);
     login.onSelectMethod(LoginMethod.email);
-    login.emailController.text = _testEmail;
-    login.passwordController.text = _testPassword;
+  }
+
+  void _setRegister(bool value) {
+    if (_isRegister == value) return;
+    unfocusKeyboard();
+    setState(() => _isRegister = value);
   }
 
   void _onBack() {
@@ -73,61 +64,35 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
+    final Color headerColor = context.color.primary;
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LoginController()),
         ChangeNotifierProvider(create: (_) => RegisterController()),
       ],
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
-        headerWidgets: [
-          // back button, logo centred
-          AppBarWidget(
-            backgroundColor: AppColors.whiteColor,
-            isDivider: false,
-            leading: widget.isTab ? null : AppBarBackButton(onTap: _onBack),
-            // debug builds: a double tap fills in the test account
-            title: Builder(
-              builder: (context) => GestureDetector(
-                onDoubleTap: kDebugMode
-                    ? () => _fillTestAccount(context)
-                    : null,
-                child: AppLogo(height: 32.r),
-              ),
-            ),
-          ),
-        ],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: SystemUiOverlayStyle.light,
+        child: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20).r,
-              child: _tabs(),
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _tabPage(
-                    Consumer<LoginController>(
-                      builder: (context, controller, _) =>
-                          controller.method == null
-                          ? _loginOptions(controller)
-                          : _loginForm(controller),
-                    ),
-                  ),
-                  _tabPage(
-                    Consumer<RegisterController>(
-                      builder: (context, controller, _) =>
-                          controller.type == null
-                          ? _registerOptions(controller)
-                          : _registerForm(controller),
-                    ),
-                    footer: _registerAgreement(),
-                  ),
-                ],
+            SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ColoredBox(
+                color: headerColor,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [_header(), _sheet()],
+                ),
               ),
+            ),
+            // keeps the status bar coloured once the sheet scrolls up
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: MediaQuery.paddingOf(context).top,
+              child: ColoredBox(color: headerColor),
             ),
           ],
         ),
@@ -135,101 +100,314 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  Widget _tabs() {
-    final List<String> titles = [
-      context.tr(AppStrings.login),
-      context.tr(AppStrings.register),
-    ];
-    final Animation<double> animation = _tabController.animation!;
-
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, _) => Column(
+  Widget _header() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        20.r,
+        MediaQuery.paddingOf(context).top + (widget.isTab ? 24.r : 8.r),
+        20.r,
+        36.r,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              for (int i = 0; i < titles.length; i++)
-                _tab(
-                  titles[i],
-                  index: i,
-                  selected: 1 - (animation.value - i).abs().clamp(0.0, 1.0),
+          if (!widget.isTab) ...[_backButton(), 24.heightSpace],
+          // debug builds: a double tap fills in the test account
+          Builder(
+            builder: (context) => GestureDetector(
+              onDoubleTap: kDebugMode ? () => _fillTestAccount(context) : null,
+              child: AnimatedSwitcher(
+                duration: _switchDuration,
+                layoutBuilder: _topLeftLayout,
+                child: Column(
+                  key: ValueKey(_isRegister),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText(
+                      context.tr(
+                        _isRegister
+                            ? AppStrings.registerTitle
+                            : AppStrings.loginTitle,
+                      ),
+                      fontSize: kFont26,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.whiteColor,
+                    ),
+                    6.heightSpace,
+                    AppText(
+                      context.tr(
+                        _isRegister
+                            ? AppStrings.registerSubtitle
+                            : AppStrings.loginSubtitle,
+                      ),
+                      fontSize: kFont14,
+                      color: AppColors.whiteColor.wOpacity(0.75),
+                    ),
+                  ],
                 ),
-            ],
-          ),
-          Align(
-            alignment: Alignment(
-              -1 + 2 * animation.value / (titles.length - 1),
-              0,
-            ),
-            child: FractionallySizedBox(
-              widthFactor: 1 / titles.length,
-              child: Container(height: 2, color: context.color.primary),
+              ),
             ),
           ),
-          Container(height: 1, color: AppColors.loginDividerColor),
         ],
       ),
     );
   }
 
-  Widget _tab(String title, {required int index, required double selected}) {
-    return Expanded(
-      child: InkWellWrapper(
-        onTap: () => _tabController.animateTo(index),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 12.fh),
-          child: AppText(
-            title,
-            fontSize: kFont15,
-            fontWeight: FontWeight.w600,
-            color: Color.lerp(
-              AppColors.loginHintColor,
-              context.color.primary,
-              selected,
+  Widget _backButton() {
+    return InkWellWrapper(
+      onTap: _onBack,
+      child: Container(
+        width: 40.r,
+        height: 40.r,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.whiteColor.wOpacity(0.15),
+          border: Border.all(color: AppColors.whiteColor.wOpacity(0.2)),
+        ),
+        child: Icon(
+          Iconsax.arrow_left_copy,
+          size: 20.r,
+          color: AppColors.whiteColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _sheet() {
+    final double bottomInset = widget.isTab
+        ? BottomNavigationWidget.contentBottomInset(context)
+        : 16.r + MediaQuery.paddingOf(context).bottom;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(20.r, 28.r, 20.r, bottomInset),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
+      ),
+      child: AnimatedSize(
+        duration: _switchDuration,
+        curve: Curves.easeOutCubic,
+        alignment: Alignment.topCenter,
+        child: AnimatedSwitcher(
+          duration: _switchDuration,
+          layoutBuilder: _topLeftLayout,
+          child: _isRegister
+              ? Consumer<RegisterController>(
+                  key: const ValueKey('register'),
+                  builder: (context, controller, _) =>
+                      _registerForm(controller),
+                )
+              : Consumer<LoginController>(
+                  key: const ValueKey('login'),
+                  builder: (context, controller, _) => _loginForm(controller),
+                ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _topLeftLayout(Widget? current, List<Widget> previous) {
+    return Stack(
+      alignment: Alignment.topLeft,
+      children: [...previous, ?current],
+    );
+  }
+
+  Widget _methodSwitch({
+    required bool isEmail,
+    required ValueChanged<bool> onChanged,
+  }) {
+    final Color primary = context.color.primary;
+    final List<(IconData, String)> options = [
+      (Iconsax.sms, context.tr(AppStrings.email)),
+      (Iconsax.call, context.tr(AppStrings.phoneNumber)),
+    ];
+
+    return Container(
+      height: 48.r,
+      decoration: BoxDecoration(
+        color: AppColors.loginFieldColor,
+        borderRadius: BorderRadius.circular(14).r,
+      ),
+      child: Stack(
+        children: [
+          AnimatedAlign(
+            alignment: isEmail ? Alignment.centerLeft : Alignment.centerRight,
+            duration: _switchDuration,
+            curve: Curves.easeOutCubic,
+            child: FractionallySizedBox(
+              widthFactor: 0.5,
+              heightFactor: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceColor,
+                  borderRadius: BorderRadius.circular(14).r,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.blackColor.wOpacity(0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            textAlign: TextAlign.center,
+          ),
+          Row(
+            children: [
+              for (int i = 0; i < options.length; i++)
+                Expanded(
+                  child: InkWellWrapper(
+                    onTap: () => onChanged(i == 0),
+                    child: Center(
+                      child: _methodLabel(
+                        options[i],
+                        color: (i == 0) == isEmail
+                            ? primary
+                            : AppColors.loginHintColor,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _methodLabel((IconData, String) option, {required Color color}) {
+    final (IconData icon, String text) = option;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 18.r, color: color),
+        6.widthSpace,
+        Flexible(
+          child: AppText(
+            text,
+            fontSize: kFont13,
+            fontWeight: FontWeight.w600,
+            color: color,
+            isOverflow: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _submitButton(String text, VoidCallback onTap) {
+    return AppButtonWidget(
+      text: text,
+      radius: 14,
+      textSize: kFont15,
+      textColor: AppColors.whiteColor,
+      padding: const EdgeInsets.symmetric(vertical: 14).r,
+      onTap: onTap,
+    );
+  }
+
+  Widget _socialSection(void Function(SocialProvider provider) onSocial) {
+    // Facebook and Apple only work on staging for now
+    final List<SocialProvider> providers = [
+      if (ApiService.isTrial) SocialProvider.facebook,
+      SocialProvider.google,
+      if (ApiService.isTrial) SocialProvider.apple,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        24.heightSpace,
+        Row(
+          children: [
+            Expanded(child: Divider(color: AppColors.loginDividerColor)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12).r,
+              child: AppText(
+                context.tr(AppStrings.orContinueWith),
+                fontSize: kFont12,
+                color: AppColors.loginHintColor,
+              ),
+            ),
+            Expanded(child: Divider(color: AppColors.loginDividerColor)),
+          ],
+        ),
+        16.heightSpace,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (int i = 0; i < providers.length; i++) ...[
+              if (i > 0) 12.widthSpace,
+              _socialButton(providers[i], onTap: () => onSocial(providers[i])),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _socialButton(SocialProvider provider, {required VoidCallback onTap}) {
+    final (String icon, Color? tint) = switch (provider) {
+      SocialProvider.facebook => (
+        AppAssets.icFacebook,
+        AppColors.facebookColor,
+      ),
+      SocialProvider.google => (AppAssets.icGoogle, null),
+      SocialProvider.apple => (AppAssets.icApple, AppColors.textColor),
+    };
+
+    // icon only, so the name is kept for screen readers
+    return Semantics(
+      label: provider.label,
+      button: true,
+      child: AppButtonWidget(
+        buttonColor: AppColors.surfaceColor,
+        borderColor: AppColors.loginDividerColor,
+        radius: 14,
+        padding: EdgeInsets.zero,
+        width: 64.r,
+        onTap: onTap,
+        builder: SizedBox(
+          height: 48.r,
+          child: Center(
+            child: AppImage(name: icon, width: 22.r, height: 22.r, color: tint),
           ),
         ),
       ),
     );
   }
 
-  Widget _tabPage(Widget child, {Widget? footer}) {
-    final double navBarInset = widget.isTab
-        ? BottomNavigationWidget.contentBottomInset(context)
-        : 16.r;
-
-    final Widget scrollView = SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        20.r,
-        0,
-        20.r,
-        footer == null ? navBarInset : 16.r,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [kHorizontalPadding.heightSpace, child],
-      ),
-    );
-    if (footer == null) return scrollView;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(child: scrollView),
-        if (!KeyboardVisibilityProvider.isKeyboardVisible(context))
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              20.r,
-              0,
-              20.r,
-              widget.isTab
-                  ? navBarInset
-                  : navBarInset + MediaQuery.paddingOf(context).bottom,
-            ),
-            child: footer,
+  Widget _switchPrompt({
+    required String question,
+    required String action,
+    required VoidCallback onTap,
+  }) {
+    return Center(
+      child: InkWellWrapper(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(8).r,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppText(
+                question,
+                fontSize: kFont13,
+                color: AppColors.loginHintColor,
+              ),
+              4.widthSpace,
+              AppText(
+                action,
+                fontSize: kFont13,
+                fontWeight: FontWeight.w700,
+                color: context.color.primary,
+              ),
+            ],
           ),
-      ],
+        ),
+      ),
     );
   }
 
@@ -275,173 +453,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  Widget _loginOptions(LoginController controller) {
-    return _methodOptions(
-      emailText: context.tr(AppStrings.loginWithEmail),
-      phoneText: context.tr(AppStrings.loginWithPhone),
-      providerTextKey: AppStrings.loginWithProvider,
-      onEmail: () => controller.onSelectMethod(LoginMethod.email),
-      onPhone: () => controller.onSelectMethod(LoginMethod.phone),
-      onSocial: controller.onSocialLogin,
-    );
-  }
-
-  Widget _registerOptions(RegisterController controller) {
-    return _methodOptions(
-      emailText: context.tr(AppStrings.registerWithEmail),
-      phoneText: context.tr(AppStrings.registerWithPhone),
-      providerTextKey: AppStrings.registerWithProvider,
-      onEmail: () => controller.onSelectType(ContactType.email),
-      onPhone: () => controller.onSelectType(ContactType.phone),
-      onSocial: controller.onSocialRegister,
-    );
-  }
-
-  Widget _methodOptions({
-    required String emailText,
-    required String phoneText,
-    required String providerTextKey,
-    required VoidCallback onEmail,
-    required VoidCallback onPhone,
-    required void Function(SocialProvider provider) onSocial,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _optionButton(
-          icon: Iconsax.sms,
-          text: emailText,
-          color: context.color.primary,
-          contentColor: AppColors.whiteColor,
-          onTap: onEmail,
-        ),
-        12.heightSpace,
-        _optionButton(
-          icon: Iconsax.call,
-          text: phoneText,
-          color: context.color.primary,
-          contentColor: AppColors.whiteColor,
-          onTap: onPhone,
-        ),
-        // Facebook and Apple only work on staging for now
-        if (ApiService.isTrial) ...[
-          12.heightSpace,
-          _optionButton(
-            svgIcon: AppAssets.icFacebook,
-            text: context.tr(
-              providerTextKey,
-              args: [SocialProvider.facebook.label],
-            ),
-            color: AppColors.facebookColor,
-            onTap: () => onSocial(SocialProvider.facebook),
-          ),
-        ],
-        12.heightSpace,
-        _optionButton(
-          svgIcon: AppAssets.icGoogle,
-          tintIcon: false,
-          text: context.tr(
-            providerTextKey,
-            args: [SocialProvider.google.label],
-          ),
-          contentColor: AppColors.blackColor,
-          color: AppColors.loginFieldColor,
-          onTap: () => onSocial(SocialProvider.google),
-        ),
-        if (ApiService.isTrial) ...[
-          12.heightSpace,
-          _optionButton(
-            svgIcon: AppAssets.icApple,
-            text: context.tr(
-              providerTextKey,
-              args: [SocialProvider.apple.label],
-            ),
-            color: AppColors.blackColor,
-            onTap: () => onSocial(SocialProvider.apple),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _optionButton({
-    IconData? icon,
-    String? svgIcon,
-    bool tintIcon = true,
-    required String text,
-    required Color color,
-    Color contentColor = AppColors.whiteColor,
-    required VoidCallback onTap,
-  }) {
-    return AppButtonWidget(
-      buttonColor: color,
-      radius: 15.r,
-      padding: EdgeInsets.zero,
-      onTap: onTap,
-      builder: SizedBox(
-        height: 52.r,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-              left: 20.r,
-              child: svgIcon != null
-                  ? AppImage(
-                      name: svgIcon,
-                      width: 20.r,
-                      height: 20.r,
-                      color: tintIcon ? contentColor : null,
-                    )
-                  : Icon(icon, size: 20.r, color: contentColor),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 48.r),
-              child: AppText(
-                text,
-                fontSize: kFont14,
-                fontWeight: FontWeight.w600,
-                color: contentColor,
-                textAlign: TextAlign.center,
-                isOverflow: true,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// ← 返回選擇方式, back to the list of login / sign-up options (the whole
-  /// line is tappable).
-  Widget _formHeader({required VoidCallback onBack}) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: InkWellWrapper(
-        onTap: onBack,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(4, 4, 8, 4).r,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Iconsax.arrow_left_copy,
-                size: 20.r,
-                color: AppColors.loginTextColor,
-              ),
-              8.widthSpace,
-              AppText(
-                context.tr(AppStrings.backToOptions),
-                fontSize: kFont13,
-                fontWeight: FontWeight.w500,
-                color: AppColors.loginTextColor,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _loginForm(LoginController controller) {
     final bool isEmail = controller.method == LoginMethod.email;
 
@@ -450,8 +461,13 @@ class _LoginPageState extends State<LoginPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _formHeader(onBack: controller.onBackToOptions),
-          10.heightSpace,
+          _methodSwitch(
+            isEmail: isEmail,
+            onChanged: (email) => controller.onSelectMethod(
+              email ? LoginMethod.email : LoginMethod.phone,
+            ),
+          ),
+          20.heightSpace,
 
           if (isEmail)
             _textField(
@@ -497,13 +513,14 @@ class _LoginPageState extends State<LoginPage>
           ),
           24.heightSpace,
 
-          AppButtonWidget(
-            text: context.tr(AppStrings.login),
-            radius: 10,
-            textSize: kFont14,
-            textColor: AppColors.whiteColor,
-            padding: const EdgeInsets.symmetric(vertical: 12).r,
-            onTap: controller.onLogin,
+          _submitButton(context.tr(AppStrings.login), controller.onLogin),
+          _socialSection(controller.onSocialLogin),
+          20.heightSpace,
+
+          _switchPrompt(
+            question: context.tr(AppStrings.noAccount),
+            action: context.tr(AppStrings.register),
+            onTap: () => _setRegister(true),
           ),
         ],
       ),
@@ -518,8 +535,13 @@ class _LoginPageState extends State<LoginPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _formHeader(onBack: controller.onBackToOptions),
-          10.heightSpace,
+          _methodSwitch(
+            isEmail: isEmail,
+            onChanged: (email) => controller.onSelectType(
+              email ? ContactType.email : ContactType.phone,
+            ),
+          ),
+          20.heightSpace,
 
           if (isEmail)
             _textField(
@@ -570,13 +592,16 @@ class _LoginPageState extends State<LoginPage>
           ),
           8.heightSpace,
 
-          AppButtonWidget(
-            text: context.tr(AppStrings.signUp),
-            radius: 12,
-            textSize: kFont15,
-            textColor: AppColors.whiteColor,
-            padding: const EdgeInsets.symmetric(vertical: 12).r,
-            onTap: controller.onRegister,
+          _submitButton(context.tr(AppStrings.signUp), controller.onRegister),
+          16.heightSpace,
+          _registerAgreement(),
+          _socialSection(controller.onSocialRegister),
+          20.heightSpace,
+
+          _switchPrompt(
+            question: context.tr(AppStrings.haveAccount),
+            action: context.tr(AppStrings.login),
+            onTap: () => _setRegister(false),
           ),
         ],
       ),

@@ -24,7 +24,7 @@ class ShippingAddressCard extends StatelessWidget {
     final Widget card = Container(
       padding: const EdgeInsets.all(14).r,
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(14).r,
         border: Border.all(color: AppColors.greyLight2Color),
         boxShadow: [

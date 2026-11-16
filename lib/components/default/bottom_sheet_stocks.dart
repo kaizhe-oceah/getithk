@@ -56,6 +56,15 @@ class _BottomSheetStocksState extends State<BottomSheetStocks> {
     setState(() => item.quantity = quantity);
   }
 
+  // a light fill (e.g. textColor in dark mode) takes a dark label
+  Color get _confirmTextColor {
+    final Color? fill = widget.confirmColor;
+    return fill == null ||
+            ThemeData.estimateBrightnessForColor(fill) == Brightness.dark
+        ? AppColors.whiteColor
+        : AppColors.backgroundColor;
+  }
+
   void _onConfirm() {
     AppNavigator.pop(context);
     widget.onConfirm(_items);
@@ -89,11 +98,7 @@ class _BottomSheetStocksState extends State<BottomSheetStocks> {
               ),
             ),
             16.heightSpace,
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.greyLight2Color,
-            ),
+            Divider(height: 1, thickness: 1, color: AppColors.greyLight2Color),
             10.heightSpace,
             _total(),
             10.heightSpace,
@@ -102,7 +107,7 @@ class _BottomSheetStocksState extends State<BottomSheetStocks> {
               radius: 10,
               fontWeight: FontWeight.w600,
               buttonColor: widget.confirmColor,
-              textColor: AppColors.whiteColor,
+              textColor: _confirmTextColor,
               padding: const EdgeInsets.symmetric(vertical: 10).r,
               onTap: _onConfirm,
             ),
@@ -157,7 +162,7 @@ class _BottomSheetStocksState extends State<BottomSheetStocks> {
             width: 52.r,
             padding: const EdgeInsets.all(3).r,
             decoration: BoxDecoration(
-              color: AppColors.whiteColor,
+              color: AppColors.surfaceColor,
               borderRadius: BorderRadius.circular(8).r,
             ),
             child: AspectRatio(

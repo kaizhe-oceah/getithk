@@ -22,14 +22,18 @@ class _BottomSheetTagFilterState extends State<BottomSheetTagFilter> {
   static List<ProductTagModel>? _cachedTags;
 
   List<ProductTagModel>? _tags = _cachedTags;
+
   /// The picked tags by id.
   late final Map<int, ProductTagModel> _selected = {
     for (final ProductTagModel tag in widget.selected) tag.id!: tag,
   };
   final TextEditingController _searchController = TextEditingController();
 
-  static const Color _chipTextColor = Color(0xFFA3AFBF);
-  static const Color _resetColor = Color(0xFFF0F2F5);
+  static Color get _chipTextColor =>
+      AppColors.isDark ? AppColors.darkModeHintColor : const Color(0xFFA3AFBF);
+  static Color get _resetColor => AppColors.isDark
+      ? AppColors.darkModeRaisedColor
+      : const Color(0xFFF0F2F5);
 
   @override
   void initState() {

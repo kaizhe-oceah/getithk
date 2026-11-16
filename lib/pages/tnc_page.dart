@@ -46,8 +46,8 @@ class _TncPageState extends State<TncPage> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold.basic(
-      backgroundColor: AppColors.whiteColor,
-      forceOverlayStyle: SystemUiOverlayStyle.dark,
+      backgroundColor: AppColors.backgroundColor,
+      forceOverlayStyle: AppColors.pageOverlayStyle,
       headerWidgets: [
         AppBarWidget(
           text: context.tr(
@@ -55,7 +55,7 @@ class _TncPageState extends State<TncPage> {
                 ? AppStrings.termsOfService
                 : AppStrings.privacyPolicy,
           ),
-          backgroundColor: AppColors.whiteColor,
+          backgroundColor: AppColors.backgroundColor,
           leading: const AppBarBackButton(),
         ),
       ],

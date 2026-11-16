@@ -1,6 +1,7 @@
 // Project imports:
 import '../components/backpack/backpack_stock_card.dart';
 import '../components/default/bottom_nav_bar_widget.dart';
+import '../components/default/filter_button.dart';
 import '../components/default/tab_bar_widget.dart';
 import '../components/points_pill.dart';
 import '../controllers/backpack_controller.dart';
@@ -15,9 +16,6 @@ class BackpackPage extends StatefulWidget {
 
   static const int _columns = 2;
   static double get _spacing => 10.r;
-
-  static EdgeInsets get _filterPadding =>
-      const EdgeInsets.symmetric(horizontal: 12, vertical: 6).r;
 
   @override
   State<BackpackPage> createState() => _BackpackPageState();
@@ -38,12 +36,12 @@ class _BackpackPageState extends State<BackpackPage>
     return ChangeNotifierProvider(
       create: (_) => BackpackController(vsync: this),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             centerTitle: false,
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             title: AppLogo(height: 28.r),
             actions: [
               Padding(
@@ -99,8 +97,6 @@ class _BackpackPageState extends State<BackpackPage>
   }
 
   Widget _tabBar(BuildContext context, BackpackController controller) {
-    final Color primary = context.color.primary;
-
     return Padding(
       padding: const EdgeInsets.only(right: 8).r,
       child: Row(
@@ -116,19 +112,8 @@ class _BackpackPageState extends State<BackpackPage>
             ),
           ),
           8.widthSpace,
-          AppButtonWidget(
-            text: controller.filterCategory == null
-                ? context.tr(AppStrings.filter)
-                : '${context.tr(AppStrings.filter)} (1)',
-            isMinWidth: true,
-            radius: 10,
-            textSize: kFont12,
-            fontWeight: FontWeight.w500,
-            buttonColor: AppColors.whiteColor,
-            borderColor: primary,
-            textColor: primary,
-            icon: Icon(Iconsax.setting_4_copy, size: 15.r, color: primary),
-            padding: BackpackPage._filterPadding,
+          FilterButton(
+            count: controller.filterCategory == null ? 0 : 1,
             onTap: () => BottomSheetHelper.categoryFilter(
               selected: controller.filterCategory,
               onConfirm: controller.onFilterCategory,
@@ -223,7 +208,7 @@ class _BackpackPageState extends State<BackpackPage>
         bottom: BottomNavigationWidget.contentBottomInset(context),
       ),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         boxShadow: [
           BoxShadow(
             color: AppColors.blackColor.wOpacity(0.08),

@@ -14,8 +14,7 @@ class RegisterController extends ChangeNotifier {
   final TextEditingController otpController = TextEditingController();
   final TextEditingController referralCodeController = TextEditingController();
 
-  /// The chosen sign-up method; `null` shows the list of options.
-  ContactType? type;
+  ContactType type = ContactType.email;
 
   /// The phone field's starting country; one instance, as the field resets
   /// whenever it gets a new one.
@@ -45,15 +44,10 @@ class RegisterController extends ChangeNotifier {
   bool otpSent = false;
 
   void onSelectType(ContactType value) {
-    type = value;
-    update();
-  }
-
-  void onBackToOptions() {
+    if (type == value) return;
     FocusManager.instance.primaryFocus?.unfocus();
-    type = null;
-    passwordController.clear();
-    confirmPasswordController.clear();
+    type = value;
+    // an OTP belongs to the email / phone it was sent to
     otpController.clear();
     update();
   }
@@ -98,9 +92,6 @@ class RegisterController extends ChangeNotifier {
 
   /// Sends the OTP to the email / phone typed in the form.
   Future<void> onSendOtp() async {
-    final ContactType? type = this.type;
-    if (type == null) return;
-
     final bool isEmail = type == ContactType.email;
     final TextEditingController target = isEmail
         ? emailController
@@ -134,9 +125,6 @@ class RegisterController extends ChangeNotifier {
   }
 
   Future<void> onRegister() async {
-    final ContactType? type = this.type;
-    if (type == null) return;
-
     // Check all TextFormField validators
     if (!(formKey.currentState?.validate() ?? false)) {
       return;

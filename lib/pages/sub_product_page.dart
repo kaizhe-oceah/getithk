@@ -18,8 +18,8 @@ class SubProductPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => SubProductController(product: product),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [_appBar(context)],
         child: Consumer<SubProductController>(
           builder: (context, controller, _) => _content(context, controller),
@@ -30,7 +30,7 @@ class SubProductPage extends StatelessWidget {
 
   Widget _appBar(BuildContext context) {
     return AppBarWidget(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.backgroundColor,
       leading: const AppBarBackButton(),
       // actions: [
       //   if (isLoggedIn)
@@ -150,7 +150,7 @@ class SubProductPage extends StatelessWidget {
               if (index > 0)
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 20.r),
-                  child: const Divider(
+                  child: Divider(
                     height: 1,
                     thickness: 1,
                     color: AppColors.greyLightColor,
@@ -188,7 +188,7 @@ class SubProductPage extends StatelessWidget {
         8.r + MediaQuery.paddingOf(context).bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         boxShadow: [
           BoxShadow(
             color: AppColors.blackColor.wOpacity(0.08),

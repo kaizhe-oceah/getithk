@@ -4,7 +4,7 @@ import "package:bot_toast/bot_toast.dart";
 // Project imports:
 import '../imports.dart';
 
-/// Toasts near the bottom: a white card, its icon and outline in the
+/// Toasts near the bottom: a card, its icon and outline in the
 /// status's colour (a tick for success, a cross for an error, a warning sign;
 /// none, or [showToast]'s icon, for a plain one), rising and fading in.
 class ToastHelper {
@@ -50,7 +50,13 @@ class ToastHelper {
           10.r,
         ),
         decoration: BoxDecoration(
-          color: AppColors.whiteColor,
+          // raised and outlined in dark, to stand off a dark dialog or sheet
+          color: AppColors.isDark
+              ? AppColors.darkModeRaisedColor
+              : AppColors.whiteColor,
+          border: AppColors.isDark
+              ? Border.all(color: AppColors.darkModeBorderColor)
+              : null,
           borderRadius: BorderRadius.circular(12).r,
           boxShadow: [
             BoxShadow(

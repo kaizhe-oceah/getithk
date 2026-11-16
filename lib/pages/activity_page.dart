@@ -27,12 +27,12 @@ class _ActivityPageState extends State<ActivityPage>
     return ChangeNotifierProvider(
       create: (_) => ActivityController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             centerTitle: false,
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             title: AppLogo(height: 28.r),
             actions: [
               if (isLoggedIn)
@@ -92,6 +92,8 @@ class _ActivityPageState extends State<ActivityPage>
           controller,
           banners[index],
           isLoading: placeholder,
+          // with /app/settings' app_setting on, the first one does nothing
+          tappable: !(index == 0 && ApiService.isTrial),
         ),
       ),
     );
@@ -102,18 +104,19 @@ class _ActivityPageState extends State<ActivityPage>
     ActivityController controller,
     PageBannerModel banner, {
     bool isLoading = false,
+    bool tappable = true,
   }) {
-    final VoidCallback? onTap = isLoading
+    final VoidCallback? onTap = isLoading || !tappable
         ? null
         : () => controller.onTapBanner(banner);
 
     return InkWellWrapper(
-      checkLogin: true,
+      checkLogin: tappable,
       onTap: onTap,
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: AppColors.whiteColor,
+          color: AppColors.surfaceColor,
           borderRadius: BorderRadius.circular(12).r,
           boxShadow: [
             BoxShadow(
@@ -137,17 +140,18 @@ class _ActivityPageState extends State<ActivityPage>
                       fit: BoxFit.contain,
                     ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10).r,
-              child: AppButtonWidget(
-                text: context.tr(AppStrings.clickForDetails),
-                checkLogin: true,
-                radius: 10,
-                fontWeight: FontWeight.w600,
-                textColor: AppColors.whiteColor,
-                onTap: onTap,
+            if (tappable)
+              Padding(
+                padding: const EdgeInsets.all(10).r,
+                child: AppButtonWidget(
+                  text: context.tr(AppStrings.clickForDetails),
+                  checkLogin: true,
+                  radius: 10,
+                  fontWeight: FontWeight.w600,
+                  textColor: AppColors.whiteColor,
+                  onTap: onTap,
+                ),
               ),
-            ),
           ],
         ),
       ),

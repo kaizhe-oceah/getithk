@@ -353,4 +353,15 @@ class AppStrings {
   static const String linked = "linked";
   static const String notLinked = "not_linked";
   static const String link = "link";
+
+  static const String loginTitle = "login_title";
+  static const String loginSubtitle = "login_subtitle";
+  static const String registerTitle = "register_title";
+  static const String registerSubtitle = "register_subtitle";
+  static const String orContinueWith = "or_continue_with";
+  static const String noAccount = "no_account";
+  static const String haveAccount = "have_account";
+  static const String darkMode = "dark_mode";
+  static const String darkModeOn = "dark_mode_on";
+  static const String darkModeOff = "dark_mode_off";
 }

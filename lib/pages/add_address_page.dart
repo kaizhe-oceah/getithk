@@ -23,8 +23,8 @@ class AddAddressPage extends StatelessWidget {
       create: (_) =>
           AddAddressController(address: address, isDefault: isDefault),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(
@@ -33,7 +33,7 @@ class AddAddressPage extends StatelessWidget {
                   : AppStrings.newShippingAddress,
             ),
             centerTitle: true,
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -437,7 +437,7 @@ class AddAddressPage extends StatelessWidget {
         10 + MediaQuery.paddingOf(context).bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         boxShadow: [
           BoxShadow(
             color: AppColors.blackColor.wOpacity(0.08),

@@ -15,8 +15,7 @@ class LoginController extends ChangeNotifier {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  /// The chosen login method; `null` shows the list of login options.
-  LoginMethod? method;
+  LoginMethod method = LoginMethod.email;
 
   /// The phone field's starting country; one instance, as the field resets
   /// whenever it gets a new one.
@@ -31,14 +30,9 @@ class LoginController extends ChangeNotifier {
   void onPhoneChanged(PhoneNumber value) => phoneNumber = value;
 
   void onSelectMethod(LoginMethod value) {
-    method = value;
-    update();
-  }
-
-  void onBackToOptions() {
+    if (method == value) return;
     FocusManager.instance.primaryFocus?.unfocus();
-    method = null;
-    passwordController.clear();
+    method = value;
     update();
   }
 

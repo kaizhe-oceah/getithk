@@ -16,13 +16,13 @@ class OrderDetailsPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => OrderDetailsController(shippingId: shippingId),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.orderDetails),
             centerTitle: true,
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -222,7 +222,7 @@ class OrderDetailsPage extends StatelessWidget {
   String _pts(double amount) => '${formatMainProductAmount(amount)} PT';
 
   BoxDecoration get _cardDecoration => BoxDecoration(
-    color: AppColors.whiteColor,
+    color: AppColors.surfaceColor,
     borderRadius: BorderRadius.circular(14).r,
     border: Border.all(color: AppColors.greyLight2Color),
     boxShadow: [

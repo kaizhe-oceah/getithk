@@ -11,12 +11,12 @@ class LinkAccountPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LinkAccountController(),
       child: AppScaffold.basic(
-        backgroundColor: AppColors.whiteColor,
-        forceOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.backgroundColor,
+        forceOverlayStyle: AppColors.pageOverlayStyle,
         headerWidgets: [
           AppBarWidget(
             text: context.tr(AppStrings.linkAccount),
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backgroundColor,
             leading: const AppBarBackButton(),
           ),
         ],
@@ -66,7 +66,7 @@ class LinkAccountPage extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: AppColors.surfaceColor,
         borderRadius: BorderRadius.circular(14).r,
         border: Border.all(color: AppColors.greyLight2Color),
       ),
@@ -147,7 +147,7 @@ class LinkAccountPage extends StatelessWidget {
     final Color? tint = switch (provider) {
       SocialProvider.google => null,
       SocialProvider.facebook => AppColors.facebookColor,
-      SocialProvider.apple => AppColors.blackColor,
+      SocialProvider.apple => AppColors.textColor,
     };
     final String icon = switch (provider) {
       SocialProvider.google => AppAssets.icGoogle,
@@ -159,7 +159,7 @@ class LinkAccountPage extends StatelessWidget {
       width: 40.r,
       height: 40.r,
       alignment: Alignment.center,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.greyBackgroundColor,
         shape: BoxShape.circle,
       ),

@@ -209,7 +209,9 @@ Future<void> launchLink({required String url}) async {
   try {
     await launchUrl(Uri.parse(url));
   } catch (e) {
-    ToastHelper.showToast(NavigationService.context.tr(AppStrings.couldNotOpenLink, args: [url]));
+    ToastHelper.showToast(
+      NavigationService.context.tr(AppStrings.couldNotOpenLink, args: [url]),
+    );
   }
 }
 
@@ -266,7 +268,6 @@ bool isSameDay(DateTime? a, DateTime? b) {
   return a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-
 String dateFormat({String? pattern = "dd MMM yyyy", String? date}) {
   if (date == null) {
     return "-";
@@ -297,21 +298,21 @@ Future<List<DateTime?>?> showCalendarDatePicker({
       firstDate: firstDate,
       lastMonthIcon: Icon(
         Iconsax.arrow_left_2_copy,
-        color: AppColors.blackColor,
+        color: AppColors.textColor,
         size: 16.r,
       ),
       nextMonthIcon: Icon(
         Iconsax.arrow_right_3_copy,
-        color: AppColors.blackColor,
+        color: AppColors.textColor,
         size: 16.r,
       ),
       calendarType: calendarType,
       okButtonTextStyle: NavigationService.context.text.bodyMedium!.copyWith(
-        color: AppColors.blackColor,
+        color: AppColors.textColor,
         fontWeight: FontWeight.w500,
       ),
       cancelButtonTextStyle: NavigationService.context.text.bodyMedium!
-          .copyWith(color: AppColors.blackColor, fontWeight: FontWeight.w500),
+          .copyWith(color: AppColors.textColor, fontWeight: FontWeight.w500),
       selectedDayTextStyle: NavigationService.context.text.bodyMedium!.copyWith(
         color: AppColors.whiteColor,
       ),
@@ -319,30 +320,30 @@ Future<List<DateTime?>?> showCalendarDatePicker({
         NavigationService.context,
       ).colorScheme.primary,
       dayTextStyle: NavigationService.context.text.bodyMedium!.copyWith(
-        color: AppColors.blackColor,
+        color: AppColors.textColor,
       ),
       yearTextStyle: NavigationService.context.text.bodyMedium!.copyWith(
-        color: AppColors.blackColor,
+        color: AppColors.textColor,
       ),
       todayTextStyle: NavigationService.context.text.bodyMedium!.copyWith(
-        color: AppColors.blackColor,
+        color: AppColors.textColor,
       ),
       controlsTextStyle: NavigationService.context.text.bodyMedium!.copyWith(
-        color: AppColors.blackColor,
+        color: AppColors.textColor,
       ),
       weekdayLabelTextStyle: NavigationService.context.text.bodyMedium!
-          .copyWith(color: AppColors.blackColor),
+          .copyWith(color: AppColors.textColor),
       disabledDayTextStyle: NavigationService.context.text.bodyMedium!.copyWith(
         color: AppColors.greyColor,
       ),
       selectedYearTextStyle: NavigationService.context.text.bodyMedium!
           .copyWith(color: AppColors.whiteColor),
       selectedRangeDayTextStyle: NavigationService.context.text.bodyMedium!
-          .copyWith(color: AppColors.blackColor),
+          .copyWith(color: AppColors.textColor),
     ),
     dialogSize: Size(0.85.sw, 0.3.sh),
     borderRadius: BorderRadius.circular(15).r,
-    dialogBackgroundColor: AppColors.whiteColor,
+    dialogBackgroundColor: AppColors.surfaceColor,
     builder: bottomWidget != null
         ? (context, child) {
             return Column(
@@ -476,7 +477,9 @@ Future<File?> takePhoto() async {
       return compressImageIfNeeded(File(photo.path));
     }
   } catch (e) {
-    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorTakingPhoto, args: ["$e"]));
+    ToastHelper.showToast(
+      NavigationService.context.tr(AppStrings.errorTakingPhoto, args: ["$e"]),
+    );
   }
   return null;
 }
@@ -491,7 +494,12 @@ Future<File?> takeVideo() async {
       return File(video.path);
     }
   } catch (e) {
-    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorRecordingVideo, args: ["$e"]));
+    ToastHelper.showToast(
+      NavigationService.context.tr(
+        AppStrings.errorRecordingVideo,
+        args: ["$e"],
+      ),
+    );
   }
   return null;
 }
@@ -505,7 +513,9 @@ Future<File?> uploadVideo() async {
       return File(video.path);
     }
   } catch (e) {
-    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorPickingVideo, args: ["$e"]));
+    ToastHelper.showToast(
+      NavigationService.context.tr(AppStrings.errorPickingVideo, args: ["$e"]),
+    );
   }
   return null;
 }
@@ -591,7 +601,9 @@ Future<File?> uploadPhoto() async {
       return compressImageIfNeeded(File(photo.path));
     }
   } catch (e) {
-    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorPickingPhoto, args: ["$e"]));
+    ToastHelper.showToast(
+      NavigationService.context.tr(AppStrings.errorPickingPhoto, args: ["$e"]),
+    );
   }
   return null;
 }
@@ -609,7 +621,9 @@ Future<List<File>> uploadPhotos({int? limit}) async {
     }
     return files;
   } catch (e) {
-    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorPickingPhotos, args: ["$e"]));
+    ToastHelper.showToast(
+      NavigationService.context.tr(AppStrings.errorPickingPhotos, args: ["$e"]),
+    );
   }
   return [];
 }
@@ -627,7 +641,9 @@ Future<File?> uploadFromFiles() async {
       return File(result.files.single.path!);
     }
   } catch (e) {
-    ToastHelper.showToast(NavigationService.context.tr(AppStrings.errorSelectingFile, args: ["$e"]));
+    ToastHelper.showToast(
+      NavigationService.context.tr(AppStrings.errorSelectingFile, args: ["$e"]),
+    );
   }
   return null;
 }

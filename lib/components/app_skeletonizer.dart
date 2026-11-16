@@ -8,13 +8,19 @@ class AppSkeletonizer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool dark = context.isDark;
+
     return Skeletonizer(
       enabled: enabled,
       enableSwitchAnimation: false,
-      effect: const ShimmerEffect(
-        baseColor: Color.fromARGB(255, 228, 228, 228),
-        highlightColor: Color(0xFFF5F5F5),
-        duration: Duration(milliseconds: 1500),
+      effect: ShimmerEffect(
+        baseColor: dark
+            ? AppColors.darkModeDividerColor
+            : const Color.fromARGB(255, 228, 228, 228),
+        highlightColor: dark
+            ? AppColors.darkModeBorderColor
+            : const Color(0xFFF5F5F5),
+        duration: const Duration(milliseconds: 1500),
       ),
       child: child,
     );

@@ -27,7 +27,7 @@ class ExchangePtsDialog extends StatelessWidget {
     final double points = context.watch<AppController>().points;
 
     return Dialog(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.surfaceColor,
       surfaceTintColor: AppColors.transparentColor,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40).r,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16).r),
@@ -89,7 +89,7 @@ class ExchangePtsDialog extends StatelessWidget {
                     text: context.tr(AppStrings.cancel),
                     radius: 10,
                     fontWeight: FontWeight.w600,
-                    buttonColor: AppColors.whiteColor,
+                    buttonColor: AppColors.surfaceColor,
                     borderColor: AppColors.greyLightColor,
                     textColor: AppColors.loginTextColor,
                     padding: const EdgeInsets.symmetric(vertical: 10).r,

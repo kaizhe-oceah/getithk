@@ -65,7 +65,7 @@ class AppScaffold extends StatefulWidget {
     Color? statusBarColor,
     Color? backgroundColor,
     String? backgroundAsset,
-    SystemUiOverlayStyle? forceOverlayStyle = SystemUiOverlayStyle.dark,
+    SystemUiOverlayStyle? forceOverlayStyle,
     bool? resizeToAvoidBottomInset,
     Widget? endDrawer,
     void Function(bool)? onEndDrawerChanged,
@@ -221,7 +221,8 @@ class _AppScaffoldState extends State<AppScaffold> {
         : Scaffold(
             key: widget.scaffoldKey,
             resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-            backgroundColor: widget.backgroundColor ?? context.color.surface,
+            backgroundColor:
+                widget.backgroundColor ?? AppColors.backgroundColor,
             endDrawer: widget.endDrawer,
             onEndDrawerChanged: widget.onEndDrawerChanged,
             body: Column(
@@ -236,7 +237,7 @@ class _AppScaffoldState extends State<AppScaffold> {
     return UnfocusWrapper(
       child: Container(
         decoration: BoxDecoration(
-          color: widget.backgroundColor ?? context.color.surface,
+          color: widget.backgroundColor ?? AppColors.backgroundColor,
         ),
         child: Stack(
           children: [
@@ -298,14 +299,14 @@ class _AppScaffoldState extends State<AppScaffold> {
           final bool isScrolled = opacity > 0.5;
 
           final SystemUiOverlayStyle overlayStyle = isScrolled
-              ? SystemUiOverlayStyle.dark
+              ? AppColors.pageOverlayStyle
               : (widget.forceOverlayStyle ?? SystemUiOverlayStyle.light);
 
           return AnnotatedRegion<SystemUiOverlayStyle>(
             value: overlayStyle,
             child: Container(
               height: statusBarHeight,
-              color: Colors.white.wOpacity(opacity),
+              color: AppColors.backgroundColor.wOpacity(opacity),
             ),
           );
         },
@@ -314,7 +315,7 @@ class _AppScaffoldState extends State<AppScaffold> {
 
     // 3️⃣ Default fallback
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: widget.forceOverlayStyle ?? SystemUiOverlayStyle.dark,
+      value: widget.forceOverlayStyle ?? AppColors.pageOverlayStyle,
       child: Container(height: statusBarHeight, color: Colors.transparent),
     );
   }
