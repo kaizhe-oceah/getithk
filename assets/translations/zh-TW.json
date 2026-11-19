@@ -57,6 +57,7 @@
   "loading": "載入中...",
   "per_draw": "/ 抽",
   "remaining_stock": "剩餘",
+  "quantity_unknown": "（不詳）",
   "topup_per_draw": "每儲值 {}pt 可抽 1 次",
   "topup_more": "再儲值",
   "draws_available_now": "現正可抽：",

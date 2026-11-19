@@ -69,6 +69,7 @@ class AppStrings {
   static const String loading = 'loading';
   static const String perDraw = 'per_draw';
   static const String remainingStock = 'remaining_stock';
+  static const String quantityUnknown = 'quantity_unknown';
   static const String topupPerDraw = 'topup_per_draw';
   static const String topupMore = 'topup_more';
   static const String drawsAvailableNow = 'draws_available_now';

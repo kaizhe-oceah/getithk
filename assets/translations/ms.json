@@ -57,6 +57,7 @@
   "loading": "Memuatkan...",
   "per_draw": "/ cabutan",
   "remaining_stock": "Baki",
+  "quantity_unknown": "(Tidak diketahui)",
   "topup_per_draw": "Tambah nilai {}pt untuk 1 cabutan",
   "topup_more": "Tambah nilai",
   "draws_available_now": "Cabutan kini: ",

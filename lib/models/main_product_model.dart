@@ -24,7 +24,8 @@ class MainProductModel {
   bool isAvailable = false;
   bool isSoldOut = false;
 
-  bool isShowQuantity = true;
+  // quantity_display: 1 shown, 2 hidden, 3 unknown (不詳)
+  int quantityDisplay = 1;
   double? topupPerDraw;
   double? currentTopupAmount;
   double? topupToNextUnlock;
@@ -57,7 +58,7 @@ class MainProductModel {
     isNewUsersOnly = json['is_new_users_only'] ?? false;
     isAvailable = json['is_available'] ?? false;
     isSoldOut = json['is_sold_out'] ?? false;
-    isShowQuantity = json['is_show_quantity'] ?? true;
+    quantityDisplay = parseInt(json['quantity_display'], 1);
     topupPerDraw = json['topup_per_draw'] != null
         ? double.tryParse(json['topup_per_draw'].toString())
         : null;
@@ -108,7 +109,7 @@ class MainProductModel {
     if (has('is_trial_draw')) isTrialDraw = live.isTrialDraw;
     if (has('is_new_users_only')) isNewUsersOnly = live.isNewUsersOnly;
     if (has('is_sold_out')) isSoldOut = live.isSoldOut;
-    if (has('is_show_quantity')) isShowQuantity = live.isShowQuantity;
+    if (has('quantity_display')) quantityDisplay = live.quantityDisplay;
     if (has('topup_per_draw')) topupPerDraw = live.topupPerDraw;
     if (has('max_unlock_times')) maxUnlockTimes = live.maxUnlockTimes;
     if (has('tags')) tags = live.tags;
@@ -162,6 +163,8 @@ class MainProductModel {
     }
   }
 
+  bool get isQuantityHidden => quantityDisplay == 2;
+  bool get isQuantityUnknown => quantityDisplay == 3;
   bool get hasTopupUnlock => topupPerDraw != null;
   bool get canDraw => isAvailable && !isSoldOut;
 }
